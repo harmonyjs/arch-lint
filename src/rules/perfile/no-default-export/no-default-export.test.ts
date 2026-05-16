@@ -1,18 +1,21 @@
 /**
  * @fileoverview Tests for the no-default-export rule of the perfile pack.
  */
-import { describe, it, expect } from 'vitest';
-import { noDefaultExport } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { perfileTestGraph } from '../support/perfile-test-graph.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { perfileTestGraph } from '../support/perfile-test-graph.js';
+import { noDefaultExport } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
 
 function run(files: Record<string, string>, exemptPaths: readonly string[] = []) {
   const graph = perfileTestGraph(files);
-  const ctx = makeContext('no-default-export', { project: graph.project, options: { exemptPaths } });
+  const ctx = makeContext('no-default-export', {
+    project: graph.project,
+    options: { exemptPaths },
+  });
   return noDefaultExport.check(graph, CONFIG, ctx);
 }
 
@@ -45,7 +48,10 @@ describe('no-default-export', () => {
 
   it('skips a node whose source file is absent from the project', () => {
     const graph = makeGraph({ nodes: { 'src/ghost.ts': { kind: 'file' } }, files: {} });
-    const ctx = makeContext('no-default-export', { project: graph.project, options: { exemptPaths: [] } });
+    const ctx = makeContext('no-default-export', {
+      project: graph.project,
+      options: { exemptPaths: [] },
+    });
     expect(noDefaultExport.check(graph, CONFIG, ctx)).toEqual([]);
   });
 });

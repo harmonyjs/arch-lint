@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
-import { discoverConfig } from './discover.js';
+import { fileURLToPath } from 'node:url';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ConfigError } from '../errors.js';
+import { discoverConfig } from './discover.js';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '__tests__', 'fixtures');
 

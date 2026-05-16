@@ -2,7 +2,7 @@
  * @fileoverview analyzePlacement — sole owner of the §7.3 placement decision tree (D3).
  */
 import type { ConsumerGraph, ResolvedConfig } from '../../types.js';
-import { componentParentOf, lca, layerOf } from './tree.js';
+import { componentParentOf, layerOf, lca } from './tree.js';
 
 export interface PlacementVerdict {
   readonly entity: string;
@@ -84,10 +84,7 @@ function classifyVerdict(
 ): PlacementVerdict['ruleId'] {
   const conv = config.conventions;
   if (isUnderSegment(entity, conv.privateSegment)) return 'slots-privacy';
-  if (
-    isUnderSegment(entity, conv.sharedSegment)
-    && consumers.length < promotionThreshold(config)
-  ) {
+  if (isUnderSegment(entity, conv.sharedSegment) && consumers.length < promotionThreshold(config)) {
     return 'empty-items-folder';
   }
   if (hasSiblingConsumer(entity, consumers, graph, conv)) return 'siblings-forbidden';

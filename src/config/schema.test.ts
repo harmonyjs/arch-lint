@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { configSchema, ruleSettingSchema, validateConfig } from './schema.js';
+import { describe, expect, it } from 'vitest';
 import { ConfigError } from '../errors.js';
+import { configSchema, ruleSettingSchema, validateConfig } from './schema.js';
 
 describe('ruleSettingSchema', () => {
   it('accepts a bare severity string', () => {

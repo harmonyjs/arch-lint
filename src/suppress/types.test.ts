@@ -1,12 +1,12 @@
 /**
  * @fileoverview Type-level smoke test for M3-internal suppress types.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type {
+  EntitySuppressData,
   MalformedKind,
   MalformedSuppress,
   RawSuppressComment,
-  EntitySuppressData,
 } from './types.js';
 
 describe('suppress/types', () => {

@@ -22,9 +22,7 @@ export function diffBaseline(
   const records = baseline?.records ?? [];
   const baselineKeys = new Set(records.map(recordKey));
   const diagnosticKeys = new Set(diagnostics.map(diagnosticKey));
-  const added = diagnostics
-    .filter((d) => !baselineKeys.has(diagnosticKey(d)))
-    .map(toRecord);
+  const added = diagnostics.filter((d) => !baselineKeys.has(diagnosticKey(d))).map(toRecord);
   const resolved = records.filter((r) => !diagnosticKeys.has(recordKey(r)));
   return { added: sortRecords(dedupeRecords(added)), resolved: sortRecords(resolved) };
 }

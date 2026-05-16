@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the position-aware package.json JSON-AST parser (D5).
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { parsePackageJson } from './package-json.js';
 
 const SAMPLE = [

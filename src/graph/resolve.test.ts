@@ -1,12 +1,13 @@
 /**
  * @fileoverview Tests for the syntactic export resolver: depth limits, cycles, caching.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createResolver, type Resolver } from './resolve.js';
+import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
 
 let dir: string;
 
@@ -30,7 +31,10 @@ function write(rel: string, content: string): void {
 function writeExternal(name: string, decl: string): void {
   const pkgDir = join(dir, 'node_modules', name);
   mkdirSync(pkgDir, { recursive: true });
-  writeFileSync(join(pkgDir, 'package.json'), `{"name":"${name}","version":"1.0.0","types":"index.d.ts"}`);
+  writeFileSync(
+    join(pkgDir, 'package.json'),
+    `{"name":"${name}","version":"1.0.0","types":"index.d.ts"}`,
+  );
   writeFileSync(join(pkgDir, 'index.d.ts'), decl);
 }
 
@@ -501,7 +505,12 @@ describe('compute — declaration-kind and re-export edge cases', () => {
     write('src/internal.ts', 'export const Local = 1;');
     write('src/barrel.ts', "export * from './internal.js';");
     const set = await loadSourceFiles({
-      project: { tsconfig: './tsconfig.json', sourceRoot: 'src', cwd: dir, includeOutOfRoot: false },
+      project: {
+        tsconfig: './tsconfig.json',
+        sourceRoot: 'src',
+        cwd: dir,
+        includeOutOfRoot: false,
+      },
       resolve: { extensions: ['.ts', '.tsx'] },
       ignore: ['src/internal.ts'],
     } as never);

@@ -4,7 +4,7 @@
  */
 import { Node } from 'ts-morph';
 import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
-import { scanFunctions, functionLocation } from '../support/scan-functions.js';
+import { functionLocation, scanFunctions } from '../support/scan-functions.js';
 
 /** Options of max-optional-params. */
 interface Options {

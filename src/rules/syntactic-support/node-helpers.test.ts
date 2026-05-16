@@ -1,13 +1,13 @@
 /**
  * @fileoverview Tests for graph-node classification (component-folder, barrel, role folder).
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { ConventionsConfig } from '../../types.js';
 import {
-  isBarrelFile,
   componentFolderOf,
-  roleFolderSegment,
+  isBarrelFile,
   isComponentFolderEntry,
+  roleFolderSegment,
 } from './node-helpers.js';
 
 const conventions: ConventionsConfig = {

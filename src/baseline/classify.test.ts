@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for classifyDiagnostics — assigns new / inBaseline status (D2).
  */
-import { describe, it, expect } from 'vitest';
-import { classifyDiagnostics } from './classify.js';
+import { describe, expect, it } from 'vitest';
 import type { BaselineFile, Diagnostic, Location } from '../types.js';
+import { classifyDiagnostics } from './classify.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 
@@ -55,7 +55,9 @@ describe('classifyDiagnostics', () => {
   it('matches on (ruleId, entity, fingerprint) when fingerprint is present', () => {
     const out = classifyDiagnostics(
       [diag({ fingerprint: 'src/a.ts#src/b.ts' })],
-      baseline([{ ruleId: 'lca-placement', entity: 'src/Widget', fingerprint: 'src/a.ts#src/b.ts' }]),
+      baseline([
+        { ruleId: 'lca-placement', entity: 'src/Widget', fingerprint: 'src/a.ts#src/b.ts' },
+      ]),
     );
     expect(out[0]?.status).toBe('inBaseline');
   });

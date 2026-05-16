@@ -1,12 +1,12 @@
 /**
  * @fileoverview Tests for the max-lines rule of the perfile pack.
  */
-import { describe, it, expect } from 'vitest';
-import { maxLines } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { perfileTestGraph } from '../support/perfile-test-graph.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { perfileTestGraph } from '../support/perfile-test-graph.js';
+import { maxLines } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
 
@@ -22,7 +22,7 @@ describe('max-lines', () => {
   });
 
   it('flags a file with more code lines than max', () => {
-    const body = Array.from({ length: 6 }, (_, i) => `const v${i} = ${i};`).join('\n') + '\n';
+    const body = `${Array.from({ length: 6 }, (_, i) => `const v${i} = ${i};`).join('\n')}\n`;
     const ds = run({ 'src/a.ts': body }, { max: 5, skipComments: true, skipBlankLines: true });
     expect(ds).toHaveLength(1);
     expect(ds[0]!.fingerprint).toBe('src/a.ts');
@@ -31,23 +31,23 @@ describe('max-lines', () => {
 
   it('skips blank lines when skipBlankLines is true', () => {
     const body = 'const a = 1;\n\n\n\nconst b = 2;\n';
-    expect(
-      run({ 'src/a.ts': body }, { max: 3, skipBlankLines: true, skipComments: true }),
-    ).toEqual([]);
+    expect(run({ 'src/a.ts': body }, { max: 3, skipBlankLines: true, skipComments: true })).toEqual(
+      [],
+    );
   });
 
   it('skips comment lines when skipComments is true', () => {
     const body = 'const a = 1;\n// c1\n// c2\n// c3\nconst b = 2;\n';
-    expect(
-      run({ 'src/a.ts': body }, { max: 3, skipComments: true, skipBlankLines: true }),
-    ).toEqual([]);
+    expect(run({ 'src/a.ts': body }, { max: 3, skipComments: true, skipBlankLines: true })).toEqual(
+      [],
+    );
   });
 
   it('skips block comment lines when skipComments is true', () => {
     const body = 'const a = 1;\n/* c1\n c2\n c3 */\nconst b = 2;\n';
-    expect(
-      run({ 'src/a.ts': body }, { max: 3, skipComments: true, skipBlankLines: true }),
-    ).toEqual([]);
+    expect(run({ 'src/a.ts': body }, { max: 3, skipComments: true, skipBlankLines: true })).toEqual(
+      [],
+    );
   });
 
   it('counts blank lines when skipBlankLines is false', () => {

@@ -3,10 +3,9 @@
  * prune, diff operations and file io for the runner (M7).
  */
 export { classifyDiagnostics } from './classify.js';
-export { snapshotBaseline } from './snapshot.js';
-export { pruneBaseline } from './prune.js';
-export { diffBaseline } from './diff.js';
 export type { BaselineDiff } from './diff.js';
+export { diffBaseline } from './diff.js';
+export { pruneBaseline } from './prune.js';
 export {
   baselineFileSchema,
   loadBaseline,
@@ -15,3 +14,4 @@ export {
   sortRecords,
   writeBaseline,
 } from './serialize.js';
+export { snapshotBaseline } from './snapshot.js';

@@ -1,8 +1,9 @@
 /**
  * @fileoverview layer-boundary rule — enforces canImport barriers between src/ layers.
  */
-import type { Diagnostic, Edge, LayersConfig, ResolvedConfig, Rule } from '../../../types.js';
+
 import { ConfigError } from '../../../errors.js';
+import type { Diagnostic, Edge, LayersConfig, ResolvedConfig, Rule } from '../../../types.js';
 import { layerOf } from '../../placement/tree.js';
 
 /** Validate that every layer's sideEffectOnly is a subset of its canImport (else exit 2). */
@@ -11,8 +12,8 @@ function assertSideEffectSubset(layers: LayersConfig): void {
     for (const target of conf.sideEffectOnly ?? []) {
       if (!conf.canImport.includes(target)) {
         throw new ConfigError(
-          `layer-boundary config error: sideEffectOnly entry "${target}" of layer `
-          + `"${layer}" is not present in its canImport`,
+          `layer-boundary config error: sideEffectOnly entry "${target}" of layer ` +
+            `"${layer}" is not present in its canImport`,
         );
       }
     }
@@ -41,7 +42,11 @@ function classifyEdge(edge: Edge, layers: LayersConfig): Crossing | null {
 }
 
 /** Build the diagnostic for a forbidden crossing. */
-function crossingDiagnostic(edge: Edge, crossing: Crossing, severity: Diagnostic['severity']): Diagnostic {
+function crossingDiagnostic(
+  edge: Edge,
+  crossing: Crossing,
+  severity: Diagnostic['severity'],
+): Diagnostic {
   const { consumerLayer, producerLayer, boundFromSideEffect } = crossing;
   return {
     ruleId: 'layer-boundary',

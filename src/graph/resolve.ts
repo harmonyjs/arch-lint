@@ -3,10 +3,10 @@
  * native declaration without invoking the TypeScript type-checker.
  */
 import type { Resolution } from '../types.js';
-import type { SourceFileSet } from './source-files.js';
 import type { ModuleResolutionContext } from './module-resolution.js';
 import { findNativeDeclaration } from './resolve-declarations.js';
-import { resolveReExport, type ReExportContext } from './resolve-reexports.js';
+import { type ReExportContext, resolveReExport } from './resolve-reexports.js';
+import type { SourceFileSet } from './source-files.js';
 
 export interface ResolverContext {
   readonly sources: SourceFileSet;
@@ -33,8 +33,7 @@ const cacheKeyOf = (file: string, name: string): string => `${file}#${name}`;
 /** True if a resolution depends on the traversal path and must not be cached. */
 function isPathDependent(result: Resolution): boolean {
   return (
-    result.kind === 'cycle' ||
-    (result.kind === 'unresolved' && result.reason === 'depth-exceeded')
+    result.kind === 'cycle' || (result.kind === 'unresolved' && result.reason === 'depth-exceeded')
   );
 }
 

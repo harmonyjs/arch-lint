@@ -1,8 +1,8 @@
 /**
  * @fileoverview Tests for path-segment splitting and the enforceForSegments predicate (D7).
  */
-import { describe, it, expect } from 'vitest';
-import { segmentsOf, isUnderSegment, enforceForSegmentsMatches } from './segments.js';
+import { describe, expect, it } from 'vitest';
+import { enforceForSegmentsMatches, isUnderSegment, segmentsOf } from './segments.js';
 
 describe('segmentsOf', () => {
   it('splits a path into segments', () => {

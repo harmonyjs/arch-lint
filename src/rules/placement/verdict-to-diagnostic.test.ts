@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for verdictToDiagnostic — PlacementVerdict → Diagnostic conversion.
  */
-import { describe, it, expect } from 'vitest';
-import { verdictToDiagnostic } from './verdict-to-diagnostic.js';
+import { describe, expect, it } from 'vitest';
 import type { PlacementVerdict } from './analyze.js';
+import { verdictToDiagnostic } from './verdict-to-diagnostic.js';
 
 const verdict: PlacementVerdict = {
   entity: 'src/App/X',

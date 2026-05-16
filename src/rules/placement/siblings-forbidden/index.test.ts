@@ -1,17 +1,21 @@
 /**
  * @fileoverview Tests for the siblings-forbidden rule.
  */
-import { describe, it, expect } from 'vitest';
-import { siblingsForbiddenRule } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { siblingsForbiddenRule } from './index.js';
 
 function cfg(): ResolvedConfig {
   return {
     conventions: {
-      privateSegment: 'slots', sharedSegment: 'items', libSegment: 'lib',
-      hooksSegment: 'hooks', explicitClusterSegment: 'ui', modelSegment: 'model',
+      privateSegment: 'slots',
+      sharedSegment: 'items',
+      libSegment: 'lib',
+      hooksSegment: 'hooks',
+      explicitClusterSegment: 'ui',
+      modelSegment: 'model',
       indexFiles: ['index.ts', 'index.tsx'],
     },
     layers: {},
@@ -36,7 +40,11 @@ describe('siblingsForbiddenRule', () => {
       },
       entityConsumers: { 'src/App/Header': ['src/App/Footer'] },
     });
-    const out = siblingsForbiddenRule.check(g, cfg(), makeContext('siblings-forbidden', { severity: 'error' }));
+    const out = siblingsForbiddenRule.check(
+      g,
+      cfg(),
+      makeContext('siblings-forbidden', { severity: 'error' }),
+    );
     expect(out).toHaveLength(1);
     expect(out[0]!.ruleId).toBe('siblings-forbidden');
   });
@@ -52,6 +60,12 @@ describe('siblingsForbiddenRule', () => {
       },
       entityConsumers: { 'src/App/Stray': ['src/App/Deep/A', 'src/App/Deep/B'] },
     });
-    expect(siblingsForbiddenRule.check(g, cfg(), makeContext('siblings-forbidden', { severity: 'error' }))).toEqual([]);
+    expect(
+      siblingsForbiddenRule.check(
+        g,
+        cfg(),
+        makeContext('siblings-forbidden', { severity: 'error' }),
+      ),
+    ).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the perfile pack rule aggregate.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { perfileRules } from './index.js';
 
 describe('perfileRules', () => {

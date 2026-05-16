@@ -2,10 +2,17 @@
  * @fileoverview barrel-is-public-face rule — an external file must import a component's
  * entity through its barrel, not a folder internal directly (decision D7). Works on edges.
  */
-import type { ConsumerGraph, Diagnostic, Edge, ResolvedConfig, Rule, RuleContext } from '../../../types.js';
-import { isBarrelFile, componentFolderOf } from '../../syntactic-support/node-helpers.js';
-import { segmentsOf, enforceForSegmentsMatches } from '../../syntactic-support/segments.js';
+import type {
+  ConsumerGraph,
+  Diagnostic,
+  Edge,
+  ResolvedConfig,
+  Rule,
+  RuleContext,
+} from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
+import { componentFolderOf, isBarrelFile } from '../../syntactic-support/node-helpers.js';
+import { enforceForSegmentsMatches, segmentsOf } from '../../syntactic-support/segments.js';
 
 /** Options of barrel-is-public-face (D7). */
 export interface BarrelIsPublicFaceOptions {
@@ -62,7 +69,9 @@ function evaluateEdge(
 ): Verdict | null {
   const producerFolder = componentFolderOf(edge.producer, folders);
   if (producerFolder === null) return null;
-  if (!enforceForSegmentsMatches(options.enforceForSegments, edge.producer, knownSegments(config))) {
+  if (
+    !enforceForSegmentsMatches(options.enforceForSegments, edge.producer, knownSegments(config))
+  ) {
     return null;
   }
   const producerIsBarrel =

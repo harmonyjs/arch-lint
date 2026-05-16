@@ -3,9 +3,9 @@
  * in barrels. Reads import/export AST from the RuleContext project (decision D9).
  */
 import type { Diagnostic, Rule } from '../../../types.js';
-import { sourceFileFor, fileNodeIds } from '../../syntactic-support/source-files.js';
-import { importsOf, type ImportInfo } from '../../syntactic-support/import-info.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
+import { type ImportInfo, importsOf } from '../../syntactic-support/import-info.js';
+import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
 
 /** Builds the diagnostic for one forbidden wildcard re-export. */
 function wildcardDiagnostic(

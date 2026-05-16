@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the M5 syntactic-support helper barrel.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import * as support from './index.js';
 
 describe('syntactic-support barrel', () => {

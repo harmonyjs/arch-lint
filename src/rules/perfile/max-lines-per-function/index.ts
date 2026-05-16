@@ -3,7 +3,7 @@
  * Reads file AST from the RuleContext project (decision D9).
  */
 import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
-import { scanFunctions, functionLocation } from '../support/scan-functions.js';
+import { functionLocation, scanFunctions } from '../support/scan-functions.js';
 
 /** Options of max-lines-per-function. */
 interface Options {
@@ -33,7 +33,9 @@ export const maxLinesPerFunction: Rule = {
         expected: `≤ ${opts.max} lines`,
         actual: `${lines} lines`,
         reason: 'a long function reads poorly — time to decompose it',
-        suggestions: [{ action: 'split', rationale: 'extract part of the body into another function' }],
+        suggestions: [
+          { action: 'split', rationale: 'extract part of the body into another function' },
+        ],
         location: functionLocation(fileId, unit),
       });
     });

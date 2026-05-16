@@ -5,57 +5,57 @@
  * re-exported. buildGraph (M2) and check (M7) are added by their milestones.
  */
 
+export { resolveConfig } from './config/resolve-defaults.js';
 // ── Functions ────────────────────────────────────────────────────────────────
 export { defineConfig } from './define-config.js';
-export { resolveConfig } from './config/resolve-defaults.js';
 
 // ── Types (Resolution excluded — internal, §5.2) ─────────────────────────────
 export type {
-  // Primitives
-  Pack,
-  Severity,
   ActiveSeverity,
-  RuleEngine,
-  // Config
-  ProjectConfig,
+  BaselineConfig,
+  BaselineFile,
+  // Baseline
+  BaselineRecord,
+  // Runner
+  CheckResult,
+  CiRunMode,
+  Config,
+  ConsumerGraph,
+  // Diagnostics
+  ConsumerInfo,
   ConventionsConfig,
+  Diagnostic,
+  Edge,
   ExplicitPlacementRule,
-  ResolveConfig,
   LayerConfig,
   LayersConfig,
-  BaselineConfig,
-  SuppressConfig,
-  ReportCliConfig,
-  ReportConfig,
-  WatchRunMode,
-  PreCommitRunMode,
-  CiRunMode,
-  RunModeConfig,
-  RuleSetting,
-  RuleSettingObject,
-  ResolvedRuleSetting,
-  Config,
-  ResolvedConfig,
   // Graph
   Location,
   Node,
-  Edge,
-  UnresolvedReason,
-  UnresolvedImport,
-  ConsumerGraph,
+  // Primitives
+  Pack,
+  // Suppress
+  ParsedSuppress,
+  PreCommitRunMode,
+  // Config
+  ProjectConfig,
+  ReportCliConfig,
+  ReportConfig,
+  ResolveConfig,
+  ResolvedConfig,
+  ResolvedRuleSetting,
   // Rules
   Rule,
   RuleContext,
-  // Diagnostics
-  ConsumerInfo,
+  RuleEngine,
+  RuleSetting,
+  RuleSettingObject,
+  RunModeConfig,
+  Severity,
   Suggestion,
-  Diagnostic,
-  // Suppress
-  ParsedSuppress,
+  SuppressConfig,
   SuppressIndex,
-  // Baseline
-  BaselineRecord,
-  BaselineFile,
-  // Runner
-  CheckResult,
+  UnresolvedImport,
+  UnresolvedReason,
+  WatchRunMode,
 } from './types.js';

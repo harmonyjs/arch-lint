@@ -2,7 +2,7 @@
  * @fileoverview Effective tsconfig resolver (with extends resolution) and positions of
  * compilerOptions keys (decision D5 / A3).
  */
-import { Project, Node, SyntaxKind } from 'ts-morph';
+import { Node, Project, SyntaxKind } from 'ts-morph';
 import type { Location } from '../../../types.js';
 
 /** An effective tsconfig: option values plus key positions. */
@@ -34,7 +34,10 @@ function toLocation(node: Node, tsconfigPath: string): Location {
 
 /** Resolves the effective compilerOptions and builds access to key positions. */
 export function effectiveCompilerOptions(tsconfigPath: string): EffectiveTsconfig {
-  const project = new Project({ tsConfigFilePath: tsconfigPath, skipAddingFilesFromTsConfig: true });
+  const project = new Project({
+    tsConfigFilePath: tsconfigPath,
+    skipAddingFilesFromTsConfig: true,
+  });
   const options = project.getCompilerOptions() as Record<string, unknown>;
 
   const fileProject = new Project({ useInMemoryFileSystem: false });

@@ -1,8 +1,9 @@
 /**
  * @fileoverview runtimeSelfCheck — detects duplicate logical violation IDs (§10.2).
  */
-import type { Diagnostic } from '../types.js';
+
 import { EngineError } from '../errors.js';
+import type { Diagnostic } from '../types.js';
 
 /** Logical violation ID — (ruleId, entity, fingerprint) joined by a space separator. */
 function logicalId(diagnostic: Diagnostic): string {
@@ -16,8 +17,8 @@ export function runtimeSelfCheck(diagnostics: readonly Diagnostic[]): void {
     const id = logicalId(diagnostic);
     if (seen.has(id)) {
       throw new EngineError(
-        `runtime self-check failed: duplicate violation id for rule "${diagnostic.ruleId}" `
-        + `on entity "${diagnostic.entity}" — a rule emitted a missing or non-unique fingerprint`,
+        `runtime self-check failed: duplicate violation id for rule "${diagnostic.ruleId}" ` +
+          `on entity "${diagnostic.entity}" — a rule emitted a missing or non-unique fingerprint`,
       );
     }
     seen.add(id);

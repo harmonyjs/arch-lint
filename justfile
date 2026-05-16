@@ -23,3 +23,11 @@ build:
 # Type-check without emit
 typecheck:
     npx tsc --noEmit
+
+# Format all in-scope files with Biome
+fmt:
+    npx biome format --write .
+
+# Lint + format check with Biome (no writes)
+check:
+    npx biome check .

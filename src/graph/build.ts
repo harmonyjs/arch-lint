@@ -3,12 +3,12 @@
  * config by discovering sources, resolving imports and projecting onto entities.
  */
 import type { ConsumerGraph, ResolvedConfig } from '../types.js';
-import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
-import { createResolver } from './resolve.js';
-import { buildNodes } from './nodes.js';
-import { buildEdges } from './edges.js';
 import { freezeGraph } from './consumer-graph.js';
+import { buildEdges } from './edges.js';
 import type { EntityContext } from './entities.js';
+import { buildNodes } from './nodes.js';
+import { createResolver } from './resolve.js';
+import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
 
 /**
  * Builds the full immutable ConsumerGraph for `config` (§6.1 cold build): discover

@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for the layer-boundary rule.
  */
-import { describe, it, expect } from 'vitest';
-import { layerBoundaryRule } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { Edge, ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { layerBoundaryRule } from './index.js';
 
 function cfg(layers: ResolvedConfig['layers']): ResolvedConfig {
   return { layers } as ResolvedConfig;
@@ -23,7 +23,10 @@ describe('layerBoundaryRule', () => {
 
   it('emits nothing when an edge respects canImport', () => {
     const edge: Edge = {
-      consumer: 'src/App/App.tsx', producer: 'src/lib/util.ts', symbol: 'util', typeOnly: false,
+      consumer: 'src/App/App.tsx',
+      producer: 'src/lib/util.ts',
+      symbol: 'util',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({ 'src/App': { canImport: ['src/lib'] }, 'src/lib': { canImport: [] } });
@@ -32,7 +35,10 @@ describe('layerBoundaryRule', () => {
 
   it('emits nothing when consumer or producer is outside every layer', () => {
     const edge: Edge = {
-      consumer: 'src/free/a.ts', producer: 'src/free/b.ts', symbol: 'x', typeOnly: false,
+      consumer: 'src/free/a.ts',
+      producer: 'src/free/b.ts',
+      symbol: 'x',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
     expect(layerBoundaryRule.check(g, cfg({ 'src/App': { canImport: [] } }), ctx)).toEqual([]);
@@ -40,7 +46,10 @@ describe('layerBoundaryRule', () => {
 
   it('emits nothing for an intra-layer edge', () => {
     const edge: Edge = {
-      consumer: 'src/App/a.ts', producer: 'src/App/b.ts', symbol: 'x', typeOnly: false,
+      consumer: 'src/App/a.ts',
+      producer: 'src/App/b.ts',
+      symbol: 'x',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
     expect(layerBoundaryRule.check(g, cfg({ 'src/App': { canImport: [] } }), ctx)).toEqual([]);
@@ -50,7 +59,10 @@ describe('layerBoundaryRule', () => {
 describe('layerBoundaryRule violations', () => {
   it('emits a diagnostic with a consumer#producer fingerprint for a forbidden edge', () => {
     const edge: Edge = {
-      consumer: 'src/App/App.tsx', producer: 'src/api/client.ts', symbol: 'fetch', typeOnly: false,
+      consumer: 'src/App/App.tsx',
+      producer: 'src/api/client.ts',
+      symbol: 'fetch',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({ 'src/App': { canImport: [] }, 'src/api': { canImport: [] } });
@@ -64,10 +76,16 @@ describe('layerBoundaryRule violations', () => {
 
   it('deduplicates by fingerprint when two symbols cross the same file boundary', () => {
     const e1: Edge = {
-      consumer: 'src/App/App.tsx', producer: 'src/api/client.ts', symbol: 'fetch', typeOnly: false,
+      consumer: 'src/App/App.tsx',
+      producer: 'src/api/client.ts',
+      symbol: 'fetch',
+      typeOnly: false,
     };
     const e2: Edge = {
-      consumer: 'src/App/App.tsx', producer: 'src/api/client.ts', symbol: 'post', typeOnly: false,
+      consumer: 'src/App/App.tsx',
+      producer: 'src/api/client.ts',
+      symbol: 'post',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [e1, e2] });
     const config = cfg({ 'src/App': { canImport: [] }, 'src/api': { canImport: [] } });
@@ -78,7 +96,10 @@ describe('layerBoundaryRule violations', () => {
 describe('layerBoundaryRule sideEffectOnly', () => {
   it('allows a bindingless edge into a sideEffectOnly target', () => {
     const edge: Edge = {
-      consumer: 'src/main.tsx', producer: 'src/tokens/reset.ts', symbol: '', typeOnly: false,
+      consumer: 'src/main.tsx',
+      producer: 'src/tokens/reset.ts',
+      symbol: '',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({
@@ -90,7 +111,10 @@ describe('layerBoundaryRule sideEffectOnly', () => {
 
   it('flags a bound import from a sideEffectOnly target', () => {
     const edge: Edge = {
-      consumer: 'src/main.tsx', producer: 'src/tokens/reset.ts', symbol: 'theme', typeOnly: false,
+      consumer: 'src/main.tsx',
+      producer: 'src/tokens/reset.ts',
+      symbol: 'theme',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({
@@ -104,7 +128,10 @@ describe('layerBoundaryRule sideEffectOnly', () => {
 
   it('throws a config error when sideEffectOnly is not a subset of canImport', () => {
     const edge: Edge = {
-      consumer: 'src/main.tsx', producer: 'src/api/x.ts', symbol: '', typeOnly: false,
+      consumer: 'src/main.tsx',
+      producer: 'src/api/x.ts',
+      symbol: '',
+      typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({

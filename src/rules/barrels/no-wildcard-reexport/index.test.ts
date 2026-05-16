@@ -1,19 +1,17 @@
 /**
  * @fileoverview Tests for the no-wildcard-reexport rule — forbids export * and export * as ns.
  */
-import { describe, it, expect } from 'vitest';
-import { noWildcardReexport } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { noWildcardReexport } from './index.js';
 
 const config = {} as unknown as ResolvedConfig;
 
 /** Builds a graph plus paired project from file id → source text. */
 function graphFor(files: Record<string, string>) {
-  const nodes = Object.fromEntries(
-    Object.keys(files).map((id) => [id, { kind: 'file' as const }]),
-  );
+  const nodes = Object.fromEntries(Object.keys(files).map((id) => [id, { kind: 'file' as const }]));
   return makeGraph({ nodes, files });
 }
 
@@ -57,9 +55,7 @@ describe('no-wildcard-reexport', () => {
   });
 
   it('deduplicates two identical export * from one source', () => {
-    expect(
-      run({ 'src/index.ts': `export * from './x';\nexport * from './x';` }),
-    ).toHaveLength(1);
+    expect(run({ 'src/index.ts': `export * from './x';\nexport * from './x';` })).toHaveLength(1);
   });
 
   it('distinguishes export * from export * as ns of one source', () => {

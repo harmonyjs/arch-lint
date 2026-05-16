@@ -1,13 +1,14 @@
 /**
  * @fileoverview Tests for ConsumerGraph assembly and freezing.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { loadSourceFiles } from './source-files.js';
-import { freezeGraph } from './consumer-graph.js';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ConventionsConfig, Edge, Node } from '../types.js';
+import { freezeGraph } from './consumer-graph.js';
+import { loadSourceFiles } from './source-files.js';
 
 let dir: string;
 
@@ -50,7 +51,12 @@ describe('freezeGraph', () => {
       ['src/app.ts', { id: 'src/app.ts', kind: 'file', isEntity: true, placementMode: 'reactive' }],
     ]);
     const edges: Edge[] = [
-      { consumer: 'src/app.ts', producer: 'src/Widget/Widget.tsx', symbol: 'Widget', typeOnly: false },
+      {
+        consumer: 'src/app.ts',
+        producer: 'src/Widget/Widget.tsx',
+        symbol: 'Widget',
+        typeOnly: false,
+      },
     ];
     const graph = freezeGraph({
       nodes,

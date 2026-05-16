@@ -3,10 +3,10 @@
  * the folder's own entity (decision D7). Reads AST from the RuleContext project (D9).
  */
 import type { ConsumerGraph, Diagnostic, Location, Rule } from '../../../types.js';
-import { sourceFileFor, fileNodeIds } from '../../syntactic-support/source-files.js';
 import { importsOf } from '../../syntactic-support/import-info.js';
 import { isBarrelFile } from '../../syntactic-support/node-helpers.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
+import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
 
 /** Options of barrel-narrow-export (D7). */
 export interface BarrelNarrowExportOptions {
@@ -69,9 +69,7 @@ function narrowExportDiagnostic(
   ruleId: string,
   severity: Diagnostic['severity'],
 ): Diagnostic {
-  const prefixClause = options.allowPrefixedConstants
-    ? ` and ${entityName}-prefixed bindings`
-    : '';
+  const prefixClause = options.allowPrefixedConstants ? ` and ${entityName}-prefixed bindings` : '';
   return {
     ruleId,
     severity,

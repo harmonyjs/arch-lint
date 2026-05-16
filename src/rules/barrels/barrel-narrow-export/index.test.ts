@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for barrel-narrow-export — a barrel re-exports only its own entity (D7).
  */
-import { describe, it, expect } from 'vitest';
-import { barrelNarrowExport, type BarrelNarrowExportOptions } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ConventionsConfig, ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { type BarrelNarrowExportOptions, barrelNarrowExport } from './index.js';
 
 const conventions: ConventionsConfig = {
   privateSegment: 'slots',
@@ -133,10 +133,9 @@ describe('barrel-narrow-export', () => {
 
   it('does not apply to a role-folder barrel', () => {
     expect(
-      run(
-        { 'src/App/lib/index.ts': `export { a } from './a';\nexport { b } from './b';` },
-        ['src/App/lib'],
-      ),
+      run({ 'src/App/lib/index.ts': `export { a } from './a';\nexport { b } from './b';` }, [
+        'src/App/lib',
+      ]),
     ).toHaveLength(0);
   });
 
@@ -145,8 +144,7 @@ describe('barrel-narrow-export', () => {
       run(
         {
           'src/App/Card/Card.tsx': 'export const Card = 1;',
-          'src/App/Card/index.ts':
-            `export { Card } from './Card';\nexport { X } from './x';\nexport { Y } from './y';`,
+          'src/App/Card/index.ts': `export { Card } from './Card';\nexport { X } from './x';\nexport { Y } from './y';`,
         },
         ['src/App/Card'],
       ),

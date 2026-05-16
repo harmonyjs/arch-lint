@@ -2,8 +2,9 @@
  * @fileoverview file-description-required rule — every file must open with a leading
  * @fileoverview JSDoc block. Reads file AST from the RuleContext project (decision D9).
  */
-import { Node } from 'ts-morph';
+
 import type { SourceFile } from 'ts-morph';
+import { Node } from 'ts-morph';
 import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
 

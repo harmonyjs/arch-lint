@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the makeGraph mock-graph factory used across rule unit tests.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { makeGraph } from './make-graph.js';
 
 describe('makeGraph', () => {

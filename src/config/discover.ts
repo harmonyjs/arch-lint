@@ -50,7 +50,7 @@ function hasPackageField(packageJsonPath: string): boolean {
   }
   try {
     const raw = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as Record<string, unknown>;
-    return Object.prototype.hasOwnProperty.call(raw, 'arch-lint');
+    return Object.hasOwn(raw, 'arch-lint');
   } catch {
     return false;
   }

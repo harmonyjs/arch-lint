@@ -1,14 +1,15 @@
 /**
  * @fileoverview Tests for the package-engines rule of the hygiene pack.
  */
-import { describe, it, expect } from 'vitest';
+
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { packageEngines } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { packageEngines } from './index.js';
 
 function run(packageJson: string | null, options: Record<string, unknown>) {
   const dir = mkdtempSync(join(tmpdir(), 'arch-lint-engines-'));
@@ -17,7 +18,11 @@ function run(packageJson: string | null, options: Record<string, unknown>) {
     project: { tsconfig: 't', sourceRoot: 'src', cwd: dir, includeOutOfRoot: false },
   } as ResolvedConfig;
   const graph = makeGraph({});
-  const ctx = makeContext('package-engines', { severity: 'error', project: graph.project, options });
+  const ctx = makeContext('package-engines', {
+    severity: 'error',
+    project: graph.project,
+    options,
+  });
   return packageEngines.check(graph, config, ctx);
 }
 

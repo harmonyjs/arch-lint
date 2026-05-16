@@ -14,7 +14,10 @@ export type InterpretResult =
  * Validate a raw scanned comment against §9 rules: rule-id non-empty if bracketed,
  * reason present and long enough, expiry a valid ISO date.
  */
-export function interpretSuppress(raw: RawSuppressComment, config: SuppressConfig): InterpretResult {
+export function interpretSuppress(
+  raw: RawSuppressComment,
+  config: SuppressConfig,
+): InterpretResult {
   const ruleId = raw.ruleId === null ? null : raw.ruleId.trim();
   const baseLoc = raw.location;
   if (ruleId === '') {

@@ -1,14 +1,11 @@
 /**
  * @fileoverview Tests for the SuppressIndex class — isSuppressed, findExpired, factory.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project } from 'ts-morph';
-import {
-  SuppressIndexImpl,
-  buildSuppressIndex,
-  type SuppressEntity,
-} from './suppress-index.js';
+import { describe, expect, it } from 'vitest';
 import type { Diagnostic, Location, ParsedSuppress, SuppressConfig } from '../types.js';
+import { buildSuppressIndex, type SuppressEntity, SuppressIndexImpl } from './suppress-index.js';
 import type { EntitySuppressData, MalformedSuppress } from './types.js';
 
 const loc: Location = { file: 'src/Widget/Widget.tsx', line: 1, column: 1 };
@@ -73,7 +70,10 @@ describe('SuppressIndexImpl.isSuppressed', () => {
 
   it('does not suppress when the matching suppress is expired', () => {
     const data = new Map<string, EntitySuppressData>([
-      ['src/Widget', { valid: [suppress({ expiry: new Date('2026-01-01T00:00:00Z') })], malformed: [] }],
+      [
+        'src/Widget',
+        { valid: [suppress({ expiry: new Date('2026-01-01T00:00:00Z') })], malformed: [] },
+      ],
     ]);
     const index = new SuppressIndexImpl(data, NOW);
     expect(index.isSuppressed(diag({}))).toBe(false);

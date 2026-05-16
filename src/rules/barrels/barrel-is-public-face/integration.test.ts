@@ -1,17 +1,16 @@
 /**
  * @fileoverview Integration test for barrel-is-public-face on a graph from real buildGraph.
  */
-import { describe, it, expect } from 'vitest';
+
 import { fileURLToPath } from 'node:url';
 import { Project } from 'ts-morph';
-import { buildGraph } from '../../../graph/build.js';
+import { describe, expect, it } from 'vitest';
 import { resolveConfig } from '../../../config/resolve-defaults.js';
-import { barrelIsPublicFace, type BarrelIsPublicFaceOptions } from './index.js';
+import { buildGraph } from '../../../graph/build.js';
 import { makeContext } from '../../test-support/make-context.js';
+import { type BarrelIsPublicFaceOptions, barrelIsPublicFace } from './index.js';
 
-const fixtureRoot = fileURLToPath(
-  new URL('./__tests__/fixtures/bypass-import', import.meta.url),
-);
+const fixtureRoot = fileURLToPath(new URL('./__tests__/fixtures/bypass-import', import.meta.url));
 
 function ctx() {
   return makeContext<BarrelIsPublicFaceOptions>('barrel-is-public-face', {

@@ -1,17 +1,16 @@
 /**
  * @fileoverview Integration test for no-wildcard-reexport on a graph from real buildGraph.
  */
-import { describe, it, expect } from 'vitest';
+
 import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import { resolveConfig } from '../../../config/resolve-defaults.js';
 import { buildGraph } from '../../../graph/build.js';
 import { loadSourceFiles } from '../../../graph/source-files.js';
-import { resolveConfig } from '../../../config/resolve-defaults.js';
-import { noWildcardReexport } from './index.js';
 import { makeContext } from '../../test-support/make-context.js';
+import { noWildcardReexport } from './index.js';
 
-const fixtureRoot = fileURLToPath(
-  new URL('./__tests__/fixtures/wildcard-barrel', import.meta.url),
-);
+const fixtureRoot = fileURLToPath(new URL('./__tests__/fixtures/wildcard-barrel', import.meta.url));
 
 describe('no-wildcard-reexport — integration', () => {
   it('flags both wildcard forms on a really built graph', async () => {

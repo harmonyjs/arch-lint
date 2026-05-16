@@ -3,9 +3,9 @@
  * live in the UI cluster. Reads AST from the RuleContext project (decision D9).
  */
 import type { Diagnostic, Rule } from '../../../types.js';
-import { sourceFileFor, fileNodeIds } from '../../syntactic-support/source-files.js';
 import { importsOf } from '../../syntactic-support/import-info.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
+import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
 import { triggerPackageMatcher } from './matcher.js';
 
 /** Options of ui-cluster-membership. */

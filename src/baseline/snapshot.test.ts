@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for snapshotBaseline — the `baseline init` operation.
  */
-import { describe, it, expect } from 'vitest';
-import { snapshotBaseline } from './snapshot.js';
+import { describe, expect, it } from 'vitest';
 import type { Diagnostic, Location } from '../types.js';
+import { snapshotBaseline } from './snapshot.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 const AT = '2026-05-16T00:00:00.000Z';

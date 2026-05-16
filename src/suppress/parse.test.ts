@@ -1,10 +1,11 @@
 /**
  * @fileoverview Tests for parsing all @arch-decision suppress data of one entity.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project, type SourceFile } from 'ts-morph';
-import { parseEntitySuppress } from './parse.js';
+import { describe, expect, it } from 'vitest';
 import type { SuppressConfig } from '../types.js';
+import { parseEntitySuppress } from './parse.js';
 
 const cfg: SuppressConfig = {
   marker: '@arch-decision',
@@ -15,12 +16,20 @@ const cfg: SuppressConfig = {
 };
 
 function sf(code: string): SourceFile {
-  return new Project({ useInMemoryFileSystem: true }).createSourceFile('src/Widget/Widget.tsx', code);
+  return new Project({ useInMemoryFileSystem: true }).createSourceFile(
+    'src/Widget/Widget.tsx',
+    code,
+  );
 }
 
 describe('parseEntitySuppress', () => {
   it('returns empty data for an entity without any @arch-decision comment', () => {
-    const data = parseEntitySuppress(sf('export const Widget = () => null;'), 'Widget', 'src/Widget', cfg);
+    const data = parseEntitySuppress(
+      sf('export const Widget = () => null;'),
+      'Widget',
+      'src/Widget',
+      cfg,
+    );
     expect(data).toEqual({ valid: [], malformed: [] });
   });
 
@@ -39,7 +48,9 @@ describe('parseEntitySuppress', () => {
 
   it('parses a rule-scoped suppress with an expiry', () => {
     const data = parseEntitySuppress(
-      sf('// @arch-decision[lca-placement]: until 2026-12-31, migration in progress\nexport const Widget = () => null;'),
+      sf(
+        '// @arch-decision[lca-placement]: until 2026-12-31, migration in progress\nexport const Widget = () => null;',
+      ),
       'Widget',
       'src/Widget',
       cfg,
@@ -88,7 +99,9 @@ describe('parseEntitySuppress', () => {
 
   it('does not scan jsdoc when scanLocations excludes it', () => {
     const data = parseEntitySuppress(
-      sf('/**\n * @arch-decision: jsdoc decision long enough\n */\nexport const Widget = () => null;'),
+      sf(
+        '/**\n * @arch-decision: jsdoc decision long enough\n */\nexport const Widget = () => null;',
+      ),
       'Widget',
       'src/Widget',
       { ...cfg, scanLocations: ['leading-comment'] },

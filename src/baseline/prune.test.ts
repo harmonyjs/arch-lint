@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for pruneBaseline — the `baseline prune` operation.
  */
-import { describe, it, expect } from 'vitest';
-import { pruneBaseline } from './prune.js';
+import { describe, expect, it } from 'vitest';
 import type { BaselineFile, Diagnostic, Location } from '../types.js';
+import { pruneBaseline } from './prune.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 const AT = '2026-05-16T00:00:00.000Z';
@@ -104,7 +104,12 @@ describe('pruneBaseline', () => {
 
   it('is idempotent — pruning an already-pruned baseline is a no-op on records', () => {
     const diags = [diag({ entity: 'src/A' })];
-    const once = pruneBaseline(baseline([{ ruleId: 'lca-placement', entity: 'src/A' }]), diags, '1.0.0', AT);
+    const once = pruneBaseline(
+      baseline([{ ruleId: 'lca-placement', entity: 'src/A' }]),
+      diags,
+      '1.0.0',
+      AT,
+    );
     const twice = pruneBaseline(once, diags, '1.0.0', AT);
     expect(twice.records).toEqual(once.records);
   });

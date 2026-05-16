@@ -1,23 +1,33 @@
 /**
  * @fileoverview Tests for the tsconfig-strict rule of the hygiene pack.
  */
-import { describe, it, expect } from 'vitest';
+
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { tsconfigStrict } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { tsconfigStrict } from './index.js';
 
 function run(tsconfig: string | null, options: Record<string, unknown>) {
   const dir = mkdtempSync(join(tmpdir(), 'arch-lint-tsstrict-'));
   if (tsconfig !== null) writeFileSync(join(dir, 'tsconfig.json'), tsconfig);
   const config = {
-    project: { tsconfig: join(dir, 'tsconfig.json'), sourceRoot: 'src', cwd: dir, includeOutOfRoot: false },
+    project: {
+      tsconfig: join(dir, 'tsconfig.json'),
+      sourceRoot: 'src',
+      cwd: dir,
+      includeOutOfRoot: false,
+    },
   } as ResolvedConfig;
   const graph = makeGraph({});
-  const ctx = makeContext('tsconfig-strict', { severity: 'error', project: graph.project, options });
+  const ctx = makeContext('tsconfig-strict', {
+    severity: 'error',
+    project: graph.project,
+    options,
+  });
   return tsconfigStrict.check(graph, config, ctx);
 }
 

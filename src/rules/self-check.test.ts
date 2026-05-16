@@ -1,15 +1,20 @@
 /**
  * @fileoverview Tests for runtimeSelfCheck — the §10.2 collision detector.
  */
-import { describe, it, expect } from 'vitest';
-import { runtimeSelfCheck } from './self-check.js';
+import { describe, expect, it } from 'vitest';
 import { EngineError } from '../errors.js';
 import type { Diagnostic } from '../types.js';
+import { runtimeSelfCheck } from './self-check.js';
 
 function diag(over: Partial<Diagnostic>): Diagnostic {
   return {
-    ruleId: 'lca-placement', severity: 'warning', entity: 'src/App/X',
-    message: 'm', actual: 'a', reason: 'r', suggestions: [],
+    ruleId: 'lca-placement',
+    severity: 'warning',
+    entity: 'src/App/X',
+    message: 'm',
+    actual: 'a',
+    reason: 'r',
+    suggestions: [],
     location: { file: 'src/App/X', line: 1, column: 1 },
     ...over,
   };

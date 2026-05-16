@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for ui-cluster-membership — a trigger-package file must live in the cluster.
  */
-import { describe, it, expect } from 'vitest';
-import { uiClusterMembership, type UiClusterMembershipOptions } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { type UiClusterMembershipOptions, uiClusterMembership } from './index.js';
 
 const config = {} as unknown as ResolvedConfig;
 
@@ -65,9 +65,9 @@ describe('ui-cluster-membership', () => {
   });
 
   it('does not flag a file with no trigger imports', () => {
-    expect(
-      run({ 'src/App/Widget/Widget.tsx': `import { useState } from 'react';` }),
-    ).toHaveLength(0);
+    expect(run({ 'src/App/Widget/Widget.tsx': `import { useState } from 'react';` })).toHaveLength(
+      0,
+    );
   });
 
   it('emits one verdict per file with several trigger imports', () => {

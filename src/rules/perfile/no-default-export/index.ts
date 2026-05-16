@@ -2,9 +2,10 @@
  * @fileoverview no-default-export rule — forbids `export default`; an entity is exported
  * only by name. Reads file AST from the RuleContext project (decision D9).
  */
-import { Node } from 'ts-morph';
-import type { SourceFile } from 'ts-morph';
+
 import picomatch from 'picomatch';
+import type { SourceFile } from 'ts-morph';
+import { Node } from 'ts-morph';
 import type { Diagnostic, Location, Rule, RuleContext } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
 
@@ -41,7 +42,10 @@ export const noDefaultExport: Rule = {
   engine: 'perfile',
   defaultSeverity: 'error',
   check: (graph, _config, context: RuleContext): Diagnostic[] => {
-    const { exemptPaths } = { exemptPaths: [] as readonly string[], ...(context.options as Partial<Options>) };
+    const { exemptPaths } = {
+      exemptPaths: [] as readonly string[],
+      ...(context.options as Partial<Options>),
+    };
     const isExempt = picomatch([...exemptPaths]);
     const out: Diagnostic[] = [];
     for (const fileId of fileNodeIds(graph)) {

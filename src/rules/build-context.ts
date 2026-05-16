@@ -2,13 +2,7 @@
  * @fileoverview buildRuleContext — assembles the RuleContext passed to a rule's check function.
  */
 import type { Project } from 'ts-morph';
-import type {
-  ActiveSeverity,
-  ResolvedConfig,
-  Rule,
-  RuleContext,
-  SuppressIndex,
-} from '../types.js';
+import type { ActiveSeverity, ResolvedConfig, Rule, RuleContext, SuppressIndex } from '../types.js';
 
 /**
  * Build the RuleContext for `rule`: effective severity, options with `severity`

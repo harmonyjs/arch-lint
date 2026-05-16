@@ -1,13 +1,14 @@
 /**
  * @fileoverview Tests for file-level edge construction post barrel unwinding.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
-import { createResolver } from './resolve.js';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildEdges } from './edges.js';
+import { createResolver } from './resolve.js';
+import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
 
 let dir: string;
 
@@ -27,7 +28,10 @@ function write(rel: string, content: string): void {
 function writeExternal(name: string, decl: string): void {
   const pkgDir = join(dir, 'node_modules', name);
   mkdirSync(pkgDir, { recursive: true });
-  writeFileSync(join(pkgDir, 'package.json'), `{"name":"${name}","version":"1.0.0","types":"index.d.ts"}`);
+  writeFileSync(
+    join(pkgDir, 'package.json'),
+    `{"name":"${name}","version":"1.0.0","types":"index.d.ts"}`,
+  );
   writeFileSync(join(pkgDir, 'index.d.ts'), decl);
 }
 

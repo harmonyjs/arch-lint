@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for matching an import specifier against triggerPackages via picomatch.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { triggerPackageMatcher } from './matcher.js';
 
 describe('triggerPackageMatcher', () => {

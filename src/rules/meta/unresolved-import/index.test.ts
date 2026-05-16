@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for the unresolved-import rule.
  */
-import { describe, it, expect } from 'vitest';
-import { unresolvedImportRule } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig, UnresolvedImport } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { unresolvedImportRule } from './index.js';
 
 const cfg = {} as ResolvedConfig;
 const ctx = makeContext('unresolved-import');
@@ -37,10 +37,15 @@ describe('unresolvedImportRule', () => {
 
   it('deduplicates identical unresolved entries by fingerprint', () => {
     const u: UnresolvedImport = {
-      file: 'src/a.ts', specifier: './x', symbol: 'Y',
-      location: { file: 'src/a.ts', line: 1, column: 1 }, reason: 'missing',
+      file: 'src/a.ts',
+      specifier: './x',
+      symbol: 'Y',
+      location: { file: 'src/a.ts', line: 1, column: 1 },
+      reason: 'missing',
     };
-    const g = makeGraph({ unresolved: [u, { ...u, location: { file: 'src/a.ts', line: 4, column: 1 } }] });
+    const g = makeGraph({
+      unresolved: [u, { ...u, location: { file: 'src/a.ts', line: 4, column: 1 } }],
+    });
     expect(unresolvedImportRule.check(g, cfg, ctx)).toHaveLength(1);
   });
 

@@ -7,14 +7,7 @@ import type { Project } from 'ts-morph';
 
 // ── Primitives ───────────────────────────────────────────────────────────────
 
-export type Pack =
-  | 'layers'
-  | 'barrels'
-  | 'placement'
-  | 'perfile'
-  | 'hygiene'
-  | 'view'
-  | 'meta';
+export type Pack = 'layers' | 'barrels' | 'placement' | 'perfile' | 'hygiene' | 'view' | 'meta';
 
 export type Severity = 'off' | 'info' | 'warning' | 'error';
 
@@ -218,7 +211,12 @@ export interface ConsumerGraph {
 
 /** Internal transit type of the resolver; not exported from public-api. */
 export type Resolution =
-  | { readonly kind: 'resolved'; readonly file: string; readonly symbol: string; readonly typeOnly: boolean }
+  | {
+      readonly kind: 'resolved';
+      readonly file: string;
+      readonly symbol: string;
+      readonly typeOnly: boolean;
+    }
   | { readonly kind: 'external' }
   | { readonly kind: 'unresolved'; readonly reason: UnresolvedReason }
   | { readonly kind: 'cycle' };

@@ -60,7 +60,12 @@ function stripCommentGlyphs(raw: string): string {
     .replace(/^\/\*\*?/, '')
     .replace(/\*\/$/, '')
     .split('\n')
-    .map((line) => line.replace(/^\s*\/\/+/, '').replace(/^\s*\*+/, '').trim())
+    .map((line) =>
+      line
+        .replace(/^\s*\/\/+/, '')
+        .replace(/^\s*\*+/, '')
+        .trim(),
+    )
     .filter((line) => line.length > 0)
     .join(' ')
     .trim();

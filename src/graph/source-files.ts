@@ -2,9 +2,9 @@
  * @fileoverview Discovers project source files and builds the ts-morph Project that
  * backs syntactic graph analysis — without type-checker program resolution.
  */
-import { resolve, join, relative } from 'node:path';
-import { glob } from 'tinyglobby';
+import { join, relative, resolve } from 'node:path';
 import picomatch from 'picomatch';
+import { glob } from 'tinyglobby';
 import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '../types.js';
 import type { ModuleResolutionContext } from './module-resolution.js';

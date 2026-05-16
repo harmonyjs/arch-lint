@@ -2,8 +2,9 @@
  * @fileoverview File function-declaration scanner — the shared source of function-level
  * units that the per-function perfile rules consume.
  */
-import { Node } from 'ts-morph';
+
 import type { SourceFile } from 'ts-morph';
+import { Node } from 'ts-morph';
 import { qualifiedFunctionPath } from './qualified-path.js';
 
 /** A function-level unit of a file: its ts-morph node plus its qualified function path. */

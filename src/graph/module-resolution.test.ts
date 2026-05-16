@@ -1,9 +1,10 @@
 /**
  * @fileoverview Tests for module specifier resolution against the TypeScript resolver.
  */
-import { describe, it, expect } from 'vitest';
+
 import ts from 'typescript';
-import { resolveSpecifier, type ModuleResolutionContext } from './module-resolution.js';
+import { describe, expect, it } from 'vitest';
+import { type ModuleResolutionContext, resolveSpecifier } from './module-resolution.js';
 
 function makeCtx(files: Record<string, string>): ModuleResolutionContext {
   const compilerOptions: ts.CompilerOptions = {
@@ -11,10 +12,10 @@ function makeCtx(files: Record<string, string>): ModuleResolutionContext {
     allowJs: false,
   };
   const moduleResolutionHost: ts.ModuleResolutionHost = {
-    fileExists: (p) => Object.prototype.hasOwnProperty.call(files, p),
+    fileExists: (p) => Object.hasOwn(files, p),
     readFile: (p) => files[p],
     directoryExists: (dir) =>
-      Object.keys(files).some((f) => f.startsWith(dir.endsWith('/') ? dir : dir + '/')),
+      Object.keys(files).some((f) => f.startsWith(dir.endsWith('/') ? dir : `${dir}/`)),
     getCurrentDirectory: () => '/proj',
     getDirectories: () => [],
   };
@@ -69,10 +70,10 @@ describe('resolveSpecifier — path alias', () => {
     const ctx: ModuleResolutionContext = {
       compilerOptions,
       moduleResolutionHost: {
-        fileExists: (p) => Object.prototype.hasOwnProperty.call(files, p),
+        fileExists: (p) => Object.hasOwn(files, p),
         readFile: (p) => files[p],
         directoryExists: (dir) =>
-          Object.keys(files).some((f) => f.startsWith(dir.endsWith('/') ? dir : dir + '/')),
+          Object.keys(files).some((f) => f.startsWith(dir.endsWith('/') ? dir : `${dir}/`)),
         getCurrentDirectory: () => '/proj',
         getDirectories: () => [],
       },

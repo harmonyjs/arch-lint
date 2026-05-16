@@ -1,8 +1,9 @@
 /**
  * @fileoverview Tests for the qualified function path builder backing perfile fingerprints (§10.2).
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project, SyntaxKind } from 'ts-morph';
+import { describe, expect, it } from 'vitest';
 import { qualifiedFunctionPath } from './qualified-path.js';
 
 function pathsOf(code: string): string[] {
@@ -35,10 +36,7 @@ describe('qualifiedFunctionPath', () => {
   });
 
   it('joins nested named functions with a dot', () => {
-    expect(pathsOf('function outer() { function inner() {} }')).toEqual([
-      'outer',
-      'outer.inner',
-    ]);
+    expect(pathsOf('function outer() { function inner() {} }')).toEqual(['outer', 'outer.inner']);
   });
 
   it('indexes anonymous callbacks by sibling order under their named ancestor', () => {
