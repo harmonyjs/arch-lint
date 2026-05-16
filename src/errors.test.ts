@@ -1,17 +1,33 @@
+/**
+ * @fileoverview Tests for the typed error taxonomy that maps each class to a
+ * fixed process exit code.
+ */
 import { describe, expect, it } from 'vitest';
-import { ConfigError, EngineError } from './errors.js';
+import { ArchLintError, ConfigError, EngineError, GraphBuildError, IOError } from './errors.js';
+
+describe('ArchLintError', () => {
+  it('is an abstract base — every concrete error is an instance of it', () => {
+    expect(new ConfigError('x')).toBeInstanceOf(ArchLintError);
+    expect(new GraphBuildError('x')).toBeInstanceOf(ArchLintError);
+    expect(new IOError('x')).toBeInstanceOf(ArchLintError);
+    expect(new EngineError('x')).toBeInstanceOf(ArchLintError);
+  });
+
+  it('every concrete error is also a plain Error', () => {
+    expect(new ConfigError('x')).toBeInstanceOf(Error);
+    expect(new EngineError('x')).toBeInstanceOf(Error);
+  });
+});
 
 describe('ConfigError', () => {
-  it('is an Error subclass with name ConfigError', () => {
+  it('has name ConfigError and message preserved', () => {
     const err = new ConfigError('bad config');
-    expect(err).toBeInstanceOf(Error);
     expect(err.name).toBe('ConfigError');
     expect(err.message).toBe('bad config');
   });
 
   it('carries exitCode 2', () => {
-    const err = new ConfigError('bad config');
-    expect(err.exitCode).toBe(2);
+    expect(new ConfigError('bad config').exitCode).toBe(2);
   });
 
   it('records an optional config path', () => {
@@ -20,25 +36,54 @@ describe('ConfigError', () => {
   });
 
   it('leaves configPath undefined when not provided', () => {
-    const err = new ConfigError('no config');
-    expect(err.configPath).toBeUndefined();
+    expect(new ConfigError('no config').configPath).toBeUndefined();
+  });
+
+  it('propagates an underlying cause', () => {
+    const cause = new Error('root');
+    expect(new ConfigError('wrap', { cause }).cause).toBe(cause);
+  });
+});
+
+describe('GraphBuildError', () => {
+  it('has name GraphBuildError and carries exitCode 3', () => {
+    const err = new GraphBuildError('x');
+    expect(err.name).toBe('GraphBuildError');
+    expect(err.exitCode).toBe(3);
+  });
+
+  it('propagates an underlying cause', () => {
+    const cause = new Error('root');
+    expect(new GraphBuildError('wrap', { cause }).cause).toBe(cause);
+  });
+});
+
+describe('IOError', () => {
+  it('has name IOError and carries exitCode 4', () => {
+    const err = new IOError('x');
+    expect(err.name).toBe('IOError');
+    expect(err.exitCode).toBe(4);
+  });
+
+  it('propagates an underlying cause', () => {
+    const cause = new Error('root');
+    expect(new IOError('wrap', { cause }).cause).toBe(cause);
   });
 });
 
 describe('EngineError', () => {
-  it('is an Error subclass with name EngineError', () => {
+  it('has name EngineError and message preserved', () => {
     const err = new EngineError('boom');
-    expect(err).toBeInstanceOf(Error);
     expect(err.name).toBe('EngineError');
     expect(err.message).toBe('boom');
+  });
+
+  it('carries exitCode 5', () => {
+    expect(new EngineError('x').exitCode).toBe(5);
   });
 
   it('is identifiable via instanceof', () => {
     const err: unknown = new EngineError('x');
     expect(err instanceof EngineError).toBe(true);
-  });
-
-  it('carries exitCode 5 (D8 error taxonomy)', () => {
-    expect(new EngineError('x').exitCode).toBe(5);
   });
 });
