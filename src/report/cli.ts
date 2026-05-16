@@ -3,6 +3,7 @@
  * diagnostics grouped by ruleId, with colour, OSC8 hyperlinks and long
  * consumer lists folded. Pure: takes a CheckResult and config, returns a string.
  */
+import type { ConsumerInfo, Diagnostic } from '../types.js';
 
 /** Total visual width of a group-header divider line. */
 const HEADER_WIDTH = 61;
@@ -38,4 +39,40 @@ export function foldConsumers(lines: readonly string[], fold: boolean): readonly
   if (!fold || lines.length <= FOLD_LIMIT) return lines;
   const shown = lines.slice(0, FOLD_LIMIT);
   return [...shown, `… and ${lines.length - FOLD_LIMIT} more`];
+}
+
+/** Rendering options derived from report.cli config and terminal capability. */
+export interface RenderOptions {
+  readonly showConsumers: boolean;
+  readonly showSuggestions: boolean;
+  readonly foldLongLists: boolean;
+  readonly hyperlinks: boolean;
+}
+
+function consumerLine(c: ConsumerInfo, index: number): string {
+  return `      ${index + 1}. ${c.file} (line ${c.location.line})`;
+}
+
+function suggestionLine(s: Diagnostic['suggestions'][number], index: number): string {
+  const letter = String.fromCharCode(97 + index);
+  const target = s.target === undefined ? '' : ` → ${s.target}`;
+  return `      [${letter}] ${s.action}${target}`;
+}
+
+/** Renders the body of one diagnostic (everything below its group header). */
+export function renderDiagnostic(d: Diagnostic, opts: RenderOptions): string {
+  const lines: string[] = [`  ${d.entity}`];
+  if (d.expected !== undefined) lines.push(`    Expected: ${d.expected}`);
+  lines.push(`    Actual:   ${d.actual}`);
+  lines.push(`    Reason:   ${d.reason}`);
+  if (opts.showConsumers && d.consumers !== undefined && d.consumers.length > 0) {
+    lines.push('    Consumers:');
+    const rendered = d.consumers.map((c, i) => consumerLine(c, i));
+    lines.push(...foldConsumers(rendered, opts.foldLongLists));
+  }
+  if (opts.showSuggestions && d.suggestions.length > 0) {
+    lines.push('    Suggest:');
+    lines.push(...d.suggestions.map((s, i) => suggestionLine(s, i)));
+  }
+  return lines.join('\n');
 }
