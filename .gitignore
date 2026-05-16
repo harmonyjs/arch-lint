@@ -137,3 +137,6 @@ dist
 
 # Mics
 docs/superpowers
+
+# Claude Code worktrees and local state
+.claude/
