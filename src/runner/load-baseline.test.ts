@@ -53,9 +53,9 @@ describe('resolveBaseline', () => {
   });
 
   it('throws ConfigError for a missing file when missingBehavior is error', async () => {
-    await expect(resolveBaseline(cfg({ missingBehavior: 'error' }), { noBaseline: false })).rejects.toBeInstanceOf(
-      ConfigError,
-    );
+    await expect(
+      resolveBaseline(cfg({ missingBehavior: 'error' }), { noBaseline: false }),
+    ).rejects.toBeInstanceOf(ConfigError);
   });
 
   it('returns null for a missing file when missingBehavior is ignore', async () => {

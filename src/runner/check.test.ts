@@ -54,19 +54,19 @@ describe('check', () => {
   it('forwards an explicit null baseline through unchanged', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
     check(graph, config, suppress, project, undefined, null);
+    expect(runEngineMock).toHaveBeenCalledWith(graph, config, suppress, project, undefined, null);
+  });
+
+  it('omits trailing optional arguments when not supplied', () => {
+    runEngineMock.mockReturnValueOnce(engineResult);
+    check(graph, config, suppress, project);
     expect(runEngineMock).toHaveBeenCalledWith(
       graph,
       config,
       suppress,
       project,
       undefined,
-      null,
+      undefined,
     );
-  });
-
-  it('omits trailing optional arguments when not supplied', () => {
-    runEngineMock.mockReturnValueOnce(engineResult);
-    check(graph, config, suppress, project);
-    expect(runEngineMock).toHaveBeenCalledWith(graph, config, suppress, project, undefined, undefined);
   });
 });
