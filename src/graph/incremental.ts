@@ -26,3 +26,24 @@ export function normalizeChanges(raw: GraphChanges): GraphChanges {
     modified: raw.modified.filter((f) => !added.has(f) && !removed.has(f)),
   };
 }
+
+/** Resolver reverse index: a file id -> cache keys whose chain touched it. */
+export type ReverseIndex = ReadonlyMap<string, ReadonlySet<string>>;
+
+/**
+ * Collects the resolver-cache keys to invalidate for a change set. A cache
+ * entry whose resolution chain touched any added/removed/modified file is
+ * stale and must be recomputed.
+ */
+export function cacheKeysToInvalidate(
+  changes: GraphChanges,
+  reverseIndex: ReverseIndex,
+): ReadonlySet<string> {
+  const keys = new Set<string>();
+  const touched = [...changes.added, ...changes.removed, ...changes.modified];
+  for (const file of touched) {
+    const entry = reverseIndex.get(file);
+    if (entry !== undefined) for (const key of entry) keys.add(key);
+  }
+  return keys;
+}
