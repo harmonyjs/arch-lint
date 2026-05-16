@@ -8,15 +8,17 @@ import { buildEdges } from './edges.js';
 import type { EntityContext } from './entities.js';
 import { buildNodes } from './nodes.js';
 import { createResolver } from './resolve.js';
-import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
+import { loadSourceFiles, moduleResolutionContextOf, type SourceFileSet } from './source-files.js';
 
 /**
- * Builds the full immutable ConsumerGraph for `config` (§6.1 cold build): discover
- * and parse source files, build nodes, run the syntactic resolver to produce edges
- * and unresolved imports, then freeze.
+ * Assembles the immutable ConsumerGraph from an already-loaded SourceFileSet: build
+ * nodes, run the syntactic resolver to produce edges and unresolved imports, then
+ * freeze. Synchronous — source discovery and parsing happen before this is called.
  */
-export async function buildGraph(config: ResolvedConfig): Promise<ConsumerGraph> {
-  const sources = await loadSourceFiles(config);
+export function buildGraphFromSources(
+  config: ResolvedConfig,
+  sources: SourceFileSet,
+): ConsumerGraph {
   const resolver = createResolver({
     sources,
     moduleResolution: moduleResolutionContextOf(sources),
@@ -27,4 +29,13 @@ export async function buildGraph(config: ResolvedConfig): Promise<ConsumerGraph>
   const { edges, unresolved } = buildEdges(sources, resolver, config.resolve.treatTypeOnlyAsEdge);
   const entityCtx: EntityContext = { sources, conventions: config.conventions };
   return freezeGraph({ nodes, edges, unresolved, entityCtx, rootDir: sources.rootDir });
+}
+
+/**
+ * Builds the full immutable ConsumerGraph for `config`: discover and parse source
+ * files, build nodes, run the syntactic resolver to produce edges and unresolved
+ * imports, then freeze.
+ */
+export async function buildGraph(config: ResolvedConfig): Promise<ConsumerGraph> {
+  return buildGraphFromSources(config, await loadSourceFiles(config));
 }

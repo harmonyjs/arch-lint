@@ -22,9 +22,9 @@ vi.mock('../config/resolve-defaults.js', () => ({
   resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
 }));
 
-const buildGraphMock = vi.fn();
+const buildGraphFromSourcesMock = vi.fn();
 vi.mock('../graph/build.js', () => ({
-  buildGraph: (...args: unknown[]): unknown => buildGraphMock(...args),
+  buildGraphFromSources: (...args: unknown[]): unknown => buildGraphFromSourcesMock(...args),
 }));
 
 const loadSourceFilesMock = vi.fn();
@@ -121,7 +121,7 @@ function arrange(opts: {
 }): void {
   loadConfigMock.mockResolvedValue({ project: { tsconfig: './tsconfig.json' } });
   resolveConfigMock.mockReturnValue(opts.config ?? resolvedConfig());
-  buildGraphMock.mockResolvedValue(opts.graph ?? makeGraph({}));
+  buildGraphFromSourcesMock.mockReturnValue(opts.graph ?? makeGraph({}));
   loadSourceFilesMock.mockResolvedValue({
     project: new TsProject({ useInMemoryFileSystem: true }),
     files: new Map(),
@@ -214,6 +214,8 @@ describe('runCheck', () => {
     expect(outcome.result.exitCode).toBe(0);
     expect(outcome.report).toBe('report-text');
     expect(outcome.warnings).toEqual([]);
+    // Sources are parsed exactly once per run — the graph and engine share it.
+    expect(loadSourceFilesMock).toHaveBeenCalledTimes(1);
   });
 
   it('returns exit 1 when a new violation exists and the mode fails on violations', async () => {
@@ -246,18 +248,22 @@ describe('runCheck', () => {
     expect(outcome.exitCode).toBe(0);
   });
 
-  it('wraps a buildGraph failure in a GraphBuildError', async () => {
+  it('wraps a graph-build failure in a GraphBuildError', async () => {
     arrange({ result: checkResult([]) });
-    buildGraphMock.mockRejectedValueOnce(new Error('parse blew up'));
+    buildGraphFromSourcesMock.mockImplementationOnce(() => {
+      throw new Error('parse blew up');
+    });
     await expect(
       runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false }),
     ).rejects.toBeInstanceOf(GraphBuildError);
   });
 
-  it('rethrows an ArchLintError from buildGraph without rewrapping', async () => {
+  it('rethrows an ArchLintError from the graph build without rewrapping', async () => {
     arrange({ result: checkResult([]) });
     const original = new GraphBuildError('already typed');
-    buildGraphMock.mockRejectedValueOnce(original);
+    buildGraphFromSourcesMock.mockImplementationOnce(() => {
+      throw original;
+    });
     await expect(
       runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false }),
     ).rejects.toBe(original);
