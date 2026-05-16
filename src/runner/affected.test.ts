@@ -9,8 +9,19 @@ function edge(consumer: string, producer: string): Edge {
   return { consumer, producer, symbol: 'X', typeOnly: false };
 }
 
+const appImportsUtil = edge('src/App/App.tsx', 'src/lib/util.ts');
+const apiImportsApp = edge('src/api/api.ts', 'src/App/App.tsx');
+
 const graph = {
-  edges: [edge('src/App/App.tsx', 'src/lib/util.ts'), edge('src/api/api.ts', 'src/App/App.tsx')],
+  edges: [appImportsUtil, apiImportsApp],
+  consumersOf: new Map([
+    ['src/lib/util.ts', [appImportsUtil]],
+    ['src/App/App.tsx', [apiImportsApp]],
+  ]),
+  producersOf: new Map([
+    ['src/App/App.tsx', [appImportsUtil]],
+    ['src/api/api.ts', [apiImportsApp]],
+  ]),
 } as unknown as ConsumerGraph;
 
 function diag(entity: string): Diagnostic {

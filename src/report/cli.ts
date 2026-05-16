@@ -4,13 +4,19 @@
  * consumer lists folded. Pure: takes a CheckResult and config, returns a string.
  */
 import pc from 'picocolors';
-import type { CheckResult, ConsumerInfo, Diagnostic, ResolvedConfig } from '../types.js';
+import type {
+  ActiveSeverity,
+  CheckResult,
+  ConsumerInfo,
+  Diagnostic,
+  ResolvedConfig,
+} from '../types.js';
 
 /** Total visual width of a group-header divider line. */
 const HEADER_WIDTH = 61;
 
 /** Renders the divider line that opens a rule group: `─── id (severity) ───`. */
-export function groupHeader(ruleId: string, severity: string): string {
+export function groupHeader(ruleId: string, severity: ActiveSeverity): string {
   const label = `─── ${ruleId} (${severity}) `;
   const fill = Math.max(0, HEADER_WIDTH - label.length);
   return label + '─'.repeat(fill);
@@ -97,7 +103,7 @@ function colorEnabled(mode: ResolvedConfig['report']['cli']['color']): boolean {
 }
 
 /** Order of severities within a rule group (highest first). */
-const SEVERITY_ORDER: readonly Diagnostic['severity'][] = ['error', 'warning', 'info'];
+const SEVERITY_ORDER: readonly ActiveSeverity[] = ['error', 'warning', 'info'];
 
 /**
  * Renders the full CLI report: diagnostics grouped by ruleId, sorted by
