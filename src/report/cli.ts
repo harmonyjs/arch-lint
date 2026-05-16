@@ -26,3 +26,16 @@ export function osc8(text: string, href: string, enabled: boolean): string {
   if (!enabled) return text;
   return `${OSC}${href}${BEL}${text}${OSC}${BEL}`;
 }
+
+/** Maximum consumer-list entries shown before folding kicks in. */
+const FOLD_LIMIT = 5;
+
+/**
+ * Folds a long consumer list: when `fold` is on and the list exceeds
+ * FOLD_LIMIT entries, keeps the first FOLD_LIMIT and appends a summary line.
+ */
+export function foldConsumers(lines: readonly string[], fold: boolean): readonly string[] {
+  if (!fold || lines.length <= FOLD_LIMIT) return lines;
+  const shown = lines.slice(0, FOLD_LIMIT);
+  return [...shown, `… and ${lines.length - FOLD_LIMIT} more`];
+}
