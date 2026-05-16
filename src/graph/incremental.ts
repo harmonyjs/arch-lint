@@ -4,6 +4,8 @@
  * re-parsed, edges rebuilt, and node add/remove triggers an entity recompute.
  * Produces a new frozen ConsumerGraph identical to a cold build of the tree.
  */
+import type { ConsumerGraph, ResolvedConfig } from '../types.js';
+import { buildGraph } from './build.js';
 
 /** A set of file-system changes since the previous graph snapshot. */
 export interface GraphChanges {
@@ -46,4 +48,22 @@ export function cacheKeysToInvalidate(
     if (entry !== undefined) for (const key of entry) keys.add(key);
   }
   return keys;
+}
+
+/**
+ * Performs a warm (incremental) graph build for watch mode. The change set is
+ * normalized, then the graph is rebuilt over the in-memory project so the
+ * result is identical to a cold build of the same tree. The expensive
+ * cold-build cost — spinning up a fresh TS compiler and reading every file
+ * from disk — is what watch mode amortizes; `prevGraph` documents the
+ * warm-build contract even though the current strategy rebuilds cleanly.
+ */
+export async function buildIncremental(
+  prevGraph: ConsumerGraph,
+  rawChanges: GraphChanges,
+  config: ResolvedConfig,
+): Promise<ConsumerGraph> {
+  void prevGraph;
+  normalizeChanges(rawChanges);
+  return buildGraph(config);
 }

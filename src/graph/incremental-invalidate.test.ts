@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for resolver-cache invalidation via the reverse index.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { cacheKeysToInvalidate } from './incremental.js';
 
 const reverseIndex = new Map<string, Set<string>>([

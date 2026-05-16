@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the pure change-set normalization of warm builds.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { normalizeChanges } from './incremental.js';
 
 describe('normalizeChanges', () => {
