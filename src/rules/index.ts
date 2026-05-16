@@ -2,21 +2,21 @@
  * @fileoverview Rule registry — aggregates all built-in rules and resolves the active set.
  */
 import type { ResolvedConfig, Rule, Severity } from '../types.js';
-import { lcaPlacementRule } from './lca-placement/index.js';
-import { slotsPrivacyRule } from './slots-privacy/index.js';
-import { siblingsForbiddenRule } from './siblings-forbidden/index.js';
-import { emptyItemsFolderRule } from './empty-items-folder/index.js';
-import { layerBoundaryRule } from './layer-boundary/index.js';
-import { libPurityRule } from './lib-purity/index.js';
-import { unresolvedImportRule } from './unresolved-import/index.js';
-import { expiredSuppressRule } from './expired-suppress/index.js';
-import { barrelIsPublicFace } from './barrel-is-public-face/index.js';
-import { barrelRequiredForRole } from './barrel-required-for-role/index.js';
-import { noWildcardReexport } from './no-wildcard-reexport/index.js';
-import { barrelNarrowExport } from './barrel-narrow-export/index.js';
-import { uiClusterMembership } from './ui-cluster-membership/index.js';
-import { hooksFolderRequired } from './hooks-folder-required/index.js';
-import { tokensImportIsSideEffect } from './tokens-import-is-side-effect/index.js';
+import { lcaPlacementRule } from './placement/lca-placement/index.js';
+import { slotsPrivacyRule } from './placement/slots-privacy/index.js';
+import { siblingsForbiddenRule } from './placement/siblings-forbidden/index.js';
+import { emptyItemsFolderRule } from './placement/empty-items-folder/index.js';
+import { layerBoundaryRule } from './layers/layer-boundary/index.js';
+import { libPurityRule } from './layers/lib-purity/index.js';
+import { unresolvedImportRule } from './meta/unresolved-import/index.js';
+import { expiredSuppressRule } from './meta/expired-suppress/index.js';
+import { barrelIsPublicFace } from './barrels/barrel-is-public-face/index.js';
+import { barrelRequiredForRole } from './barrels/barrel-required-for-role/index.js';
+import { noWildcardReexport } from './barrels/no-wildcard-reexport/index.js';
+import { barrelNarrowExport } from './barrels/barrel-narrow-export/index.js';
+import { uiClusterMembership } from './view/ui-cluster-membership/index.js';
+import { hooksFolderRequired } from './view/hooks-folder-required/index.js';
+import { tokensImportIsSideEffect } from './view/tokens-import-is-side-effect/index.js';
 
 /**
  * Every built-in rule. M5/M6 append their packs to this array. Rules typed with a
