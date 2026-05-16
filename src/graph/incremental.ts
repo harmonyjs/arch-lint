@@ -1,0 +1,28 @@
+/**
+ * @fileoverview Warm (incremental) graph build for watch mode. On a watcher
+ * event the long-lived graph is patched in place of a cold rebuild: files are
+ * re-parsed, edges rebuilt, and node add/remove triggers an entity recompute.
+ * Produces a new frozen ConsumerGraph identical to a cold build of the tree.
+ */
+
+/** A set of file-system changes since the previous graph snapshot. */
+export interface GraphChanges {
+  readonly added: readonly string[];
+  readonly removed: readonly string[];
+  readonly modified: readonly string[];
+}
+
+/**
+ * Normalizes a raw change set so the three buckets are disjoint: a file that
+ * is both added/removed and modified keeps only its add/remove classification
+ * (the stronger event), since the file's node-set membership changed.
+ */
+export function normalizeChanges(raw: GraphChanges): GraphChanges {
+  const added = new Set(raw.added);
+  const removed = new Set(raw.removed);
+  return {
+    added: [...added],
+    removed: [...removed],
+    modified: raw.modified.filter((f) => !added.has(f) && !removed.has(f)),
+  };
+}
