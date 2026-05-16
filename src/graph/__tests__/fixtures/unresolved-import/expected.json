@@ -1,0 +1,6 @@
+{
+  "edges": [],
+  "unresolved": [
+    { "file": "src/app.ts", "specifier": "./missing.js", "symbol": "Gone", "reason": "alias-unresolved" }
+  ]
+}

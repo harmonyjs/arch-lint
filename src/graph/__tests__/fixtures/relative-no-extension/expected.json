@@ -1,0 +1,6 @@
+{
+  "edges": [
+    { "consumer": "src/app.ts", "producer": "src/helper.ts", "symbol": "helper", "typeOnly": false }
+  ],
+  "unresolved": []
+}

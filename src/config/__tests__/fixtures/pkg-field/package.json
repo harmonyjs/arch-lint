@@ -1,0 +1,4 @@
+{
+  "name": "pkg-field-fixture",
+  "arch-lint": { "project": { "tsconfig": "./tsconfig.json" } }
+}

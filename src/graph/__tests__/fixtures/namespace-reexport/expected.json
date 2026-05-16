@@ -1,0 +1,6 @@
+{
+  "edges": [],
+  "unresolved": [
+    { "file": "src/app.ts", "specifier": "./barrel.js", "symbol": "utils", "reason": "missing" }
+  ]
+}
