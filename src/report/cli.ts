@@ -13,3 +13,16 @@ export function groupHeader(ruleId: string, severity: string): string {
   const fill = Math.max(0, HEADER_WIDTH - label.length);
   return label + '─'.repeat(fill);
 }
+
+const OSC = '\x1b]8;;';
+const BEL = '\x07';
+
+/**
+ * Wraps `text` in an OSC8 terminal hyperlink pointing at `href`. When
+ * `enabled` is false (terminal lacks support, or hyperlinks are disabled) the
+ * plain text is returned unchanged.
+ */
+export function osc8(text: string, href: string, enabled: boolean): string {
+  if (!enabled) return text;
+  return `${OSC}${href}${BEL}${text}${OSC}${BEL}`;
+}
