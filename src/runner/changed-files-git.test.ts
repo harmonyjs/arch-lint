@@ -1,6 +1,6 @@
 /**
- * @fileoverview Post-implementation tests for git-backed changed-file
- * detection. Each test builds a throwaway git repo in a temp dir.
+ * @fileoverview Tests for git-backed changed-file detection. Each test builds
+ * a throwaway git repo in a temp dir.
  */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';

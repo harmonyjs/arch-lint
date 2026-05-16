@@ -67,10 +67,8 @@ export function affectedEntities(
 ): ReadonlySet<string> {
   const set = new Set<string>(changedFiles);
   for (const file of changedFiles) {
-    for (const e of graph.edges) {
-      if (e.consumer === file) set.add(e.producer);
-      if (e.producer === file) set.add(e.consumer);
-    }
+    for (const e of graph.consumersOf.get(file) ?? []) set.add(e.consumer);
+    for (const e of graph.producersOf.get(file) ?? []) set.add(e.producer);
   }
   return set;
 }
