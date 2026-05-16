@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { emptyItemsFolderRule } from './index.js';
 
 function cfg(): ResolvedConfig {
@@ -41,8 +42,7 @@ describe('emptyItemsFolderRule', () => {
       entityConsumers: { 'src/App/items/Underused': ['src/App/Header'] },
     });
     const out = emptyItemsFolderRule.check(g, cfg(), makeContext('empty-items-folder'));
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('empty-items-folder');
+    expect(only(out).ruleId).toBe('empty-items-folder');
   });
 
   it('does not emit for a slots-privacy verdict', () => {

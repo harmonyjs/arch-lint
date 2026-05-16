@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { lcaPlacementRule } from './index.js';
 
 function cfg(): ResolvedConfig {
@@ -43,9 +44,9 @@ describe('lcaPlacementRule', () => {
       entityConsumers: { 'src/App/Stray': ['src/App/Deep/A', 'src/App/Deep/B'] },
     });
     const out = lcaPlacementRule.check(g, cfg(), makeContext('lca-placement'));
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('lca-placement');
-    expect(out[0]!.entity).toBe('src/App/Stray');
+    const d = only(out);
+    expect(d.ruleId).toBe('lca-placement');
+    expect(d.entity).toBe('src/App/Stray');
   });
 
   it('does not emit for a slots-privacy verdict', () => {

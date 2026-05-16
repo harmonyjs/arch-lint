@@ -4,6 +4,7 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
+import { only } from '../rules/test-support/only.js';
 import type { SuppressConfig } from '../types.js';
 import { collectSuppressComments } from './collect-comments.js';
 
@@ -18,7 +19,7 @@ const cfg: SuppressConfig = {
 function firstExport(code: string) {
   const project = new Project({ useInMemoryFileSystem: true });
   const sf = project.createSourceFile('src/a.ts', code);
-  return sf.getExportedDeclarations().values().next().value![0]!;
+  return only(only([...sf.getExportedDeclarations().values()]));
 }
 
 describe('collectSuppressComments', () => {

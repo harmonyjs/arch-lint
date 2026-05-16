@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { perfileTestGraph } from '../support/perfile-test-graph.js';
 import { fileDescriptionRequired } from './index.js';
 
@@ -27,9 +28,9 @@ describe('file-description-required', () => {
 
   it('flags a file with no leading JSDoc', () => {
     const ds = run({ 'src/a.ts': 'export const a = 1;\n' });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.ruleId).toBe('file-description-required');
-    expect(ds[0]!.fingerprint).toBe('src/a.ts');
+    const d = only(ds);
+    expect(d.ruleId).toBe('file-description-required');
+    expect(d.fingerprint).toBe('src/a.ts');
   });
 
   it('flags a single-line @fileoverview comment', () => {

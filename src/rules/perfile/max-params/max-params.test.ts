@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { perfileTestGraph } from '../support/perfile-test-graph.js';
 import { maxParams } from './index.js';
 
@@ -27,9 +28,9 @@ describe('max-params', () => {
 
   it('flags a function with more parameters than max', () => {
     const ds = run({ 'src/a.ts': 'function f(a: 1, b: 1, c: 1, d: 1, e: 1) {}\n' }, 4);
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('src/a.ts#f');
-    expect(ds[0]!.actual).toContain('5');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('src/a.ts#f');
+    expect(d.actual).toContain('5');
   });
 
   it('passes a function exactly at the limit', () => {

@@ -4,6 +4,7 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
+import { only } from '../../test-support/only.js';
 import { collectFunctions } from './functions.js';
 
 function unitsOf(code: string): ReturnType<typeof collectFunctions> {
@@ -21,7 +22,7 @@ describe('collectFunctions', () => {
 
   it('exposes the ts-morph node for each unit', () => {
     const units = unitsOf('function only() {}');
-    expect(units[0]!.node.getKindName()).toBe('FunctionDeclaration');
+    expect(only(units).node.getKindName()).toBe('FunctionDeclaration');
   });
 
   it('returns an empty list for a file with no functions', () => {

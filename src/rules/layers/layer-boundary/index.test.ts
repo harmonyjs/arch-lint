@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { Edge, ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { layerBoundaryRule } from './index.js';
 
 function cfg(layers: ResolvedConfig['layers']): ResolvedConfig {
@@ -67,11 +68,11 @@ describe('layerBoundaryRule violations', () => {
     const g = makeGraph({ edges: [edge] });
     const config = cfg({ 'src/App': { canImport: [] }, 'src/api': { canImport: [] } });
     const out = layerBoundaryRule.check(g, config, ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('layer-boundary');
-    expect(out[0]!.fingerprint).toBe('src/App/App.tsx#src/api/client.ts');
-    expect(out[0]!.entity).toBe('src/App/App.tsx');
-    expect(out[0]!.location.file).toBe('src/App/App.tsx');
+    const d = only(out);
+    expect(d.ruleId).toBe('layer-boundary');
+    expect(d.fingerprint).toBe('src/App/App.tsx#src/api/client.ts');
+    expect(d.entity).toBe('src/App/App.tsx');
+    expect(d.location.file).toBe('src/App/App.tsx');
   });
 
   it('deduplicates by fingerprint when two symbols cross the same file boundary', () => {
@@ -122,8 +123,7 @@ describe('layerBoundaryRule sideEffectOnly', () => {
       'src/tokens': { canImport: [] },
     });
     const out = layerBoundaryRule.check(g, config, ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.reason).toContain('side-effect');
+    expect(only(out).reason).toContain('side-effect');
   });
 
   it('throws a config error when sideEffectOnly is not a subset of canImport', () => {

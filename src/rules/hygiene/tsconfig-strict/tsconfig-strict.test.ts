@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { tsconfigStrict } from './index.js';
 
 function run(tsconfig: string | null, options: Record<string, unknown>) {
@@ -52,11 +53,11 @@ describe('tsconfig-strict', () => {
 
   it('flags an explicitly disabled strict', () => {
     const ds = run('{"compilerOptions":{"strict":false}}', { preset: 'recommended' });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.ruleId).toBe('tsconfig-strict');
-    expect(ds[0]!.entity).toBe('tsconfig.json');
-    expect(ds[0]!.fingerprint).toBe('strict');
-    expect(ds[0]!.actual).toContain('false');
+    const d = only(ds);
+    expect(d.ruleId).toBe('tsconfig-strict');
+    expect(d.entity).toBe('tsconfig.json');
+    expect(d.fingerprint).toBe('strict');
+    expect(d.actual).toContain('false');
   });
 
   it('flags a missing strictest sub-flag', () => {
@@ -84,8 +85,7 @@ describe('tsconfig-strict', () => {
       preset: 'recommended',
       additionalFlags: ['noUnusedLocals'],
     });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('noUnusedLocals');
+    expect(only(ds).fingerprint).toBe('noUnusedLocals');
   });
 
   it('returns nothing when tsconfig.json is absent', () => {

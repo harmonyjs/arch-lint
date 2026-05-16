@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { siblingsForbiddenRule } from './index.js';
 
 function cfg(): ResolvedConfig {
@@ -45,8 +46,7 @@ describe('siblingsForbiddenRule', () => {
       cfg(),
       makeContext('siblings-forbidden', { severity: 'error' }),
     );
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('siblings-forbidden');
+    expect(only(out).ruleId).toBe('siblings-forbidden');
   });
 
   it('does not emit for an lca-placement verdict', () => {

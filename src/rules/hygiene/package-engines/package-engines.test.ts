@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { packageEngines } from './index.js';
 
 function run(packageJson: string | null, options: Record<string, unknown>) {
@@ -34,9 +35,9 @@ describe('package-engines', () => {
 
   it('flags a missing engine key', () => {
     const ds = run('{"engines":{"node":">=22"}}', { requiredKeys: ['node', 'npm'] });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('npm');
-    expect(ds[0]!.entity).toBe('package.json');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('npm');
+    expect(d.entity).toBe('package.json');
   });
 
   it('flags every missing key when engines is absent', () => {
