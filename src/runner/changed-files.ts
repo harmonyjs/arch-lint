@@ -5,6 +5,7 @@
  */
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import type { ConsumerGraph, Diagnostic } from '../types.js';
 
 const run = promisify(execFile);
 
@@ -53,4 +54,35 @@ export async function getChangedFiles(
   } catch {
     return null;
   }
+}
+
+/**
+ * Computes the affected entity set for `--changed-only` reporting: the changed
+ * files, the files they import (producers), and the files importing them
+ * (consumers). Verdicts are still computed on the full graph.
+ */
+export function affectedEntities(
+  changedFiles: readonly string[],
+  graph: ConsumerGraph,
+): ReadonlySet<string> {
+  const set = new Set<string>(changedFiles);
+  for (const file of changedFiles) {
+    for (const e of graph.edges) {
+      if (e.consumer === file) set.add(e.producer);
+      if (e.producer === file) set.add(e.consumer);
+    }
+  }
+  return set;
+}
+
+/**
+ * Narrows diagnostics to those whose `entity` is in the affected set.
+ * A `null` filter (no changed-only run, or safe degradation) keeps all.
+ */
+export function filterToAffected(
+  diagnostics: readonly Diagnostic[],
+  affected: ReadonlySet<string> | null,
+): readonly Diagnostic[] {
+  if (affected === null) return diagnostics;
+  return diagnostics.filter((d) => affected.has(d.entity));
 }
