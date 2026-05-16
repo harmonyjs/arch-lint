@@ -138,8 +138,7 @@ export function findNativeDeclaration(
       : { kind: 'resolved', file, symbol: 'default', typeOnly: def.typeOnly };
   }
   return (
-    scanExportedDeclaration(sourceFile, file, name) ??
-    scanLocalReExport(sourceFile, file, name)
+    scanExportedDeclaration(sourceFile, file, name) ?? scanLocalReExport(sourceFile, file, name)
   );
 }
 

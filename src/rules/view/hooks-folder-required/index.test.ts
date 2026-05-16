@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for hooks-folder-required — use-* files must live in hooks/ (D7).
  */
-import { describe, it, expect } from 'vitest';
-import { hooksFolderRequired, type HooksFolderRequiredOptions } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ConventionsConfig, ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { type HooksFolderRequiredOptions, hooksFolderRequired } from './index.js';
 
 const conventions: ConventionsConfig = {
   privateSegment: 'slots',
@@ -61,9 +61,7 @@ describe('hooks-folder-required', () => {
   });
 
   it('does not flag a regular file outside hooks/', () => {
-    expect(
-      hooksFolderRequired.check(graphOf(['src/App/Card.tsx']), config, ctx()),
-    ).toHaveLength(0);
+    expect(hooksFolderRequired.check(graphOf(['src/App/Card.tsx']), config, ctx())).toHaveLength(0);
   });
 
   it('strictCheck:true flags a non-hook file inside hooks/', () => {
@@ -100,11 +98,7 @@ describe('hooks-folder-required', () => {
 
   it('flags several use-* files outside hooks/', () => {
     expect(
-      hooksFolderRequired.check(
-        graphOf(['src/App/use-a.ts', 'src/App/use-b.tsx']),
-        config,
-        ctx(),
-      ),
+      hooksFolderRequired.check(graphOf(['src/App/use-a.ts', 'src/App/use-b.tsx']), config, ctx()),
     ).toHaveLength(2);
   });
 });

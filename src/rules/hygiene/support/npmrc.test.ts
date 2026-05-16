@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the line-aware INI parser of .npmrc (D5).
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { parseNpmrc } from './npmrc.js';
 
 const SAMPLE = [

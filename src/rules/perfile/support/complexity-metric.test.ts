@@ -2,8 +2,9 @@
  * @fileoverview Tests for the cognitive-complexity engine (D4) — the normative roadmap
  * increment table, one dedicated test group per increment kind.
  */
-import { describe, it, expect } from 'vitest';
-import { Project, Node } from 'ts-morph';
+
+import { Node, Project } from 'ts-morph';
+import { describe, expect, it } from 'vitest';
 import { cognitiveComplexity } from './complexity-metric.js';
 
 /** Scores the first function-like declaration of a snippet. */
@@ -35,9 +36,7 @@ describe('cognitiveComplexity — structural increments', () => {
   });
 
   it('adds +2 nesting for an if nested two levels deep (1 + 2 + 3)', () => {
-    expect(
-      score('function f(x: number) { if (x) { if (x) { if (x) {} } } }'),
-    ).toBe(6);
+    expect(score('function f(x: number) { if (x) { if (x) { if (x) {} } } }')).toBe(6);
   });
 });
 
@@ -47,9 +46,7 @@ describe('cognitiveComplexity — else / else if', () => {
   });
 
   it('adds +1 flat for else-if without nesting penalty (if + else-if + else = 3)', () => {
-    expect(
-      score('function f(x: number) { if (x) {} else if (x) {} else {} }'),
-    ).toBe(3);
+    expect(score('function f(x: number) { if (x) {} else if (x) {} else {} }')).toBe(3);
   });
 });
 
@@ -87,9 +84,7 @@ describe('cognitiveComplexity — ternary, switch, loops', () => {
   });
 
   it('adds +1 nesting for a for inside a while (1 + 2)', () => {
-    expect(
-      score('function f() { while (true) { for (let i = 0; i < 1; i++) {} } }'),
-    ).toBe(3);
+    expect(score('function f() { while (true) { for (let i = 0; i < 1; i++) {} } }')).toBe(3);
   });
 });
 
@@ -103,15 +98,11 @@ describe('cognitiveComplexity — catch', () => {
   });
 
   it('adds +1 nesting for a catch inside an if (1 + 2)', () => {
-    expect(
-      score('function f(x: number) { if (x) { try {} catch (e) {} } }'),
-    ).toBe(3);
+    expect(score('function f(x: number) { if (x) { try {} catch (e) {} } }')).toBe(3);
   });
 
   it('counts an if inside catch with catch nesting (catch 1 + if 1+1)', () => {
-    expect(
-      score('function f(x: number) { try {} catch (e) { if (x) {} } }'),
-    ).toBe(3);
+    expect(score('function f(x: number) { try {} catch (e) { if (x) {} } }')).toBe(3);
   });
 });
 
@@ -139,9 +130,7 @@ describe('cognitiveComplexity — recursion', () => {
   });
 
   it('adds +1 per recursive call site (two calls = 2)', () => {
-    expect(
-      score('function f(n: number): number { return f(n - 1) + f(n - 2); }'),
-    ).toBe(2);
+    expect(score('function f(n: number): number { return f(n - 1) + f(n - 2); }')).toBe(2);
   });
 
   it('does not count a call to another function', () => {
@@ -151,14 +140,12 @@ describe('cognitiveComplexity — recursion', () => {
 
 describe('cognitiveComplexity — labeled jumps', () => {
   it('adds +1 for a labeled break', () => {
-    const code =
-      'function f() { outer: for (let i = 0; i < 1; i++) { break outer; } }';
+    const code = 'function f() { outer: for (let i = 0; i < 1; i++) { break outer; } }';
     expect(score(code)).toBe(2);
   });
 
   it('adds +1 for a labeled continue', () => {
-    const code =
-      'function f() { outer: for (let i = 0; i < 1; i++) { continue outer; } }';
+    const code = 'function f() { outer: for (let i = 0; i < 1; i++) { continue outer; } }';
     expect(score(code)).toBe(2);
   });
 
@@ -167,9 +154,7 @@ describe('cognitiveComplexity — labeled jumps', () => {
   });
 
   it('does not count an unlabeled continue', () => {
-    expect(
-      score('function f() { for (let i = 0; i < 1; i++) { continue; } }'),
-    ).toBe(1);
+    expect(score('function f() { for (let i = 0; i < 1; i++) { continue; } }')).toBe(1);
   });
 });
 

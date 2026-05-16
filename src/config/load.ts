@@ -10,9 +10,9 @@ import { readFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createJiti } from 'jiti';
-import type { Config } from '../types.js';
 import { ConfigError } from '../errors.js';
-import { discoverConfig, type ConfigSource } from './discover.js';
+import type { Config } from '../types.js';
+import { type ConfigSource, discoverConfig } from './discover.js';
 import { validateConfig } from './schema.js';
 
 /** Extensions loaded through jiti (the rest go through native import). */
@@ -41,7 +41,7 @@ async function loadPackageField(packageJsonPath: string): Promise<unknown> {
       { configPath: packageJsonPath },
     );
   }
-  if (!Object.prototype.hasOwnProperty.call(raw, 'arch-lint')) {
+  if (!Object.hasOwn(raw, 'arch-lint')) {
     throw new ConfigError(`package.json at ${packageJsonPath} has no "arch-lint" field`, {
       configPath: packageJsonPath,
     });

@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for the rule registry — allRules and getActiveRules.
  */
-import { describe, it, expect } from 'vitest';
-import { allRules, getActiveRules } from './index.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig, Rule } from '../types.js';
+import { allRules, getActiveRules } from './index.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   return {
@@ -26,8 +26,14 @@ describe('allRules', () => {
   it('registers the 8 M4 rules', () => {
     const ids = new Set(allRules.map((r) => r.id));
     for (const id of [
-      'empty-items-folder', 'expired-suppress', 'layer-boundary', 'lca-placement',
-      'lib-purity', 'siblings-forbidden', 'slots-privacy', 'unresolved-import',
+      'empty-items-folder',
+      'expired-suppress',
+      'layer-boundary',
+      'lca-placement',
+      'lib-purity',
+      'siblings-forbidden',
+      'slots-privacy',
+      'unresolved-import',
     ]) {
       expect(ids.has(id)).toBe(true);
     }
@@ -104,7 +110,10 @@ describe('getActiveRules pack + severity filter', () => {
     const active = getActiveRules(cfg({ packs: ['placement'] }));
     expect(active.every((r) => r.pack === 'placement')).toBe(true);
     expect(active.map((r) => r.id).sort()).toEqual([
-      'empty-items-folder', 'lca-placement', 'siblings-forbidden', 'slots-privacy',
+      'empty-items-folder',
+      'lca-placement',
+      'siblings-forbidden',
+      'slots-privacy',
     ]);
   });
 
@@ -127,7 +136,10 @@ describe('getActiveRules --rules filter', () => {
   });
 
   it('applies the ruleFilter on top of the pack filter', () => {
-    const active = getActiveRules(cfg({ packs: ['placement'] }), ['layer-boundary', 'lca-placement']);
+    const active = getActiveRules(cfg({ packs: ['placement'] }), [
+      'layer-boundary',
+      'lca-placement',
+    ]);
     expect(active.map((r) => r.id)).toEqual(['lca-placement']);
   });
 
@@ -148,7 +160,8 @@ describe('getActiveRules plugins (D8)', () => {
 
   it("drops a plugin rule whose configured severity is 'off'", () => {
     const config = cfg({
-      packs: ['layers'], plugins: [pluginRule],
+      packs: ['layers'],
+      plugins: [pluginRule],
       rules: { 'custom-plugin-rule': { severity: 'off' } },
     });
     expect(getActiveRules(config).some((r) => r.id === 'custom-plugin-rule')).toBe(false);
@@ -156,6 +169,8 @@ describe('getActiveRules plugins (D8)', () => {
 
   it('subjects a plugin rule to the --rules filter', () => {
     const config = cfg({ packs: ['layers'], plugins: [pluginRule] });
-    expect(getActiveRules(config, ['layer-boundary']).some((r) => r.id === 'custom-plugin-rule')).toBe(false);
+    expect(
+      getActiveRules(config, ['layer-boundary']).some((r) => r.id === 'custom-plugin-rule'),
+    ).toBe(false);
   });
 });

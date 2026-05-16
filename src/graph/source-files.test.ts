@@ -1,14 +1,15 @@
 /**
  * @fileoverview Tests for source-file discovery: traversal, extension filter, ignore globs.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   discoverSourceFilePaths,
-  loadSourceFiles,
   fileIdOf,
+  loadSourceFiles,
   moduleResolutionContextOf,
 } from './source-files.js';
 
@@ -66,7 +67,12 @@ describe('fileIdOf / moduleResolutionContextOf', () => {
   it('converts an absolute path back to a cwd-relative POSIX file id', async () => {
     writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}');
     const set = await loadSourceFiles({
-      project: { tsconfig: './tsconfig.json', sourceRoot: 'src', cwd: dir, includeOutOfRoot: false },
+      project: {
+        tsconfig: './tsconfig.json',
+        sourceRoot: 'src',
+        cwd: dir,
+        includeOutOfRoot: false,
+      },
       resolve: { extensions: ['.ts', '.tsx'] },
       ignore: [],
     } as never);

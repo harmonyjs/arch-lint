@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for diffBaseline — the read-only `baseline diff` operation.
  */
-import { describe, it, expect } from 'vitest';
-import { diffBaseline } from './diff.js';
+import { describe, expect, it } from 'vitest';
 import type { BaselineFile, Diagnostic, Location } from '../types.js';
+import { diffBaseline } from './diff.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 
@@ -27,7 +27,9 @@ function baseline(records: BaselineFile['records']): BaselineFile {
 
 describe('diffBaseline', () => {
   it('reports an empty diff when diagnostics exactly match the baseline', () => {
-    const result = diffBaseline(baseline([{ ruleId: 'lca-placement', entity: 'src/Widget' }]), [diag({})]);
+    const result = diffBaseline(baseline([{ ruleId: 'lca-placement', entity: 'src/Widget' }]), [
+      diag({}),
+    ]);
     expect(result).toEqual({ added: [], resolved: [] });
   });
 
@@ -38,10 +40,9 @@ describe('diffBaseline', () => {
   });
 
   it('reports a baseline record with no diagnostic as resolved', () => {
-    const result = diffBaseline(
-      baseline([{ ruleId: 'lca-placement', entity: 'src/Gone' }]),
-      [diag({ entity: 'src/Widget' })],
-    );
+    const result = diffBaseline(baseline([{ ruleId: 'lca-placement', entity: 'src/Gone' }]), [
+      diag({ entity: 'src/Widget' }),
+    ]);
     expect(result.added).toEqual([{ ruleId: 'lca-placement', entity: 'src/Widget' }]);
     expect(result.resolved).toEqual([{ ruleId: 'lca-placement', entity: 'src/Gone' }]);
   });

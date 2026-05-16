@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for barrel-is-public-face — bypassing a barrel is forbidden (D7).
  */
-import { describe, it, expect } from 'vitest';
-import { barrelIsPublicFace, type BarrelIsPublicFaceOptions } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ConventionsConfig, Edge, ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { type BarrelIsPublicFaceOptions, barrelIsPublicFace } from './index.js';
 
 const conventions: ConventionsConfig = {
   privateSegment: 'slots',
@@ -155,9 +155,9 @@ describe('barrel-is-public-face', () => {
         },
       ],
     );
-    expect(
-      barrelIsPublicFace.check(graph, config, ctx({ allowExplicitIndex: true })),
-    ).toHaveLength(0);
+    expect(barrelIsPublicFace.check(graph, config, ctx({ allowExplicitIndex: true }))).toHaveLength(
+      0,
+    );
   });
 
   it('does not apply to a producer outside any component folder', () => {

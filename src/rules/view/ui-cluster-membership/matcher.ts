@@ -9,9 +9,7 @@ import picomatch from 'picomatch';
  * specifier. The view pack is parametrized by config: Preact or any other
  * library substitutes its own patterns — no hardcoded React package names.
  */
-export function triggerPackageMatcher(
-  patterns: readonly string[],
-): (specifier: string) => boolean {
+export function triggerPackageMatcher(patterns: readonly string[]): (specifier: string) => boolean {
   if (patterns.length === 0) return () => false;
   const isMatch = picomatch([...patterns]);
   return (specifier: string): boolean => isMatch(specifier);

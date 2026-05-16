@@ -1,19 +1,24 @@
 /**
  * @fileoverview Tests for runEngine — the §8.1 rule pipeline.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project } from 'ts-morph';
-import { runEngine } from './engine.js';
-import { makeGraph } from './test-support/make-graph.js';
-import { makeSuppressIndex } from './test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import { EngineError } from '../errors.js';
 import type { BaselineFile, ResolvedConfig, Rule } from '../types.js';
+import { runEngine } from './engine.js';
+import { makeSuppressIndex } from './test-support/make-context.js';
+import { makeGraph } from './test-support/make-graph.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   return {
     conventions: {
-      privateSegment: 'slots', sharedSegment: 'items', libSegment: 'lib',
-      hooksSegment: 'hooks', explicitClusterSegment: 'ui', modelSegment: 'model',
+      privateSegment: 'slots',
+      sharedSegment: 'items',
+      libSegment: 'lib',
+      hooksSegment: 'hooks',
+      explicitClusterSegment: 'ui',
+      modelSegment: 'model',
       indexFiles: ['index.ts', 'index.tsx'],
     },
     packs: ['placement', 'layers', 'meta'],
@@ -57,14 +62,22 @@ describe('runEngine pipeline steps 1-2', () => {
   it('threads the supplied project into rule contexts (D9)', () => {
     let seen: Project | null = null;
     const probe: Rule = {
-      id: 'lib-purity', pack: 'layers', engine: 'syntactic', defaultSeverity: 'error',
+      id: 'lib-purity',
+      pack: 'layers',
+      engine: 'syntactic',
+      defaultSeverity: 'error',
       check: (_g, _c, context) => {
         seen = context.project;
         return [];
       },
     };
     const project = new Project({ useInMemoryFileSystem: true });
-    runEngine(makeGraph({}), cfg({ packs: ['layers'], plugins: [probe] }), makeSuppressIndex(), project);
+    runEngine(
+      makeGraph({}),
+      cfg({ packs: ['layers'], plugins: [probe] }),
+      makeSuppressIndex(),
+      project,
+    );
     expect(seen).toBe(project);
   });
 });
@@ -72,22 +85,39 @@ describe('runEngine pipeline steps 1-2', () => {
 describe('runEngine pipeline steps 3-4', () => {
   it('throws EngineError when a rule emits a colliding (ruleId, entity, fingerprint)', () => {
     const collidingRule: Rule = {
-      id: 'lib-purity', pack: 'layers', engine: 'syntactic', defaultSeverity: 'error',
+      id: 'lib-purity',
+      pack: 'layers',
+      engine: 'syntactic',
+      defaultSeverity: 'error',
       check: () => [
         {
-          ruleId: 'lib-purity', severity: 'error', entity: 'src/x.ts',
-          fingerprint: 'dup', message: 'm', actual: 'a', reason: 'r',
-          suggestions: [], location: { file: 'src/x.ts', line: 1, column: 1 },
+          ruleId: 'lib-purity',
+          severity: 'error',
+          entity: 'src/x.ts',
+          fingerprint: 'dup',
+          message: 'm',
+          actual: 'a',
+          reason: 'r',
+          suggestions: [],
+          location: { file: 'src/x.ts', line: 1, column: 1 },
         },
         {
-          ruleId: 'lib-purity', severity: 'error', entity: 'src/x.ts',
-          fingerprint: 'dup', message: 'm', actual: 'a', reason: 'r',
-          suggestions: [], location: { file: 'src/x.ts', line: 2, column: 1 },
+          ruleId: 'lib-purity',
+          severity: 'error',
+          entity: 'src/x.ts',
+          fingerprint: 'dup',
+          message: 'm',
+          actual: 'a',
+          reason: 'r',
+          suggestions: [],
+          location: { file: 'src/x.ts', line: 2, column: 1 },
         },
       ],
     };
     const config = cfg({ packs: ['layers'], plugins: [collidingRule] });
-    expect(() => runEngine(makeGraph({}), config, makeSuppressIndex(), emptyProject)).toThrow(EngineError);
+    expect(() => runEngine(makeGraph({}), config, makeSuppressIndex(), emptyProject)).toThrow(
+      EngineError,
+    );
   });
 
   it('does not throw for well-formed unique diagnostics', () => {
@@ -108,7 +138,14 @@ describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
       generatorVersion: '1.0.0',
       records: [{ ruleId: 'lca-placement', entity: 'src/App/Stray' }],
     };
-    const result = runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject, undefined, baseline);
+    const result = runEngine(
+      strayGraph,
+      cfg(),
+      makeSuppressIndex(),
+      emptyProject,
+      undefined,
+      baseline,
+    );
     const stray = result.diagnostics.find((d) => d.entity === 'src/App/Stray');
     expect(stray?.status).toBe('inBaseline');
   });
@@ -125,7 +162,14 @@ describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
       generatorVersion: '1.0.0',
       records: [{ ruleId: 'lca-placement', entity: 'src/App/Stray' }],
     };
-    const result = runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject, undefined, baseline);
+    const result = runEngine(
+      strayGraph,
+      cfg(),
+      makeSuppressIndex(),
+      emptyProject,
+      undefined,
+      baseline,
+    );
     expect(result.exitCode).toBe(0);
   });
 
@@ -138,23 +182,46 @@ describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
   });
 
   it('honors the ruleFilter argument', () => {
-    const result = runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject, ['layer-boundary'], null);
+    const result = runEngine(
+      strayGraph,
+      cfg(),
+      makeSuppressIndex(),
+      emptyProject,
+      ['layer-boundary'],
+      null,
+    );
     expect(result.diagnostics).toEqual([]);
   });
 
   it('keeps exitCode 0 when the only new diagnostic is info severity', () => {
     const infoRule: Rule = {
-      id: 'lib-purity', pack: 'layers', engine: 'syntactic', defaultSeverity: 'error',
+      id: 'lib-purity',
+      pack: 'layers',
+      engine: 'syntactic',
+      defaultSeverity: 'error',
       check: () => [
         {
-          ruleId: 'lib-purity', severity: 'info', entity: 'src/x.ts',
-          fingerprint: 'f', message: 'm', actual: 'a', reason: 'r',
-          suggestions: [], location: { file: 'src/x.ts', line: 1, column: 1 },
+          ruleId: 'lib-purity',
+          severity: 'info',
+          entity: 'src/x.ts',
+          fingerprint: 'f',
+          message: 'm',
+          actual: 'a',
+          reason: 'r',
+          suggestions: [],
+          location: { file: 'src/x.ts', line: 1, column: 1 },
         },
       ],
     };
     const config = cfg({ packs: ['layers'], plugins: [infoRule] });
-    const result = runEngine(makeGraph({}), config, makeSuppressIndex(), emptyProject, undefined, null);
+    const result = runEngine(
+      makeGraph({}),
+      config,
+      makeSuppressIndex(),
+      emptyProject,
+      undefined,
+      null,
+    );
     expect(result.summary.bySeverity.info).toBe(1);
     expect(result.exitCode).toBe(0);
   });

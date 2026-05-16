@@ -4,8 +4,8 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildGraph } from '../build.js';
 import type { ResolvedConfig } from '../../types.js';
+import { buildGraph } from '../build.js';
 
 interface NormalizedEdge {
   readonly consumer: string;
@@ -37,7 +37,12 @@ const sortUnresolved = (a: NormalizedUnresolved, b: NormalizedUnresolved): numbe
 /** Builds a ResolvedConfig pointing at a fixture's `project/` directory. */
 function fixtureConfig(projectDir: string): ResolvedConfig {
   return {
-    project: { tsconfig: './tsconfig.json', sourceRoot: 'src', cwd: projectDir, includeOutOfRoot: false },
+    project: {
+      tsconfig: './tsconfig.json',
+      sourceRoot: 'src',
+      cwd: projectDir,
+      includeOutOfRoot: false,
+    },
     conventions: {
       privateSegment: 'slots',
       sharedSegment: 'items',
@@ -97,13 +102,20 @@ export async function runFixture(
   const graph = await buildGraph(fixtureConfig(join(caseDir, 'project')));
   const actual: FixtureExpectation = {
     edges: graph.edges
-      .map((e) => ({ consumer: e.consumer, producer: e.producer, symbol: e.symbol, typeOnly: e.typeOnly }))
+      .map((e) => ({
+        consumer: e.consumer,
+        producer: e.producer,
+        symbol: e.symbol,
+        typeOnly: e.typeOnly,
+      }))
       .sort(sortEdges),
     unresolved: graph.unresolved
       .map((u) => ({ file: u.file, specifier: u.specifier, symbol: u.symbol, reason: u.reason }))
       .sort(sortUnresolved),
   };
-  const raw = JSON.parse(readFileSync(join(caseDir, 'expected.json'), 'utf8')) as FixtureExpectation;
+  const raw = JSON.parse(
+    readFileSync(join(caseDir, 'expected.json'), 'utf8'),
+  ) as FixtureExpectation;
   const expected: FixtureExpectation = {
     edges: [...raw.edges].sort(sortEdges),
     unresolved: [...raw.unresolved].sort(sortUnresolved),

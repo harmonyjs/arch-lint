@@ -1,9 +1,10 @@
 /**
  * @fileoverview Drives every resolver fixture project against its expected.json.
  */
-import { describe, it, expect } from 'vitest';
-import { readdirSync, existsSync } from 'node:fs';
+
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import { runFixture } from './fixture-runner.js';
 
 const fixturesDir = join(import.meta.dirname, 'fixtures');

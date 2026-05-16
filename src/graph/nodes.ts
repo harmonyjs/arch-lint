@@ -2,11 +2,12 @@
  * @fileoverview Builds graph nodes — one per source file plus one per component
  * folder — with entity classification and explicit-placement clustering.
  */
-import { Node as TsNode, type SourceFile } from 'ts-morph';
+
 import picomatch from 'picomatch';
+import { type SourceFile, Node as TsNode } from 'ts-morph';
 import type { ConventionsConfig, ExplicitPlacementRule, Node } from '../types.js';
+import { type EntityContext, isComponentFolder } from './entities.js';
 import type { SourceFileSet } from './source-files.js';
-import { isComponentFolder, type EntityContext } from './entities.js';
 
 /** True if a source file consists solely of re-export declarations (a pure barrel). */
 export function isBarrelFile(sourceFile: SourceFile): boolean {

@@ -1,15 +1,19 @@
 /**
  * @fileoverview Tests for buildRuleContext — per-rule RuleContext assembly.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project } from 'ts-morph';
+import { describe, expect, it } from 'vitest';
+import type { ResolvedConfig, Rule } from '../types.js';
 import { buildRuleContext } from './build-context.js';
 import { makeSuppressIndex } from './test-support/make-context.js';
-import type { ResolvedConfig, Rule } from '../types.js';
 
 const rule: Rule = {
-  id: 'lca-placement', pack: 'placement', engine: 'structural',
-  defaultSeverity: 'warning', check: () => [],
+  id: 'lca-placement',
+  pack: 'placement',
+  engine: 'structural',
+  defaultSeverity: 'warning',
+  check: () => [],
 };
 
 function cfg(rules: ResolvedConfig['rules']): ResolvedConfig {
@@ -28,7 +32,10 @@ describe('buildRuleContext', () => {
 
   it('uses the configured severity override', () => {
     const ctx = buildRuleContext(
-      rule, cfg({ 'lca-placement': { severity: 'error' } }), makeSuppressIndex(), project,
+      rule,
+      cfg({ 'lca-placement': { severity: 'error' } }),
+      makeSuppressIndex(),
+      project,
     );
     expect(ctx.severity).toBe('error');
   });

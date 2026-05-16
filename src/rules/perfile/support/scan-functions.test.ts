@@ -1,10 +1,10 @@
 /**
  * @fileoverview Tests for the shared per-function scan helper of function-level perfile rules.
  */
-import { describe, it, expect } from 'vitest';
-import { scanFunctions, functionLocation } from './scan-functions.js';
+import { describe, expect, it } from 'vitest';
 import { makeGraph } from '../../test-support/make-graph.js';
 import type { FunctionUnit } from './functions.js';
+import { functionLocation, scanFunctions } from './scan-functions.js';
 
 describe('scanFunctions', () => {
   it('visits every function of every file node with its file id', () => {

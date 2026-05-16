@@ -1,20 +1,21 @@
 /**
  * @fileoverview Tests for entity resolution: role folders, component folders, entityOf.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { loadSourceFiles } from './source-files.js';
-import {
-  isRoleFolder,
-  isComponentFolder,
-  entityOf,
-  componentParent,
-  projectEntityConsumers,
-  type EntityContext,
-} from './entities.js';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ConventionsConfig } from '../types.js';
+import {
+  componentParent,
+  type EntityContext,
+  entityOf,
+  isComponentFolder,
+  isRoleFolder,
+  projectEntityConsumers,
+} from './entities.js';
+import { loadSourceFiles } from './source-files.js';
 
 let dir: string;
 
@@ -169,9 +170,24 @@ describe('projectEntityConsumers', () => {
     write('src/Card/Card.tsx', 'export const Card = 1;');
     const ctx = await makeCtx();
     const edges = [
-      { consumer: 'src/App/App.tsx', producer: 'src/App/helper.ts', symbol: 'helper', typeOnly: false },
-      { consumer: 'src/Widget/Widget.tsx', producer: 'src/App/App.tsx', symbol: 'App', typeOnly: false },
-      { consumer: 'src/Card/Card.tsx', producer: 'src/App/helper.ts', symbol: 'helper', typeOnly: false },
+      {
+        consumer: 'src/App/App.tsx',
+        producer: 'src/App/helper.ts',
+        symbol: 'helper',
+        typeOnly: false,
+      },
+      {
+        consumer: 'src/Widget/Widget.tsx',
+        producer: 'src/App/App.tsx',
+        symbol: 'App',
+        typeOnly: false,
+      },
+      {
+        consumer: 'src/Card/Card.tsx',
+        producer: 'src/App/helper.ts',
+        symbol: 'helper',
+        typeOnly: false,
+      },
     ];
     const projected = projectEntityConsumers(edges, ctx);
     expect(projected.get('src/App')).toEqual(['src/Card', 'src/Widget']);
@@ -185,8 +201,18 @@ describe('projectEntityConsumers', () => {
     write('src/Widget/more.ts', 'export const more = 1;');
     const ctx = await makeCtx();
     const edges = [
-      { consumer: 'src/Widget/Widget.tsx', producer: 'src/App/App.tsx', symbol: 'App', typeOnly: false },
-      { consumer: 'src/Widget/more.ts', producer: 'src/App/extra.ts', symbol: 'extra', typeOnly: false },
+      {
+        consumer: 'src/Widget/Widget.tsx',
+        producer: 'src/App/App.tsx',
+        symbol: 'App',
+        typeOnly: false,
+      },
+      {
+        consumer: 'src/Widget/more.ts',
+        producer: 'src/App/extra.ts',
+        symbol: 'extra',
+        typeOnly: false,
+      },
     ];
     const projected = projectEntityConsumers(edges, ctx);
     expect(projected.get('src/App')).toEqual(['src/Widget']);

@@ -16,9 +16,7 @@ export function sourceFileFor(project: Project, id: string): SourceFile | undefi
   const direct = project.getSourceFile(id);
   if (direct !== undefined) return direct;
   const suffix = `/${id}`;
-  return project
-    .getSourceFiles()
-    .find((sf) => sf.getFilePath().endsWith(suffix));
+  return project.getSourceFiles().find((sf) => sf.getFilePath().endsWith(suffix));
 }
 
 /** The ids of every file-kind node in the graph, in iteration order. */

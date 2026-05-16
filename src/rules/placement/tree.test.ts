@@ -1,13 +1,17 @@
 /**
  * @fileoverview Tests for the entity-tree helpers: componentParentOf, lca, layerOf.
  */
-import { describe, it, expect } from 'vitest';
-import { componentParentOf, lca, layerOf } from './tree.js';
+import { describe, expect, it } from 'vitest';
 import { makeGraph } from '../test-support/make-graph.js';
+import { componentParentOf, layerOf, lca } from './tree.js';
 
 const conv = {
-  privateSegment: 'slots', sharedSegment: 'items', libSegment: 'lib',
-  hooksSegment: 'hooks', explicitClusterSegment: 'ui', modelSegment: 'model',
+  privateSegment: 'slots',
+  sharedSegment: 'items',
+  libSegment: 'lib',
+  hooksSegment: 'hooks',
+  explicitClusterSegment: 'ui',
+  modelSegment: 'model',
 } as const;
 
 describe('componentParentOf', () => {

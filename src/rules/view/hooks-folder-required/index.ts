@@ -2,9 +2,15 @@
  * @fileoverview hooks-folder-required rule — use-* files must live in a hooks/ folder
  * (decision D7). The view pack is parametrized by config — no hardcoded React naming.
  */
-import type { ConsumerGraph, Diagnostic, ResolvedConfig, Rule, RuleContext } from '../../../types.js';
-import { segmentsOf, isUnderSegment } from '../../syntactic-support/segments.js';
+import type {
+  ConsumerGraph,
+  Diagnostic,
+  ResolvedConfig,
+  Rule,
+  RuleContext,
+} from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
+import { isUnderSegment, segmentsOf } from '../../syntactic-support/segments.js';
 
 /** Options of hooks-folder-required (D7). */
 export interface HooksFolderRequiredOptions {
@@ -40,7 +46,11 @@ function makeDiag(
       : `File '${fileId}' inside '${hooksSegment}/' does not match the hook pattern ${pattern}`;
   const suggestion =
     kind === 'misplaced'
-      ? { action: 'move' as const, target: targetDir, rationale: `Move the hook into '${targetDir}'` }
+      ? {
+          action: 'move' as const,
+          target: targetDir,
+          rationale: `Move the hook into '${targetDir}'`,
+        }
       : {
           action: 'custom' as const,
           rationale: 'Move the non-hook file out of the hooks/ folder or rename it to a hook',

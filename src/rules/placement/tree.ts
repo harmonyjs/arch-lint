@@ -6,8 +6,12 @@ import type { ConsumerGraph, ConventionsConfig, LayersConfig } from '../../types
 /** The role-segment subset of conventions — folders that are transparent in the tree. */
 export type RoleConv = Pick<
   ConventionsConfig,
-  'privateSegment' | 'sharedSegment' | 'libSegment' | 'hooksSegment'
-  | 'explicitClusterSegment' | 'modelSegment'
+  | 'privateSegment'
+  | 'sharedSegment'
+  | 'libSegment'
+  | 'hooksSegment'
+  | 'explicitClusterSegment'
+  | 'modelSegment'
 >;
 
 /** Ancestor path ids of `id`, nearest first (excluding `id` itself). */

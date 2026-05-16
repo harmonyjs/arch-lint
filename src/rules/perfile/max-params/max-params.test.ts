@@ -1,18 +1,22 @@
 /**
  * @fileoverview Tests for the max-params rule of the perfile pack.
  */
-import { describe, it, expect } from 'vitest';
-import { maxParams } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { perfileTestGraph } from '../support/perfile-test-graph.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { perfileTestGraph } from '../support/perfile-test-graph.js';
+import { maxParams } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
 
 function run(files: Record<string, string>, max: number) {
   const graph = perfileTestGraph(files);
-  const ctx = makeContext('max-params', { severity: 'warning', project: graph.project, options: { max } });
+  const ctx = makeContext('max-params', {
+    severity: 'warning',
+    project: graph.project,
+    options: { max },
+  });
   return maxParams.check(graph, CONFIG, ctx);
 }
 

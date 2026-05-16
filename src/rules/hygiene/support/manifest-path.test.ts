@@ -1,12 +1,14 @@
 /**
  * @fileoverview Tests for the manifest path resolver of the hygiene pack.
  */
-import { describe, it, expect } from 'vitest';
-import { manifestPath } from './manifest-path.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { manifestPath } from './manifest-path.js';
 
 function configWithCwd(cwd: string): ResolvedConfig {
-  return { project: { tsconfig: 't', sourceRoot: 'src', cwd, includeOutOfRoot: false } } as ResolvedConfig;
+  return {
+    project: { tsconfig: 't', sourceRoot: 'src', cwd, includeOutOfRoot: false },
+  } as ResolvedConfig;
 }
 
 describe('manifestPath', () => {

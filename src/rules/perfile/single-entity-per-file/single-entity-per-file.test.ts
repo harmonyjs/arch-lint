@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for the single-entity-per-file rule of the perfile pack.
  */
-import { describe, it, expect } from 'vitest';
-import { singleEntityPerFile } from './index.js';
+import { describe, expect, it } from 'vitest';
+import type { ResolvedConfig } from '../../../types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { perfileTestGraph } from '../support/perfile-test-graph.js';
-import type { ResolvedConfig } from '../../../types.js';
+import { singleEntityPerFile } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
 
@@ -23,8 +23,7 @@ describe('single-entity-per-file', () => {
   it('passes a file with one component plus helper non-entity exports', () => {
     expect(
       run({
-        'src/a.tsx':
-          'export function Button() { return null; }\nexport const cssClass = "btn";\n',
+        'src/a.tsx': 'export function Button() { return null; }\nexport const cssClass = "btn";\n',
       }),
     ).toEqual([]);
   });
@@ -45,8 +44,6 @@ describe('single-entity-per-file', () => {
   });
 
   it('does not count exported lowercase functions as entities', () => {
-    expect(
-      run({ 'src/a.ts': 'export class A {}\nexport function helper() {}\n' }),
-    ).toEqual([]);
+    expect(run({ 'src/a.ts': 'export class A {}\nexport function helper() {}\n' })).toEqual([]);
   });
 });

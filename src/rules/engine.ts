@@ -2,6 +2,7 @@
  * @fileoverview runEngine — executes the §8.1 rule pipeline over a frozen graph.
  */
 import type { Project } from 'ts-morph';
+import { classifyDiagnostics } from '../baseline/classify.js';
 import type {
   ActiveSeverity,
   BaselineFile,
@@ -11,10 +12,9 @@ import type {
   ResolvedConfig,
   SuppressIndex,
 } from '../types.js';
-import { classifyDiagnostics } from '../baseline/classify.js';
-import { getActiveRules } from './index.js';
 import { buildRuleContext } from './build-context.js';
 import { dedupPlacement } from './dedup-placement.js';
+import { getActiveRules } from './index.js';
 import { runtimeSelfCheck } from './self-check.js';
 
 /** Tally classified diagnostics into the CheckResult summary and exit code (§10.3). */

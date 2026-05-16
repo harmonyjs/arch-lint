@@ -2,8 +2,9 @@
  * @fileoverview single-entity-per-file rule — forbids more than one exported entity
  * (class or component) per file. Reads file AST from the RuleContext project (D9).
  */
-import { Node } from 'ts-morph';
+
 import type { SourceFile } from 'ts-morph';
+import { Node } from 'ts-morph';
 import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
 
@@ -25,7 +26,8 @@ function entityCount(sf: SourceFile): number {
     if (!stmt.isExported()) continue;
     for (const decl of stmt.getDeclarations()) {
       const init = decl.getInitializer();
-      const isFn = init !== undefined && (Node.isArrowFunction(init) || Node.isFunctionExpression(init));
+      const isFn =
+        init !== undefined && (Node.isArrowFunction(init) || Node.isFunctionExpression(init));
       if (isFn && isPascalCase(decl.getName())) count += 1;
     }
   }

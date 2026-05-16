@@ -2,17 +2,17 @@
  * @fileoverview Builds file-level consumer edges by resolving each import through the
  * syntactic resolver — edges represent post-barrel-unwinding consumer relations (§4.2).
  */
-import { Node, type Identifier, type SourceFile } from 'ts-morph';
+import { type Identifier, Node, type SourceFile } from 'ts-morph';
 import type { Edge, UnresolvedImport } from '../types.js';
-import type { SourceFileSet } from './source-files.js';
-import type { Resolver } from './resolve.js';
 import {
+  type CollectorCtx,
   collectImportedSymbol,
+  type EdgeSink,
   locationOf,
   resolveTargetFile,
-  type CollectorCtx,
-  type EdgeSink,
 } from './edges-collectors.js';
+import type { Resolver } from './resolve.js';
+import type { SourceFileSet } from './source-files.js';
 
 export interface EdgeBuildResult {
   readonly edges: readonly Edge[];
@@ -62,11 +62,7 @@ function classifyNamespaceUses(ns: Identifier): { members: Set<string>; wholeUse
  * `ns.member` access becomes an edge to `resolveExport(m, 'member')`; using `ns`
  * itself as a value yields an unresolved entry.
  */
-function collectNamespaceImports(
-  ctx: CollectorCtx,
-  fileId: string,
-  sourceFile: SourceFile,
-): void {
+function collectNamespaceImports(ctx: CollectorCtx, fileId: string, sourceFile: SourceFile): void {
   for (const decl of sourceFile.getImportDeclarations()) {
     const ns = decl.getNamespaceImport();
     if (ns === undefined) {

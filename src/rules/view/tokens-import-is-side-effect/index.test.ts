@@ -1,14 +1,11 @@
 /**
  * @fileoverview Tests for tokens-import-is-side-effect — tokens are imported side-effect only.
  */
-import { describe, it, expect } from 'vitest';
-import {
-  tokensImportIsSideEffect,
-  type TokensImportIsSideEffectOptions,
-} from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { type TokensImportIsSideEffectOptions, tokensImportIsSideEffect } from './index.js';
 
 const config = {} as unknown as ResolvedConfig;
 

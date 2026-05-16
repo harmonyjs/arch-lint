@@ -3,11 +3,11 @@
  */
 import { Node, type SourceFile } from 'ts-morph';
 import type { Resolution } from '../types.js';
-import type { SourceFileSet } from './source-files.js';
 import type { ModuleResolutionContext } from './module-resolution.js';
 import { resolveSpecifier } from './module-resolution.js';
-import { fileIdOf } from './source-files.js';
 import { ownExportNames } from './resolve-declarations.js';
+import type { SourceFileSet } from './source-files.js';
+import { fileIdOf } from './source-files.js';
 
 /** A module specifier classified relative to the parsed source set. */
 export type TargetResolution =
@@ -89,7 +89,13 @@ function wildcardReachable(
     if (targetFile === undefined) {
       continue;
     }
-    if (wildcardReachable(ctx, { sourceFile: targetFile, file: target.file, name: probe.name }, visited)) {
+    if (
+      wildcardReachable(
+        ctx,
+        { sourceFile: targetFile, file: target.file, name: probe.name },
+        visited,
+      )
+    ) {
       return true;
     }
   }

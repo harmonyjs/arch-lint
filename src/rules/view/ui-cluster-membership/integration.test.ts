@@ -1,17 +1,16 @@
 /**
  * @fileoverview Integration test for ui-cluster-membership on a graph from real buildGraph.
  */
-import { describe, it, expect } from 'vitest';
+
 import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import { resolveConfig } from '../../../config/resolve-defaults.js';
 import { buildGraph } from '../../../graph/build.js';
 import { loadSourceFiles } from '../../../graph/source-files.js';
-import { resolveConfig } from '../../../config/resolve-defaults.js';
-import { uiClusterMembership, type UiClusterMembershipOptions } from './index.js';
 import { makeContext } from '../../test-support/make-context.js';
+import { type UiClusterMembershipOptions, uiClusterMembership } from './index.js';
 
-const fixtureRoot = fileURLToPath(
-  new URL('./__tests__/fixtures/trigger-outside', import.meta.url),
-);
+const fixtureRoot = fileURLToPath(new URL('./__tests__/fixtures/trigger-outside', import.meta.url));
 
 describe('ui-cluster-membership — integration', () => {
   it('flags only the file outside the cluster on a really built graph', async () => {

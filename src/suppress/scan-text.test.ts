@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for the @arch-decision comment-text scanner — all three §9 forms.
  */
-import { describe, it, expect } from 'vitest';
-import { scanSuppressText } from './scan-text.js';
+import { describe, expect, it } from 'vitest';
 import type { Location } from '../types.js';
+import { scanSuppressText } from './scan-text.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 
@@ -13,7 +13,11 @@ describe('scanSuppressText — broad form', () => {
   });
 
   it('parses broad @arch-decision: <reason>', () => {
-    const r = scanSuppressText('@arch-decision: legacy module kept on purpose', '@arch-decision', loc);
+    const r = scanSuppressText(
+      '@arch-decision: legacy module kept on purpose',
+      '@arch-decision',
+      loc,
+    );
     expect(r).toEqual({
       ruleId: null,
       reasonText: 'legacy module kept on purpose',
@@ -54,7 +58,11 @@ describe('scanSuppressText — rule-scoped form', () => {
   });
 
   it('tolerates whitespace inside and around the bracket', () => {
-    const r = scanSuppressText('@arch-decision [ slots-privacy ] : reason text', '@arch-decision', loc);
+    const r = scanSuppressText(
+      '@arch-decision [ slots-privacy ] : reason text',
+      '@arch-decision',
+      loc,
+    );
     expect(r?.ruleId).toBe(' slots-privacy ');
     expect(r?.reasonText).toBe('reason text');
   });

@@ -63,9 +63,7 @@ export const tsconfigStrict: Rule = {
         expected: `${flag}: true`,
         actual: eff.getOption(flag) === false ? `${flag}: false` : `${flag} is not set`,
         reason: 'relaxing type strictness undermines the architectural guarantees',
-        suggestions: [
-          { action: 'custom', rationale: `enable "${flag}": true in tsconfig.json` },
-        ],
+        suggestions: [{ action: 'custom', rationale: `enable "${flag}": true in tsconfig.json` }],
         location: eff.keyLocation(flag),
       });
     }

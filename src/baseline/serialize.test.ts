@@ -1,10 +1,12 @@
 /**
  * @fileoverview Tests for baseline file schema, parsing, serialization and file io.
  */
-import { describe, it, expect } from 'vitest';
+
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import type { BaselineFile, BaselineRecord } from '../types.js';
 import {
   loadBaseline,
   parseBaselineFile,
@@ -12,7 +14,6 @@ import {
   sortRecords,
   writeBaseline,
 } from './serialize.js';
-import type { BaselineFile, BaselineRecord } from '../types.js';
 
 const SAMPLE: BaselineFile = {
   schemaVersion: 1,

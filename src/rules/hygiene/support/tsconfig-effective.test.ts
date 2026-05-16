@@ -1,10 +1,11 @@
 /**
  * @fileoverview Tests for the effective tsconfig resolver (with extends) and key positions (D5).
  */
-import { describe, it, expect } from 'vitest';
+
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import { effectiveCompilerOptions } from './tsconfig-effective.js';
 
 function fixture(files: Record<string, string>): string {

@@ -1,0 +1,51 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      // Build output and coverage reports — generated, never hand-edited.
+      "!dist",
+      "!coverage",
+      // Test fixtures are intentionally structured (line counts, layout, imports
+      // are the thing under test) — reformatting them would change what they test.
+      "!src/**/__tests__/fixtures",
+      // vitest.config.ts is owned by the test setup and excluded from this baseline.
+      "!vitest.config.ts"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "lineEnding": "lf"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        // Non-null assertions (`x!`) are idiomatic here — pervasive in tests where
+        // the surrounding assertion already guarantees the element exists.
+        "noNonNullAssertion": "off"
+      },
+      "complexity": {
+        // tsconfig sets noPropertyAccessFromIndexSignature: true, which *requires*
+        // bracket access on index-signature types — the opposite of this rule.
+        "useLiteralKeys": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  }
+}

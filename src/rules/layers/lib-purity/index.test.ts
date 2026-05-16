@@ -1,18 +1,23 @@
 /**
  * @fileoverview Tests for the lib-purity rule.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project } from 'ts-morph';
-import { libPurityRule } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { libPurityRule } from './index.js';
 
 function cfg(): ResolvedConfig {
   return {
     conventions: {
-      privateSegment: 'slots', sharedSegment: 'items', libSegment: 'lib',
-      hooksSegment: 'hooks', explicitClusterSegment: 'ui', modelSegment: 'model',
+      privateSegment: 'slots',
+      sharedSegment: 'items',
+      libSegment: 'lib',
+      hooksSegment: 'hooks',
+      explicitClusterSegment: 'ui',
+      modelSegment: 'model',
       indexFiles: ['index.ts', 'index.tsx'],
     },
   } as unknown as ResolvedConfig;
@@ -191,7 +196,8 @@ describe('libPurityRule fingerprint', () => {
       severity: 'error',
       options: { forbiddenImports: ['react'] },
       project: project({
-        'src/lib/util.ts': "import { useState } from 'react';\nimport { useState as u } from 'react';",
+        'src/lib/util.ts':
+          "import { useState } from 'react';\nimport { useState as u } from 'react';",
       }),
     });
     // Two declarations both import the binding `useState` (the alias source) from react.

@@ -1,12 +1,13 @@
 /**
  * @fileoverview Integration tests for buildGraph cold build over a real directory.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { buildGraph } from './build.js';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../types.js';
+import { buildGraph } from './build.js';
 
 let dir: string;
 

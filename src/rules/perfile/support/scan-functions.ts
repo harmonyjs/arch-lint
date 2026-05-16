@@ -6,8 +6,8 @@
 import type { Project } from 'ts-morph';
 import type { ConsumerGraph, Location } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import { collectFunctions } from './functions.js';
 import type { FunctionUnit } from './functions.js';
+import { collectFunctions } from './functions.js';
 
 /** Visits every function unit of every file node, passing the owning file id. */
 export function scanFunctions(

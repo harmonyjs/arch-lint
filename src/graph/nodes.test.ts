@@ -1,13 +1,14 @@
 /**
  * @fileoverview Tests for graph node construction — files and component folders.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { loadSourceFiles } from './source-files.js';
-import { buildNodes } from './nodes.js';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ConventionsConfig, ExplicitPlacementRule } from '../types.js';
+import { buildNodes } from './nodes.js';
+import { loadSourceFiles } from './source-files.js';
 
 let dir: string;
 

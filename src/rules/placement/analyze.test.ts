@@ -1,17 +1,21 @@
 /**
  * @fileoverview Tests for analyzePlacement — the §7.3 decision tree (D3).
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { ResolvedConfig } from '../../types.js';
+import { makeGraph } from '../test-support/make-graph.js';
 import { analyzePlacement } from './analyze.js';
 import { componentParentOf } from './tree.js';
-import { makeGraph } from '../test-support/make-graph.js';
-import type { ResolvedConfig } from '../../types.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   return {
     conventions: {
-      privateSegment: 'slots', sharedSegment: 'items', libSegment: 'lib',
-      hooksSegment: 'hooks', explicitClusterSegment: 'ui', modelSegment: 'model',
+      privateSegment: 'slots',
+      sharedSegment: 'items',
+      libSegment: 'lib',
+      hooksSegment: 'hooks',
+      explicitClusterSegment: 'ui',
+      modelSegment: 'model',
       indexFiles: ['index.ts', 'index.tsx'],
     },
     layers: {},

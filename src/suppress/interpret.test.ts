@@ -1,10 +1,10 @@
 /**
  * @fileoverview Tests for semantic interpretation of raw @arch-decision comments.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { Location, SuppressConfig } from '../types.js';
 import { interpretSuppress } from './interpret.js';
 import type { RawSuppressComment } from './types.js';
-import type { Location, SuppressConfig } from '../types.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 
@@ -71,12 +71,20 @@ describe('interpretSuppress', () => {
     const r = interpretSuppress(raw({ expiryText: 'next-friday' }), cfg);
     expect(r).toEqual({
       ok: false,
-      value: { kind: 'bad-expiry', ruleId: null, reason: 'a sufficiently long reason', location: loc },
+      value: {
+        kind: 'bad-expiry',
+        ruleId: null,
+        reason: 'a sufficiently long reason',
+        location: loc,
+      },
     });
   });
 
   it('forces expiry to null when expirySupport is disabled', () => {
-    const r = interpretSuppress(raw({ expiryText: '2026-12-31' }), { ...cfg, expirySupport: false });
+    const r = interpretSuppress(raw({ expiryText: '2026-12-31' }), {
+      ...cfg,
+      expirySupport: false,
+    });
     expect(r.ok === true && r.value.expiry).toBeNull();
   });
 

@@ -1,8 +1,9 @@
 /**
  * @fileoverview Tests for locating the main-export anchor declaration of an entity.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project, type SourceFile } from 'ts-morph';
+import { describe, expect, it } from 'vitest';
 import { findAnchorDeclaration } from './anchor.js';
 
 function sf(code: string): SourceFile {
@@ -53,7 +54,10 @@ describe('findAnchorDeclaration — default fallback and anonymous default', () 
   });
 
   it('anchors on an anonymous default function declaration', () => {
-    const anchor = findAnchorDeclaration(sf('export default function () { return null; }'), 'Widget');
+    const anchor = findAnchorDeclaration(
+      sf('export default function () { return null; }'),
+      'Widget',
+    );
     expect(anchor).not.toBeNull();
   });
 

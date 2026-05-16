@@ -1,17 +1,21 @@
 /**
  * @fileoverview Tests for the lca-placement rule.
  */
-import { describe, it, expect } from 'vitest';
-import { lcaPlacementRule } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { lcaPlacementRule } from './index.js';
 
 function cfg(): ResolvedConfig {
   return {
     conventions: {
-      privateSegment: 'slots', sharedSegment: 'items', libSegment: 'lib',
-      hooksSegment: 'hooks', explicitClusterSegment: 'ui', modelSegment: 'model',
+      privateSegment: 'slots',
+      sharedSegment: 'items',
+      libSegment: 'lib',
+      hooksSegment: 'hooks',
+      explicitClusterSegment: 'ui',
+      modelSegment: 'model',
       indexFiles: ['index.ts', 'index.tsx'],
     },
     layers: {},

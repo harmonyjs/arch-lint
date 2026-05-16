@@ -1,14 +1,20 @@
 /**
  * @fileoverview Tests for dedupPlacement — the defensive placement-dedup engine step.
  */
-import { describe, it, expect } from 'vitest';
-import { dedupPlacement } from './dedup-placement.js';
+import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from '../types.js';
+import { dedupPlacement } from './dedup-placement.js';
 
 function diag(ruleId: string, entity: string): Diagnostic {
   return {
-    ruleId, severity: 'warning', entity, message: 'm', actual: 'a', reason: 'r',
-    suggestions: [], location: { file: entity, line: 1, column: 1 },
+    ruleId,
+    severity: 'warning',
+    entity,
+    message: 'm',
+    actual: 'a',
+    reason: 'r',
+    suggestions: [],
+    location: { file: entity, line: 1, column: 1 },
   };
 }
 

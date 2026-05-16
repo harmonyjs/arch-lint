@@ -1,8 +1,9 @@
 /**
  * @fileoverview Tests for the normalized parse of a file's import/export constructs.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project } from 'ts-morph';
+import { describe, expect, it } from 'vitest';
 import { importsOf } from './import-info.js';
 
 function parse(code: string) {

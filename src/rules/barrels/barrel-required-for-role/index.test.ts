@@ -1,11 +1,11 @@
 /**
  * @fileoverview Tests for the barrel-required-for-role rule — D6, both folder classes.
  */
-import { describe, it, expect } from 'vitest';
-import { barrelRequiredForRole, type BarrelRequiredForRoleOptions } from './index.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { describe, expect, it } from 'vitest';
 import type { ConventionsConfig, ResolvedConfig } from '../../../types.js';
+import { makeContext } from '../../test-support/make-context.js';
+import { makeGraph } from '../../test-support/make-graph.js';
+import { type BarrelRequiredForRoleOptions, barrelRequiredForRole } from './index.js';
 
 const conventions: ConventionsConfig = {
   privateSegment: 'slots',
@@ -30,10 +30,7 @@ type NodeKind = 'file' | 'folder';
 function graphOf(nodes: ReadonlyArray<readonly [string, NodeKind]>) {
   return makeGraph({
     nodes: Object.fromEntries(
-      nodes.map(([id, kind]) => [
-        id,
-        kind === 'folder' ? { kind, isEntity: true } : { kind },
-      ]),
+      nodes.map(([id, kind]) => [id, kind === 'folder' ? { kind, isEntity: true } : { kind }]),
     ),
   });
 }
@@ -93,11 +90,7 @@ describe('barrel-required-for-role', () => {
       ['src/App/lib', 'folder'],
       ['src/App/lib/util.ts', 'file'],
     ]);
-    const diags = barrelRequiredForRole.check(
-      graph,
-      config,
-      ctx({ exemptPaths: ['src/App/lib'] }),
-    );
+    const diags = barrelRequiredForRole.check(graph, config, ctx({ exemptPaths: ['src/App/lib'] }));
     expect(diags).toHaveLength(0);
   });
 
@@ -122,11 +115,7 @@ describe('barrel-required-for-role', () => {
       ['src/App/Header', 'folder'],
       ['src/App/Header/Header.tsx', 'file'],
     ]);
-    const diags = barrelRequiredForRole.check(
-      graph,
-      config,
-      ctx({ enforceForSegments: ['lib'] }),
-    );
+    const diags = barrelRequiredForRole.check(graph, config, ctx({ enforceForSegments: ['lib'] }));
     expect(diags).toHaveLength(1);
   });
 });

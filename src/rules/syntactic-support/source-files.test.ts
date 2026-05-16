@@ -1,10 +1,11 @@
 /**
  * @fileoverview Tests for node-id source-file lookup over a RuleContext project (D9).
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project } from 'ts-morph';
-import { sourceFileFor, fileNodeIds } from './source-files.js';
+import { describe, expect, it } from 'vitest';
 import { makeGraph } from '../test-support/make-graph.js';
+import { fileNodeIds, sourceFileFor } from './source-files.js';
 
 describe('sourceFileFor', () => {
   it('finds a file by its exact node id', () => {

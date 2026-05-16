@@ -40,10 +40,7 @@ export function componentFolderOf(
 }
 
 /** The role segment of a folder (a conventions.*Segment value), or null. */
-export function roleFolderSegment(
-  folderId: string,
-  conventions: ConventionsConfig,
-): string | null {
+export function roleFolderSegment(folderId: string, conventions: ConventionsConfig): string | null {
   const segs = segmentsOf(folderId);
   const last = segs[segs.length - 1];
   const roles = [

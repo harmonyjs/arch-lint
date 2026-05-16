@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for specificity-precedence resolution of a suppress stack (§9).
  */
-import { describe, it, expect } from 'vitest';
-import { isSuppressedByStack } from './precedence.js';
+import { describe, expect, it } from 'vitest';
 import type { Location, ParsedSuppress } from '../types.js';
+import { isSuppressedByStack } from './precedence.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 const NOW = new Date('2026-06-01T00:00:00Z');

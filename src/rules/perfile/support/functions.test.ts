@@ -1,8 +1,9 @@
 /**
  * @fileoverview Tests for the file function-declaration scanner used by perfile rules.
  */
-import { describe, it, expect } from 'vitest';
+
 import { Project } from 'ts-morph';
+import { describe, expect, it } from 'vitest';
 import { collectFunctions } from './functions.js';
 
 function unitsOf(code: string): ReturnType<typeof collectFunctions> {
