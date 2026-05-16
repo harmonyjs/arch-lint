@@ -7,23 +7,27 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 import type { Project } from 'ts-morph';
 import { parseBaselineFile } from '../baseline/index.js';
-import { ConfigError, IOError } from '../errors.js';
+import { loadConfig } from '../config/load.js';
+import { resolveConfig } from '../config/resolve-defaults.js';
+import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors.js';
+import { buildGraph } from '../graph/build.js';
+import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
+import { formatReport } from '../report/cli.js';
 import { runEngine } from '../rules/engine.js';
+import { buildSuppressIndex, type SuppressEntity } from '../suppress/suppress-index.js';
 import type {
   BaselineFile,
   CheckResult,
   ConsumerGraph,
+  Diagnostic,
   ResolvedConfig,
   SuppressIndex,
 } from '../types.js';
+import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */
 function isMissingFile(err: unknown): boolean {
-  return (
-    typeof err === 'object' &&
-    err !== null &&
-    (err as { code?: unknown }).code === 'ENOENT'
-  );
+  return typeof err === 'object' && err !== null && (err as { code?: unknown }).code === 'ENOENT';
 }
 
 /**
@@ -83,4 +87,132 @@ export async function resolveBaseline(
   } catch (err) {
     throw new ConfigError(`baseline file is invalid: ${file}`, { cause: err });
   }
+}
+
+/** Strips a trailing `.ts` or `.tsx` extension from a file basename. */
+function dropTsExtension(basename: string): string {
+  return basename.replace(/\.tsx?$/, '');
+}
+
+/** The final path segment of a POSIX id. */
+function basenameOf(id: string): string {
+  return id.slice(id.lastIndexOf('/') + 1);
+}
+
+/**
+ * Projects the graph's entity nodes onto the SuppressEntity descriptors the
+ * suppress index needs. A file entity is its own entry file (its name is the
+ * basename without the `.ts`/`.tsx` extension); a component-folder entity's
+ * entry file is the same-named `.tsx` (or `.ts`) file inside it, and its name
+ * is the folder basename.
+ */
+export function deriveSuppressEntities(
+  graph: ConsumerGraph,
+  sources: SourceFileSet,
+): SuppressEntity[] {
+  const entities: SuppressEntity[] = [];
+  for (const node of graph.nodes.values()) {
+    if (!node.isEntity) continue;
+    const base = basenameOf(node.id);
+    if (node.kind === 'file') {
+      entities.push({ id: node.id, name: dropTsExtension(base), entryFilePath: node.id });
+      continue;
+    }
+    const tsxEntry = `${node.id}/${base}.tsx`;
+    const entryFilePath = sources.files.has(tsxEntry) ? tsxEntry : `${node.id}/${base}.ts`;
+    entities.push({ id: node.id, name: base, entryFilePath });
+  }
+  return entities;
+}
+
+/** A run mode selects which runMode sub-config governs the pass/fail verdict. */
+export type RunMode = 'ci' | 'preCommit';
+
+/** Everything a single runCheck invocation needs from the CLI. */
+export interface RunCheckOptions {
+  /** Directory the run is rooted at — config discovery and git both start here. */
+  readonly cwd: string;
+  /** Explicit config path from `--config`, bypassing autodiscovery. */
+  readonly configPath?: string;
+  /** Which runMode sub-config decides the verdict. */
+  readonly mode: RunMode;
+  /** Skip the baseline entirely — every diagnostic counts as new. */
+  readonly noBaseline: boolean;
+  /** Narrow the reported diagnostics to files changed against a git base. */
+  readonly changedOnly: boolean;
+  /** Git base ref for `changedOnly`; absent means diff against HEAD. */
+  readonly base?: string;
+  /** Restrict the run to these rule ids; absent runs every active rule. */
+  readonly ruleFilter?: readonly string[];
+}
+
+/** The result of a runCheck invocation — the report plus the process verdict. */
+export interface RunCheckOutcome {
+  /** The engine result, with diagnostics and exit code narrowed by changedOnly. */
+  readonly result: CheckResult;
+  /** The rendered CLI report for the (possibly narrowed) diagnostics. */
+  readonly report: string;
+  /** The process exit code: 1 only when a blocking new violation is reported. */
+  readonly exitCode: 0 | 1;
+  /** Non-fatal notices surfaced during the run, e.g. a degraded changed-only. */
+  readonly warnings: readonly string[];
+}
+
+/**
+ * Builds the dependency graph, mapping any non-typed failure onto a
+ * GraphBuildError while letting an already-typed ArchLintError through.
+ */
+async function buildGraphOrThrow(config: ResolvedConfig): Promise<ConsumerGraph> {
+  try {
+    return await buildGraph(config);
+  } catch (err) {
+    if (err instanceof ArchLintError) throw err;
+    throw new GraphBuildError('failed to build dependency graph', { cause: err });
+  }
+}
+
+/**
+ * The full I/O orchestration behind a `check` run: load and resolve config,
+ * build the graph and parse sources, build the suppress index and resolve the
+ * baseline, run the engine, then apply the changed-only reporting filter and
+ * compute the verdict. The summary always reflects the full run; changed-only
+ * narrows only the reported diagnostics and the exit code.
+ */
+export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcome> {
+  const config = resolveConfig(await loadConfig(options.cwd, options.configPath));
+  const graph = await buildGraphOrThrow(config);
+  const sources = await loadSourceFiles(config);
+  const suppress = buildSuppressIndex(
+    sources.project,
+    config.suppress,
+    deriveSuppressEntities(graph, sources),
+  );
+  const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
+  const result = check(graph, config, suppress, sources.project, options.ruleFilter, baseline);
+
+  const warnings: string[] = [];
+  let diagnostics: readonly Diagnostic[] = result.diagnostics;
+  if (options.changedOnly) {
+    const changed = await getChangedFiles(options.cwd, options.base);
+    if (changed === null) {
+      warnings.push('changed-only: could not determine the git base — reporting all violations');
+    } else {
+      diagnostics = filterToAffected(diagnostics, affectedEntities(changed, graph));
+    }
+  }
+
+  const failOn =
+    options.mode === 'ci'
+      ? config.runMode.ci.failOnViolations
+      : config.runMode.preCommit.failOnViolations;
+  const hasNew = diagnostics.some((d) => d.status === 'new');
+  const verdictCode: 0 | 1 = failOn && hasNew ? 1 : 0;
+
+  const filteredResult: CheckResult = { ...result, diagnostics, exitCode: verdictCode };
+  return {
+    result: filteredResult,
+    report: formatReport(filteredResult, config),
+    exitCode: verdictCode,
+    warnings,
+  };
 }
