@@ -1,7 +1,7 @@
 /**
  * @fileoverview Golden tests for OSC8 terminal hyperlink rendering.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { osc8 } from './cli.js';
 
 const ESC = '\x1b';

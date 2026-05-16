@@ -1,7 +1,7 @@
 /**
  * @fileoverview Golden tests for single-diagnostic body rendering.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from '../types.js';
 import { renderDiagnostic } from './cli.js';
 
@@ -58,11 +58,9 @@ describe('renderDiagnostic', () => {
       location: { file: 'src/api/api.ts', line: 2, column: 1 },
     };
     expect(renderDiagnostic(minimal, opts)).toBe(
-      [
-        '  src/api/api.ts',
-        '    Actual:   src/api/api.ts',
-        '    Reason:   missing export',
-      ].join('\n'),
+      ['  src/api/api.ts', '    Actual:   src/api/api.ts', '    Reason:   missing export'].join(
+        '\n',
+      ),
     );
   });
 });

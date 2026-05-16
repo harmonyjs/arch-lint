@@ -3,7 +3,8 @@
  * diagnostics grouped by ruleId, with colour, OSC8 hyperlinks and long
  * consumer lists folded. Pure: takes a CheckResult and config, returns a string.
  */
-import type { ConsumerInfo, Diagnostic } from '../types.js';
+import pc from 'picocolors';
+import type { CheckResult, ConsumerInfo, Diagnostic, ResolvedConfig } from '../types.js';
 
 /** Total visual width of a group-header divider line. */
 const HEADER_WIDTH = 61;
@@ -75,4 +76,63 @@ export function renderDiagnostic(d: Diagnostic, opts: RenderOptions): string {
     lines.push(...d.suggestions.map((s, i) => suggestionLine(s, i)));
   }
   return lines.join('\n');
+}
+
+function pluralize(count: number, word: string): string {
+  return `${count} ${word}${count === 1 ? '' : 's'}`;
+}
+
+function summaryLine(summary: CheckResult['summary']): string {
+  return (
+    `Summary: ${pluralize(summary.bySeverity.error, 'error')}, ` +
+    `${pluralize(summary.bySeverity.warning, 'warning')} ` +
+    `(${summary.new} new, ${summary.inBaseline} in baseline)`
+  );
+}
+
+function colorEnabled(mode: ResolvedConfig['report']['cli']['color']): boolean {
+  if (mode === 'always') return true;
+  if (mode === 'never') return false;
+  return pc.isColorSupported;
+}
+
+/** Order of severities within a rule group (highest first). */
+const SEVERITY_ORDER: readonly Diagnostic['severity'][] = ['error', 'warning', 'info'];
+
+/**
+ * Renders the full CLI report: diagnostics grouped by ruleId, sorted by
+ * severity within a group, closed by a summary line. Pure — colour is decided
+ * from report.cli.color, never from ambient process state directly.
+ */
+export function formatReport(result: CheckResult, config: ResolvedConfig): string {
+  const cli = config.report.cli;
+  if (result.diagnostics.length === 0) return 'No architecture violations found.';
+
+  const useColor = colorEnabled(cli.color);
+  const opts: RenderOptions = {
+    showConsumers: cli.showConsumers,
+    showSuggestions: cli.showSuggestions,
+    foldLongLists: cli.foldLongLists,
+    hyperlinks: cli.hyperlinks === 'always' || (cli.hyperlinks === 'auto' && useColor),
+  };
+
+  const byRule = new Map<string, Diagnostic[]>();
+  for (const d of result.diagnostics) {
+    const bucket = byRule.get(d.ruleId);
+    if (bucket === undefined) byRule.set(d.ruleId, [d]);
+    else bucket.push(d);
+  }
+
+  const blocks: string[] = [];
+  for (const ruleId of [...byRule.keys()].sort()) {
+    const diags = [...byRule.get(ruleId)!].sort(
+      (a, b) => SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity),
+    );
+    const groupSeverity = diags[0]!.severity;
+    const header = groupHeader(ruleId, groupSeverity);
+    blocks.push(useColor ? pc.bold(header) : header);
+    for (const d of diags) blocks.push(renderDiagnostic(d, opts));
+  }
+  blocks.push(summaryLine(result.summary));
+  return blocks.join('\n');
 }

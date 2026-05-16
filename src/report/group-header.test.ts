@@ -1,7 +1,7 @@
 /**
  * @fileoverview Golden tests for the rule-group header line.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { groupHeader } from './cli.js';
 
 describe('groupHeader', () => {

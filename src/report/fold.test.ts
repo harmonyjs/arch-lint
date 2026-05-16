@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for long consumer-list folding.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { foldConsumers } from './cli.js';
 
 describe('foldConsumers', () => {
@@ -12,9 +12,7 @@ describe('foldConsumers', () => {
 
   it('folds lists longer than 5 to first 5 plus a summary line', () => {
     const eight = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    expect(foldConsumers(eight, true)).toEqual([
-      'a', 'b', 'c', 'd', 'e', '… and 3 more',
-    ]);
+    expect(foldConsumers(eight, true)).toEqual(['a', 'b', 'c', 'd', 'e', '… and 3 more']);
   });
 
   it('does not fold when folding is disabled', () => {
