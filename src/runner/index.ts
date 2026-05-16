@@ -10,7 +10,7 @@ import { parseBaselineFile } from '../baseline/index.js';
 import { loadConfig } from '../config/load.js';
 import { resolveConfig } from '../config/resolve-defaults.js';
 import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors.js';
-import { buildGraph } from '../graph/build.js';
+import { buildGraphFromSources } from '../graph/build.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import { formatReport } from '../report/cli.js';
 import { runEngine } from '../rules/engine.js';
@@ -159,12 +159,18 @@ export interface RunCheckOutcome {
 }
 
 /**
- * Builds the dependency graph, mapping any non-typed failure onto a
- * GraphBuildError while letting an already-typed ArchLintError through.
+ * Loads sources once and builds the dependency graph from them, returning both so
+ * the engine reuses the same parsed Project. Any non-typed failure — from source
+ * loading or graph assembly — maps onto a GraphBuildError; an already-typed
+ * ArchLintError passes through untouched.
  */
-async function buildGraphOrThrow(config: ResolvedConfig): Promise<ConsumerGraph> {
+async function buildGraphAndSources(
+  config: ResolvedConfig,
+): Promise<{ graph: ConsumerGraph; sources: SourceFileSet }> {
   try {
-    return await buildGraph(config);
+    const sources = await loadSourceFiles(config);
+    const graph = buildGraphFromSources(config, sources);
+    return { graph, sources };
   } catch (err) {
     if (err instanceof ArchLintError) throw err;
     throw new GraphBuildError('failed to build dependency graph', { cause: err });
@@ -180,8 +186,7 @@ async function buildGraphOrThrow(config: ResolvedConfig): Promise<ConsumerGraph>
  */
 export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcome> {
   const config = resolveConfig(await loadConfig(options.cwd, options.configPath));
-  const graph = await buildGraphOrThrow(config);
-  const sources = await loadSourceFiles(config);
+  const { graph, sources } = await buildGraphAndSources(config);
   const suppress = buildSuppressIndex(
     sources.project,
     config.suppress,
