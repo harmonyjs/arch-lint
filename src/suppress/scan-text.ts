@@ -5,6 +5,20 @@
 import type { Location } from '../types.js';
 import type { RawSuppressComment } from './types.js';
 
+/** The directive opener that must follow the marker: an optional `[ruleId]` then `:`. */
+const DIRECTIVE_OPENER = /^\s*(?:\[[^\]]*\])?\s*:/;
+
+/**
+ * True when `text` carries an actual @arch-decision directive — the marker followed by
+ * the `[ruleId]?:` opener. A bare marker in prose (e.g. a `@fileoverview` that documents
+ * the @arch-decision feature) has no opener and is not a directive.
+ */
+export function hasArchDecisionDirective(text: string, marker: string): boolean {
+  const markerIdx = text.indexOf(marker);
+  if (markerIdx === -1) return false;
+  return DIRECTIVE_OPENER.test(text.slice(markerIdx + marker.length));
+}
+
 /**
  * Scan one comment's plain text for an @arch-decision directive.
  * Returns `null` if the marker is absent; otherwise a raw, not-yet-validated result.

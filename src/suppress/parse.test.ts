@@ -118,6 +118,18 @@ describe('parseEntitySuppress', () => {
     expect(data.malformed[0]?.kind).toBe('no-main-export');
   });
 
+  it('ignores a marker that appears as prose in a comment, not as a directive', () => {
+    const data = parseEntitySuppress(
+      sf(
+        '/**\n * @fileoverview parser that reports malformed @arch-decision comments.\n */\n' +
+          'export const helper = 1;',
+      ),
+      widget,
+      cfg,
+    );
+    expect(data).toEqual({ valid: [], malformed: [] });
+  });
+
   it('does not scan jsdoc when scanLocations excludes it', () => {
     const data = parseEntitySuppress(
       sf(

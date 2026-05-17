@@ -9,7 +9,7 @@ import { findAnchorDeclaration } from './anchor.js';
 import { type CollectedComment, collectSuppressComments } from './collect-comments.js';
 import type { SuppressEntity } from './entity-resolver.js';
 import { interpretSuppress } from './interpret.js';
-import { scanSuppressText } from './scan-text.js';
+import { hasArchDecisionDirective, scanSuppressText } from './scan-text.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
 
 /**
@@ -50,8 +50,9 @@ function interpretAll(
 }
 
 /**
- * Search the file's comments for a @arch-decision marker that could not be anchored.
- * Only comment text is scanned — a marker inside a string literal or ordinary code is
+ * Search the file's comments for an @arch-decision directive that could not be anchored.
+ * Only comment text is scanned, and only a real directive counts — a marker inside a
+ * string literal, ordinary code, or prose (a `@fileoverview` documenting the feature) is
  * not a suppress directive and must be ignored.
  */
 function findStrayMarker(entryFile: SourceFile, config: SuppressConfig): MalformedSuppress | null {
@@ -62,9 +63,11 @@ function findStrayMarker(entryFile: SourceFile, config: SuppressConfig): Malform
       const pos = range.getPos();
       if (seen.has(pos)) continue;
       seen.add(pos);
-      const offset = fullText.slice(pos, range.getEnd()).indexOf(config.marker);
-      if (offset === -1) continue;
-      const { line, column } = entryFile.getLineAndColumnAtPos(pos + offset);
+      const commentText = fullText.slice(pos, range.getEnd());
+      if (!hasArchDecisionDirective(commentText, config.marker)) continue;
+      const { line, column } = entryFile.getLineAndColumnAtPos(
+        pos + commentText.indexOf(config.marker),
+      );
       const location: Location = { file: entryFile.getFilePath(), line, column };
       return { kind: 'no-main-export', ruleId: null, reason: undefined, location };
     }

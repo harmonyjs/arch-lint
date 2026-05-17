@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Location } from '../types.js';
-import { scanSuppressText } from './scan-text.js';
+import { hasArchDecisionDirective, scanSuppressText } from './scan-text.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };
 
@@ -122,5 +122,31 @@ describe('scanSuppressText — until-expiry form', () => {
     const r = scanSuppressText('@arch-decision: until 2026-12-31,', '@arch-decision', loc);
     expect(r?.expiryText).toBe('2026-12-31');
     expect(r?.reasonText).toBe('');
+  });
+});
+
+describe('hasArchDecisionDirective', () => {
+  it('is false when the marker is absent', () => {
+    expect(hasArchDecisionDirective('just a normal comment', '@arch-decision')).toBe(false);
+  });
+
+  it('is false for a bare marker in prose with no directive opener', () => {
+    expect(
+      hasArchDecisionDirective('reports malformed @arch-decision comments', '@arch-decision'),
+    ).toBe(false);
+  });
+
+  it('is true for the broad colon form', () => {
+    expect(hasArchDecisionDirective('@arch-decision: a real reason', '@arch-decision')).toBe(true);
+  });
+
+  it('is true for the rule-scoped bracket form', () => {
+    expect(
+      hasArchDecisionDirective('@arch-decision[lca-placement]: reason', '@arch-decision'),
+    ).toBe(true);
+  });
+
+  it('tolerates whitespace around the bracket and colon', () => {
+    expect(hasArchDecisionDirective('@arch-decision [ x ] : reason', '@arch-decision')).toBe(true);
   });
 });
