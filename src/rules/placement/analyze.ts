@@ -2,8 +2,9 @@
  * @fileoverview analyzePlacement — sole owner of the §7.3 placement decision tree (D3).
  */
 import type { ResolvedConfig } from '../../config/types.js';
+import { layerOf } from '../../graph/index.js';
 import type { ConsumerGraph } from '../../graph/types.js';
-import { componentParentOf, layerOf, lca } from './tree.js';
+import { componentParentOf, lca } from './tree.js';
 
 export interface PlacementVerdict {
   readonly entity: string;
