@@ -6,6 +6,7 @@
 import picomatch from 'picomatch';
 import { type SourceFile, Node as TsNode } from 'ts-morph';
 import type { ConventionsConfig, ExplicitPlacementRule } from '#config/types.js';
+import { baseNameOf, dirOf, dropExtension } from '#entity-id/index.js';
 import type { SourceFileSet } from './discover-source-files.js';
 import { type EntityContext, isComponentFolder } from './entities.js';
 import type { Node } from './types.js';
@@ -23,14 +24,10 @@ export function isBarrelFile(sourceFile: SourceFile): boolean {
 
 /** True if `fileId` is the same-name entry file of its enclosing folder. */
 function isEntryFile(fileId: string): boolean {
-  const lastSlash = fileId.lastIndexOf('/');
-  if (lastSlash < 0) {
-    return false;
-  }
-  const folder = fileId.slice(0, lastSlash);
-  const folderName = folder.slice(folder.lastIndexOf('/') + 1);
-  const base = fileId.slice(lastSlash + 1).replace(/\.(tsx|ts)$/, '');
-  return base === folderName;
+  const folder = dirOf(fileId);
+  if (folder === '') return false;
+  const folderName = baseNameOf(folder);
+  return dropExtension(baseNameOf(fileId)) === folderName;
 }
 
 type Placement = { placementMode: Node['placementMode']; cluster?: string };
@@ -51,12 +48,12 @@ function collectComponentFolders(
   entityCtx: EntityContext,
   componentFolders: Set<string>,
 ): void {
-  let folder = fileId.slice(0, fileId.lastIndexOf('/'));
+  let folder = dirOf(fileId);
   while (folder.length > 0 && folder.includes('/')) {
     if (isComponentFolder(folder, entityCtx)) {
       componentFolders.add(folder);
     }
-    folder = folder.slice(0, folder.lastIndexOf('/'));
+    folder = dirOf(folder);
   }
 }
 
