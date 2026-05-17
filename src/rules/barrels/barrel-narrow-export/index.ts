@@ -67,16 +67,22 @@ function foreignReexports(
   return { offenders, location };
 }
 
+/** One barrel's narrow-export finding — the offending re-exports and where to report them. */
+interface NarrowExportFinding {
+  readonly folderId: string;
+  readonly entityName: string;
+  readonly offenders: readonly string[];
+  readonly location: Location;
+}
+
 /** Builds the narrow-export diagnostic for one barrel. */
 function narrowExportDiagnostic(
-  folderId: string,
-  entityName: string,
-  offenders: readonly string[],
-  location: Location,
+  finding: NarrowExportFinding,
   options: BarrelNarrowExportOptions,
   ruleId: string,
   severity: Diagnostic['severity'],
 ): Diagnostic {
+  const { folderId, entityName, offenders, location } = finding;
   const prefixClause = options.allowPrefixedConstants ? ` and ${entityName}-prefixed bindings` : '';
   return {
     ruleId,
@@ -114,10 +120,7 @@ export const barrelNarrowExport: SyntacticRule<BarrelNarrowExportOptions> = {
       if (offenders.length === 0) continue;
       diagnostics.push(
         narrowExportDiagnostic(
-          folderId,
-          entityName,
-          offenders,
-          location,
+          { folderId, entityName, offenders, location },
           opts,
           context.ruleId,
           context.severity,

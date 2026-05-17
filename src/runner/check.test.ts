@@ -36,37 +36,32 @@ describe('check', () => {
     expect(check(inputs)).toBe(engineResult);
   });
 
-  it('forwards all six arguments to runEngine unchanged', () => {
+  it('forwards every argument to runEngine unchanged', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
     const baseline = { schemaVersion: 1, records: [] } as unknown as BaselineFile;
     const ruleFilter = ['layer-boundary'] as const;
     check(inputs, ruleFilter, baseline);
     expect(runEngineMock).toHaveBeenCalledWith(
-      graph,
-      config,
-      suppress,
-      project,
-      ruleFilter,
-      baseline,
+      { graph, config, suppress, project },
+      { ruleFilter, baseline },
     );
   });
 
   it('forwards an explicit null baseline through unchanged', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
     check(inputs, undefined, null);
-    expect(runEngineMock).toHaveBeenCalledWith(graph, config, suppress, project, undefined, null);
+    expect(runEngineMock).toHaveBeenCalledWith(
+      { graph, config, suppress, project },
+      { ruleFilter: undefined, baseline: null },
+    );
   });
 
   it('omits trailing optional arguments when not supplied', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
     check(inputs);
     expect(runEngineMock).toHaveBeenCalledWith(
-      graph,
-      config,
-      suppress,
-      project,
-      undefined,
-      undefined,
+      { graph, config, suppress, project },
+      { ruleFilter: undefined, baseline: undefined },
     );
   });
 });

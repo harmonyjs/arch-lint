@@ -47,18 +47,28 @@ const strayGraph = makeGraph({
 
 describe('runEngine pipeline steps 1-2', () => {
   it('collects diagnostics from active rules', () => {
-    const result = runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject);
+    const result = runEngine({
+      graph: strayGraph,
+      config: cfg(),
+      suppress: makeSuppressIndex(),
+      project: emptyProject,
+    });
     expect(result.diagnostics.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });
 
   it('drops diagnostics suppressed by the suppress index', () => {
     const suppress = makeSuppressIndex({ suppressed: ['src/App/Stray'] });
-    const result = runEngine(strayGraph, cfg(), suppress, emptyProject);
+    const result = runEngine({ graph: strayGraph, config: cfg(), suppress, project: emptyProject });
     expect(result.diagnostics.some((d) => d.entity === 'src/App/Stray')).toBe(false);
   });
 
   it('runs nothing for an empty graph', () => {
-    const result = runEngine(makeGraph({}), cfg(), makeSuppressIndex(), emptyProject);
+    const result = runEngine({
+      graph: makeGraph({}),
+      config: cfg(),
+      suppress: makeSuppressIndex(),
+      project: emptyProject,
+    });
     expect(result.diagnostics).toEqual([]);
   });
 
@@ -74,12 +84,12 @@ describe('runEngine pipeline steps 1-2', () => {
         return [];
       },
     };
-    runEngine(
-      makeGraph({}),
-      cfg({ packs: ['hygiene'], plugins: [manifestProbe] }),
-      makeSuppressIndex(),
-      emptyProject,
-    );
+    runEngine({
+      graph: makeGraph({}),
+      config: cfg({ packs: ['hygiene'], plugins: [manifestProbe] }),
+      suppress: makeSuppressIndex(),
+      project: emptyProject,
+    });
     expect(sawContext).toBe(true);
   });
 
@@ -93,19 +103,24 @@ describe('runEngine pipeline steps 1-2', () => {
     };
     const graph = makeGraph({ nodes: { 'src/missing.ts': { kind: 'file' } } });
     expect(() =>
-      runEngine(
+      runEngine({
         graph,
-        cfg({ packs: ['layers'], plugins: [syntacticProbe] }),
-        makeSuppressIndex(),
-        emptyProject,
-      ),
+        config: cfg({ packs: ['layers'], plugins: [syntacticProbe] }),
+        suppress: makeSuppressIndex(),
+        project: emptyProject,
+      }),
     ).toThrow(/src\/missing\.ts/);
   });
 
   it('does not assert graph/project consistency when no syntactic rule is active', () => {
     const graph = makeGraph({ nodes: { 'src/missing.ts': { kind: 'file' } } });
     expect(() =>
-      runEngine(graph, cfg({ packs: ['placement'] }), makeSuppressIndex(), emptyProject),
+      runEngine({
+        graph,
+        config: cfg({ packs: ['placement'] }),
+        suppress: makeSuppressIndex(),
+        project: emptyProject,
+      }),
     ).not.toThrow();
   });
 
@@ -122,12 +137,12 @@ describe('runEngine pipeline steps 1-2', () => {
       },
     };
     const project = new Project({ useInMemoryFileSystem: true });
-    runEngine(
-      makeGraph({}),
-      cfg({ packs: ['layers'], plugins: [probe] }),
-      makeSuppressIndex(),
+    runEngine({
+      graph: makeGraph({}),
+      config: cfg({ packs: ['layers'], plugins: [probe] }),
+      suppress: makeSuppressIndex(),
       project,
-    );
+    });
     expect(seen).toBe(project);
   });
 });
@@ -165,19 +180,34 @@ describe('runEngine pipeline steps 3-4', () => {
       ],
     };
     const config = cfg({ packs: ['layers'], plugins: [collidingRule] });
-    expect(() => runEngine(makeGraph({}), config, makeSuppressIndex(), emptyProject)).toThrow(
-      EngineError,
-    );
+    expect(() =>
+      runEngine({
+        graph: makeGraph({}),
+        config,
+        suppress: makeSuppressIndex(),
+        project: emptyProject,
+      }),
+    ).toThrow(EngineError);
   });
 
   it('does not throw for well-formed unique diagnostics', () => {
-    expect(() => runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject)).not.toThrow();
+    expect(() =>
+      runEngine({
+        graph: strayGraph,
+        config: cfg(),
+        suppress: makeSuppressIndex(),
+        project: emptyProject,
+      }),
+    ).not.toThrow();
   });
 });
 
 describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
   it('classifies every diagnostic as new when baseline is null', () => {
-    const result = runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject, undefined, null);
+    const result = runEngine(
+      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
+      { baseline: null },
+    );
     expect(result.diagnostics.every((d) => d.status === 'new')).toBe(true);
   });
 
@@ -189,19 +219,18 @@ describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
       records: [{ ruleId: 'lca-placement', entity: 'src/App/Stray' }],
     };
     const result = runEngine(
-      strayGraph,
-      cfg(),
-      makeSuppressIndex(),
-      emptyProject,
-      undefined,
-      baseline,
+      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
+      { baseline },
     );
     const stray = result.diagnostics.find((d) => d.entity === 'src/App/Stray');
     expect(stray?.status).toBe('inBaseline');
   });
 
   it('reports exitCode 1 when there is a new warning/error diagnostic', () => {
-    const result = runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject, undefined, null);
+    const result = runEngine(
+      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
+      { baseline: null },
+    );
     expect(result.exitCode).toBe(1);
   });
 
@@ -213,18 +242,17 @@ describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
       records: [{ ruleId: 'lca-placement', entity: 'src/App/Stray' }],
     };
     const result = runEngine(
-      strayGraph,
-      cfg(),
-      makeSuppressIndex(),
-      emptyProject,
-      undefined,
-      baseline,
+      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
+      { baseline },
     );
     expect(result.exitCode).toBe(0);
   });
 
   it('fills the summary counters', () => {
-    const result = runEngine(strayGraph, cfg(), makeSuppressIndex(), emptyProject, undefined, null);
+    const result = runEngine(
+      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
+      { baseline: null },
+    );
     expect(result.summary.total).toBe(result.diagnostics.length);
     expect(result.summary.new).toBe(result.diagnostics.length);
     expect(result.summary.inBaseline).toBe(0);
@@ -233,12 +261,8 @@ describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
 
   it('honors the ruleFilter argument', () => {
     const result = runEngine(
-      strayGraph,
-      cfg(),
-      makeSuppressIndex(),
-      emptyProject,
-      ['layer-boundary'],
-      null,
+      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
+      { ruleFilter: ['layer-boundary'], baseline: null },
     );
     expect(result.diagnostics).toEqual([]);
   });
@@ -265,12 +289,8 @@ describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
     };
     const config = cfg({ packs: ['layers'], plugins: [infoRule] });
     const result = runEngine(
-      makeGraph({}),
-      config,
-      makeSuppressIndex(),
-      emptyProject,
-      undefined,
-      null,
+      { graph: makeGraph({}), config, suppress: makeSuppressIndex(), project: emptyProject },
+      { baseline: null },
     );
     expect(result.summary.bySeverity.info).toBe(1);
     expect(result.exitCode).toBe(0);

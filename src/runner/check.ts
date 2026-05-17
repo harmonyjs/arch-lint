@@ -56,14 +56,7 @@ export function check(
   ruleFilter?: readonly string[],
   baseline?: BaselineFile | null,
 ): CheckResult {
-  return runEngine(
-    inputs.graph,
-    inputs.config,
-    inputs.suppress,
-    inputs.project,
-    ruleFilter,
-    baseline,
-  );
+  return runEngine(inputs, { ruleFilter, baseline });
 }
 
 /** Options that steer baseline resolution. */
