@@ -22,6 +22,7 @@ function defaultBranch(): string {
 beforeEach(() => {
   repo = mkdtempSync(join(tmpdir(), 'arch-lint-cf-'));
   g('init', '-q');
+  g('config', 'commit.gpgsign', 'false');
   g('config', 'user.email', 't@t.t');
   g('config', 'user.name', 't');
   mkdirSync(join(repo, 'src'));
