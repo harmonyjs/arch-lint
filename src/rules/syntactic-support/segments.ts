@@ -1,26 +1,10 @@
 /**
- * @fileoverview Per-segment splitting of graph node ids and the enforceForSegments predicate (D7).
+ * @fileoverview The enforceForSegments predicate (D7). Path-segment splitting and
+ * the under-segment test now live in `src/entity-id/`; they are re-exported here
+ * so the barrels and view packs keep importing them from one place.
  */
-
-/** Splits a node id into segments, dropping the extension of the last segment. */
-export function segmentsOf(id: string): string[] {
-  const trimmed = id.replace(/^\/+/, '').replace(/\/+$/, '');
-  if (trimmed === '') return [];
-  const parts = trimmed.split('/');
-  const last = parts.length - 1;
-  const lastPart = parts[last];
-  if (lastPart !== undefined) parts[last] = lastPart.replace(/\.[^./]+$/, '');
-  return parts;
-}
-
-/**
- * True when the path lies INSIDE a folder named `segment` — the segment matches
- * as a directory, not as a name substring and not as the last (file) segment.
- */
-export function isUnderSegment(id: string, segment: string): boolean {
-  const segs = segmentsOf(id);
-  return segs.slice(0, -1).includes(segment);
-}
+export { isUnderSegment, segmentsOf } from '#entity-id/index.js';
+import { isUnderSegment } from '#entity-id/index.js';
 
 /**
  * The enforceForSegments predicate (D7): `'all'` matches any path; an array

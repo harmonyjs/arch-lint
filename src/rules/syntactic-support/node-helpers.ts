@@ -3,12 +3,12 @@
  * role folders — backing the structural decisions of the barrels and view packs (§4.1).
  */
 import type { ConventionsConfig } from '#config/types.js';
+import { baseNameOf } from '#entity-id/index.js';
 import { segmentsOf } from './segments.js';
 
 /** True when the file is a barrel — its basename is one of conventions.indexFiles. */
 export function isBarrelFile(fileId: string, conventions: ConventionsConfig): boolean {
-  const base = fileId.slice(fileId.lastIndexOf('/') + 1);
-  return conventions.indexFiles.includes(base);
+  return conventions.indexFiles.includes(baseNameOf(fileId));
 }
 
 /**
