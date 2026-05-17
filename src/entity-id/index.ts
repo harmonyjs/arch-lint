@@ -10,3 +10,9 @@ export function dirOf(id: string): string {
   const slash = id.lastIndexOf('/');
   return slash === -1 ? '' : id.slice(0, slash);
 }
+
+/** Final path segment of an id — the file name with all its extensions. */
+export function baseNameOf(id: string): string {
+  const slash = id.lastIndexOf('/');
+  return slash === -1 ? id : id.slice(slash + 1);
+}

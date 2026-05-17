@@ -23,3 +23,13 @@ describe('dirOf', () => {
     expect(dirOf('index.ts')).toBe('');
   });
 });
+
+describe('baseNameOf', () => {
+  it('returns the final segment of a nested file id', () => {
+    expect(baseNameOf('src/auth/login.ts')).toBe('login.ts');
+  });
+
+  it('returns the whole id when there is no directory', () => {
+    expect(baseNameOf('index.ts')).toBe('index.ts');
+  });
+});
