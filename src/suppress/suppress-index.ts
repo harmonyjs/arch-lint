@@ -5,6 +5,7 @@
 import type { Project } from 'ts-morph';
 import type { SuppressConfig } from '../config/types.js';
 import type { Diagnostic } from '../types.js';
+import type { EntityResolver } from './entity-resolver.js';
 import { parseEntitySuppress } from './parse.js';
 import { isSuppressedByStack } from './precedence.js';
 import type {
@@ -67,13 +68,6 @@ function malformedToParsed(malformed: MalformedSuppress): ParsedSuppress {
   };
 }
 
-/** Minimal entity descriptor the suppress factory needs: id, basename, entry file path. */
-export interface SuppressEntity {
-  readonly id: string;
-  readonly name: string;
-  readonly entryFilePath: string;
-}
-
 /**
  * Build a SuppressIndex from a ts-morph project: parse every entity's @arch-decision
  * comments. Entities whose entry file is absent from the project are skipped silently.
@@ -81,11 +75,11 @@ export interface SuppressEntity {
 export function buildSuppressIndex(
   project: Project,
   config: SuppressConfig,
-  entities: readonly SuppressEntity[],
+  entities: EntityResolver,
   now: Date = new Date(),
 ): SuppressIndexImpl {
   const byEntity = new Map<string, EntitySuppressData>();
-  for (const entity of entities) {
+  for (const entity of entities.listEntities()) {
     const entryFile = project.getSourceFile(entity.entryFilePath);
     if (entryFile === undefined) continue;
     byEntity.set(entity.id, parseEntitySuppress(entryFile, entity.name, entity.id, config));
