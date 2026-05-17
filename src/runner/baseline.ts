@@ -16,8 +16,7 @@ import {
   writeBaseline,
 } from '../baseline/index.js';
 import type { BaselineFile } from '../baseline/types.js';
-import { loadConfig } from '../config/load.js';
-import { resolveConfig } from '../config/resolve-defaults.js';
+import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { ConfigError } from '../errors.js';
 import { packageRoot } from '../paths.js';

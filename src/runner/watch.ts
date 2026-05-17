@@ -7,8 +7,7 @@
 import { relative } from 'node:path';
 import type { FSWatcher } from 'chokidar';
 import type { BaselineFile } from '../baseline/types.js';
-import { loadConfig } from '../config/load.js';
-import { resolveConfig } from '../config/resolve-defaults.js';
+import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { buildGraphFromSources } from '../graph/build.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';

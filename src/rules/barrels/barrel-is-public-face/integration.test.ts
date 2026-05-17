@@ -5,7 +5,7 @@
 import { fileURLToPath } from 'node:url';
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import { resolveConfig } from '../../../config/resolve-defaults.js';
+import { resolveConfig } from '../../../config/index.js';
 import { buildGraph } from '../../../graph/build.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { type BarrelIsPublicFaceOptions, barrelIsPublicFace } from './index.js';

@@ -9,7 +9,7 @@
 // Types — baseline module
 export type { BaselineFile, BaselineRecord } from './baseline/types.js';
 // Function — config resolver
-export { resolveConfig } from './config/resolve-defaults.js';
+export { resolveConfig } from './config/index.js';
 // Types — config module
 export type {
   BaselineConfig,
