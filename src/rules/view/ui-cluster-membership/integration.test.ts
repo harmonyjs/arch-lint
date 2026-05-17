@@ -10,7 +10,7 @@ import { loadSourceFiles } from '../../../graph/source-files.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { type UiClusterMembershipOptions, uiClusterMembership } from './index.js';
 
-const fixtureRoot = fileURLToPath(new URL('./__tests__/fixtures/trigger-outside', import.meta.url));
+const fixtureRoot = fileURLToPath(new URL('./fixtures/trigger-outside', import.meta.url));
 
 describe('ui-cluster-membership — integration', () => {
   it('flags only the file outside the cluster on a really built graph', async () => {
