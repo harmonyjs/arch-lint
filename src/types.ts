@@ -39,3 +39,20 @@ export interface Diagnostic {
   readonly location: Location;
   readonly typeOnly?: boolean;
 }
+
+// ── Entity resolution ────────────────────────────────────────────────────────
+
+/**
+ * The graph↔suppress boundary contract: graph/ implements it, suppress/ consumes
+ * it. Suppress depends on this interface, never on the graph's entity model
+ * directly; tests supply a hand-written mock.
+ */
+export interface SuppressEntity {
+  readonly id: string;
+  readonly name: string;
+  readonly entryFilePath: string;
+}
+export interface EntityResolver {
+  /** Every placement entity the suppress index should parse decision data for. */
+  listEntities(): readonly SuppressEntity[];
+}
