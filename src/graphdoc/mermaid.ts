@@ -138,7 +138,7 @@ function classAssignments(diagram: Diagram): string[] {
   const lines: string[] = [];
   for (const node of diagram.nodes) {
     lines.push(`  class ${node.id} ${classFor(node)};`);
-    if (diagram.coupling.has(node.path)) {
+    if (diagram.coupling.has(node.id)) {
       lines.push(`  class ${node.id} instability;`);
     }
   }

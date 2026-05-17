@@ -334,11 +334,12 @@ describe('renderDiagram', () => {
         nodes: [node({ id: 'n0', path: 'src/graph/build.ts', name: 'build.ts' })],
         edges: [],
         clusters: [],
-        coupling: new Map([['src/graph/build.ts', { ca: 1, ce: 3, instability: 0.75 }]]),
+        coupling: new Map([['n0', { ca: 1, ce: 3, instability: 0.75 }]]),
       },
     });
     const out = renderDiagram(s);
     expect(out).toMatch(/classDef \w*[Ii]nstab\w*/);
+    expect(out).toContain('class n0 instability;');
   });
 
   it('renders a node outside any cluster at top level', () => {
