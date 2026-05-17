@@ -72,7 +72,6 @@ describe('unresolvedImportRule', () => {
     };
     const g = makeGraph({ unresolved: [builtin, relative] });
     const out = unresolvedImportRule.check(g, cfg, ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.actual).toBe('./missing.js');
+    expect(only(out).actual).toBe('./missing.js');
   });
 });

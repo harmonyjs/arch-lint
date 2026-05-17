@@ -2,6 +2,7 @@
  * @fileoverview Tests for Tarjan SCC and cyclic-node detection.
  */
 import { describe, expect, it } from 'vitest';
+import { only } from '../rules/test-support/only.js';
 import { cyclicNodes, stronglyConnectedComponents } from './scc.js';
 
 describe('stronglyConnectedComponents', () => {
@@ -22,8 +23,7 @@ describe('stronglyConnectedComponents', () => {
       ['c', ['a']],
     ]);
     const cyclic = stronglyConnectedComponents(adj).filter((c) => c.length > 1);
-    expect(cyclic).toHaveLength(1);
-    expect([...cyclic[0]!].sort()).toEqual(['a', 'b', 'c']);
+    expect([...only(cyclic)].sort()).toEqual(['a', 'b', 'c']);
   });
 
   it('handles a node referenced only as an edge target', () => {

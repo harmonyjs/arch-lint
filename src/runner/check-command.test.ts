@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { makeGraph } from '../rules/test-support/make-graph.js';
+import { only } from '../rules/test-support/only.js';
 import type { Diagnostic } from '../types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
@@ -149,7 +150,7 @@ describe('runCheckCommand', () => {
     // changed-only off — the git base is never consulted.
     expect(getChangedFilesMock).not.toHaveBeenCalled();
     // No rule filter — runEngine receives undefined as its rule-filter argument.
-    expect(runEngineMock.mock.calls[0]![1]).toBeUndefined();
+    expect(only(runEngineMock.mock.calls)[1]).toBeUndefined();
     expect(outcome).toEqual({ stdout: 'report-text', stderr: [], exitCode: 0 });
   });
 
@@ -171,7 +172,7 @@ describe('runCheckCommand', () => {
     // changed-only on — the git base is consulted with the supplied ref.
     expect(getChangedFilesMock).toHaveBeenCalledWith('/repo', 'origin/main');
     // The rule filter reaches the engine.
-    expect(runEngineMock.mock.calls[0]![1]).toEqual(['layer-boundary']);
+    expect(only(runEngineMock.mock.calls)[1]).toEqual(['layer-boundary']);
     // preCommit verdict does not fail on violations, so a new violation is exit 0.
     expect(outcome.stdout).toBe('report-text');
     expect(outcome.stderr).toEqual([

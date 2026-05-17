@@ -6,6 +6,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GraphBuildError } from '../errors/index.js';
+import { only } from '../rules/test-support/only.js';
 
 const runCheckCommandMock = vi.fn();
 vi.mock('./check.js', () => ({
@@ -53,8 +54,7 @@ describe('runCli', () => {
 
     await runCli(argv('check'));
 
-    expect(runCheckCommandMock).toHaveBeenCalledTimes(1);
-    expect(runCheckCommandMock.mock.calls[0]![0]).toMatchObject({ changedOnly: false });
+    expect(only(runCheckCommandMock.mock.calls)[0]).toMatchObject({ changedOnly: false });
     expect(process.exitCode).toBe(1);
   });
 
@@ -63,7 +63,7 @@ describe('runCli', () => {
 
     await runCli(argv('check', '--changed-only'));
 
-    expect(runCheckCommandMock.mock.calls[0]![0]).toMatchObject({ changedOnly: true });
+    expect(only(runCheckCommandMock.mock.calls)[0]).toMatchObject({ changedOnly: true });
     expect(process.exitCode).toBe(0);
   });
 
