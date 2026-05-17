@@ -2,28 +2,21 @@
  * @fileoverview Tests for the package-engines rule of the hygiene pack.
  */
 
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
+import { makeManifestContext } from '../../test-support/make-context.js';
+import type { ManifestBundle } from '../../types.js';
+import { parsePackageJson } from '../support/package-json.js';
+
 import { packageEngines } from './index.js';
 
 function run(packageJson: string | null, options: Record<string, unknown>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arch-lint-engines-'));
-  if (packageJson !== null) writeFileSync(join(dir, 'package.json'), packageJson);
-  const config = {
-    project: { tsconfig: 't', sourceRoot: 'src', cwd: dir, includeOutOfRoot: false },
-  } as ResolvedConfig;
-  const graph = makeGraph({});
-  const ctx = makeContext('package-engines', {
-    severity: 'error',
-    project: graph.project,
-    options,
-  });
-  return packageEngines.check(graph, config, ctx);
+  const manifests: ManifestBundle = {
+    packageJson: packageJson === null ? null : parsePackageJson(packageJson),
+    npmrc: null,
+    tsconfig: null,
+  };
+  const ctx = makeManifestContext('package-engines', { severity: 'error', options, manifests });
+  return packageEngines.check(ctx);
 }
 
 describe('package-engines', () => {
@@ -37,6 +30,7 @@ describe('package-engines', () => {
     expect(ds).toHaveLength(1);
     expect(ds[0]!.fingerprint).toBe('npm');
     expect(ds[0]!.entity).toBe('package.json');
+    expect(ds[0]!.location.file).toBe('package.json');
   });
 
   it('flags every missing key when engines is absent', () => {
