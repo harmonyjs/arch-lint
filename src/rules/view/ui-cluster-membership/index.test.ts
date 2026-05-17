@@ -18,8 +18,21 @@ function graphFor(files: Record<string, string>) {
   });
 }
 
+/** Like graphFor but stamps every file node with region 'view'. */
+function viewGraphFor(files: Record<string, string>) {
+  return makeGraph({
+    nodes: Object.fromEntries(
+      Object.keys(files).map((id) => [
+        id,
+        { kind: 'file' as const, isEntity: true, region: 'view' as const },
+      ]),
+    ),
+    files,
+  });
+}
+
 function run(files: Record<string, string>, opts: Partial<UiClusterMembershipOptions> = {}) {
-  const graph = graphFor(files);
+  const graph = viewGraphFor(files);
   return uiClusterMembership.check(
     graph,
     config,
@@ -116,9 +129,78 @@ describe('ui-cluster-membership', () => {
     expect(diags[0]?.entity).toBe('src/App/ui.tsx');
   });
 
+  it('skips a file outside the view region', () => {
+    const graph = makeGraph({
+      nodes: { 'src/Widget/Widget.tsx': { kind: 'file', isEntity: true } },
+      files: { 'src/Widget/Widget.tsx': `import { useButton } from '@react-aria/button';` },
+    });
+    const diags = uiClusterMembership.check(
+      graph,
+      config,
+      makeContext<UiClusterMembershipOptions>('ui-cluster-membership', {
+        severity: 'error',
+        options: { triggerPackages: ['@react-aria/*'], mustLiveIn: 'src/App/ui' },
+        project: graph.project,
+      }),
+    );
+    expect(diags).toEqual([]);
+  });
+
+  it('with empty mustLiveIn, a view-region file with a trigger import is not flagged', () => {
+    const graph = viewGraphFor({
+      'src/ui/Button.tsx': `import { useButton } from '@react-aria/button';`,
+    });
+    const diags = uiClusterMembership.check(
+      graph,
+      config,
+      makeContext<UiClusterMembershipOptions>('ui-cluster-membership', {
+        severity: 'error',
+        options: { triggerPackages: ['@react-aria/*'], mustLiveIn: '' },
+        project: graph.project,
+      }),
+    );
+    // region === 'view' satisfies the auto cluster — no diagnostic.
+    expect(diags).toEqual([]);
+  });
+
+  it('with empty mustLiveIn, a non-region file with a trigger import is skipped', () => {
+    const graph = makeGraph({
+      nodes: { 'src/lib/Widget.tsx': { kind: 'file', isEntity: true } },
+      files: { 'src/lib/Widget.tsx': `import { useButton } from '@react-aria/button';` },
+    });
+    const diags = uiClusterMembership.check(
+      graph,
+      config,
+      makeContext<UiClusterMembershipOptions>('ui-cluster-membership', {
+        severity: 'error',
+        options: { triggerPackages: ['@react-aria/*'], mustLiveIn: '' },
+        project: graph.project,
+      }),
+    );
+    // Region scoping wins first: a non-region node never reaches the cluster check.
+    expect(diags).toEqual([]);
+  });
+
+  it('with explicit mustLiveIn, an in-region file outside the cluster carries the prefix label', () => {
+    const graph = viewGraphFor({
+      'src/App/Widget/Widget.tsx': `import { useButton } from '@react-aria/button';`,
+    });
+    const diags = uiClusterMembership.check(
+      graph,
+      config,
+      makeContext<UiClusterMembershipOptions>('ui-cluster-membership', {
+        severity: 'error',
+        options: { triggerPackages: ['@react-aria/*'], mustLiveIn: 'src/App/ui' },
+        project: graph.project,
+      }),
+    );
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.expected).toBe('src/App/ui');
+  });
+
   it('skips a file node that is absent from the parsed project', () => {
     const graph = makeGraph({
-      nodes: { 'src/App/Widget/Widget.tsx': { kind: 'file', isEntity: true } },
+      nodes: { 'src/App/Widget/Widget.tsx': { kind: 'file', isEntity: true, region: 'view' } },
     });
     const diags = uiClusterMembership.check(
       graph,

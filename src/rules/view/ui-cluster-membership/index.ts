@@ -3,7 +3,8 @@
  * live in the UI cluster. Reads AST from the RuleContext project (decision D9).
  */
 
-import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import type { Node } from '#graph/types.js';
+import { sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
 import { importsOf } from '#rules/syntactic-support/import-info.js';
 import { segmentsOf } from '#rules/syntactic-support/segments.js';
 import type { SyntacticRule } from '#rules/types.js';
@@ -31,6 +32,16 @@ function isInsideCluster(fileId: string, cluster: string): boolean {
   const clusterSegs = segmentsOf(cluster);
   if (fileSegs.length <= clusterSegs.length) return false;
   return clusterSegs.every((s, i) => fileSegs[i] === s);
+}
+
+/**
+ * True when `node` satisfies cluster membership. With an explicit `mustLiveIn`
+ * the today-behavior path prefix applies; with an empty `mustLiveIn` the auto
+ * path applies — membership == the node carries `region: 'view'` (#26).
+ */
+function satisfiesCluster(node: Node, mustLiveIn: string): boolean {
+  if (mustLiveIn !== '') return isInsideCluster(node.id, mustLiveIn);
+  return node.region === 'view';
 }
 
 /** The rule identity stamped onto every diagnostic — supplied by the RuleContext. */
@@ -78,10 +89,13 @@ export const uiClusterMembership: SyntacticRule<UiClusterMembershipOptions> = {
       ...(context.options as Partial<UiClusterMembershipOptions>),
     };
     const matchesTrigger = triggerPackageMatcher(triggerPackages);
+    const clusterLabel = mustLiveIn === '' ? 'view region' : mustLiveIn;
     const diagnostics: Diagnostic[] = [];
-    for (const fileId of fileNodeIds(graph)) {
-      if (isInsideCluster(fileId, mustLiveIn)) continue;
-      const sf = sourceFileFor(context.project, fileId);
+    for (const node of graph.nodes.values()) {
+      if (node.kind !== 'file') continue;
+      if (node.region !== 'view') continue;
+      if (satisfiesCluster(node, mustLiveIn)) continue;
+      const sf = sourceFileFor(context.project, node.id);
       if (sf === undefined) continue;
       const triggers = [
         ...new Set(
@@ -92,7 +106,7 @@ export const uiClusterMembership: SyntacticRule<UiClusterMembershipOptions> = {
       ];
       if (triggers.length === 0) continue;
       diagnostics.push(
-        membershipDiagnostic(fileId, triggers, mustLiveIn, {
+        membershipDiagnostic(node.id, triggers, clusterLabel, {
           ruleId: context.ruleId,
           severity: context.severity,
         }),
