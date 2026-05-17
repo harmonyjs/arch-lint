@@ -111,3 +111,13 @@ describe('isUnderSegment', () => {
     expect(isUnderSegment('src/App/lib.ts', 'lib')).toBe(false);
   });
 });
+
+describe('firstSegment', () => {
+  it('returns the first path segment', () => {
+    expect(firstSegment('src/graph/types.ts')).toBe('src');
+  });
+
+  it('returns the whole id when there is no slash', () => {
+    expect(firstSegment('index.ts')).toBe('index.ts');
+  });
+});

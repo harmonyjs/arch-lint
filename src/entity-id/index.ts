@@ -58,3 +58,9 @@ export function isUnderSegment(id: string, segment: string): boolean {
   const segs = segmentsOf(id);
   return segs.slice(0, -1).includes(segment);
 }
+
+/** The first path segment of `id`. */
+export function firstSegment(id: string): string {
+  const slash = id.indexOf('/');
+  return slash < 0 ? id : id.slice(0, slash);
+}
