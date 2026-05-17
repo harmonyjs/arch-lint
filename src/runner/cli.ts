@@ -1,7 +1,7 @@
 /**
  * @fileoverview The CLI router — the single place that parses argv and
- * dispatches to a runner operation (check, baseline, explain, watch). This
- * is where the complete command set can be read in one file.
+ * dispatches to a runner operation (check, baseline, explain, watch, graph).
+ * This is where the complete command set can be read in one file.
  */
 import { createInterface } from 'node:readline/promises';
 import chokidar from 'chokidar';
@@ -10,6 +10,7 @@ import { ArchLintError, ConfigError } from '../errors.js';
 import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './baseline.js';
 import { runCheckCommand } from './check.js';
 import { runExplain } from './explain.js';
+import { runGraphCommand } from './graph.js';
 import { runWatch } from './watch.js';
 
 /** The global options every command inherits, as parsed by commander. */
@@ -73,7 +74,7 @@ const CLEAR_SCREEN = '\x1B[2J\x1B[3J\x1B[H';
 
 /**
  * Builds the arch-lint commander program: the named root with its five global
- * options and the four commands. Each command's `.action` reads the merged
+ * options and the five commands. Each command's `.action` reads the merged
  * global+local options via `optsWithGlobals()`, delegates to its adapter, and
  * applies the resulting stdout/stderr/exit code.
  */
@@ -185,6 +186,27 @@ export function buildProgram(): Command {
     .action(async (ruleId: string) => {
       const outcome = await runExplain(ruleId);
       process.stdout.write(`${outcome.stdout}\n`);
+      process.exitCode = outcome.exitCode;
+    });
+
+  program
+    .command('graph')
+    .description('render the dependency graph as a layered Mermaid document')
+    .option('--out <path>', 'write the document to a file instead of stdout')
+    .option('--subsystem <name>', 'limit the document to one subsystem')
+    .action(async (_local: unknown, cmd: Command) => {
+      const globals = cmd.optsWithGlobals() as GlobalOptions & {
+        out?: string;
+        subsystem?: string;
+      };
+      const outcome = await runGraphCommand({
+        cwd: process.cwd(),
+        ...(globals.config !== undefined ? { configPath: globals.config } : {}),
+        ...(globals.out !== undefined ? { out: globals.out } : {}),
+        ...(globals.subsystem !== undefined ? { subsystem: globals.subsystem } : {}),
+      });
+      if (outcome.stdout !== '') process.stdout.write(`${outcome.stdout}\n`);
+      writeStderr(outcome.stderr);
       process.exitCode = outcome.exitCode;
     });
 
