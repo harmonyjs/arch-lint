@@ -28,6 +28,7 @@
     "noUncheckedSideEffectImports": true,
     "strictBuiltinIteratorReturn": true,
     "erasableSyntaxOnly": true,
+    "stableTypeOrdering": true,
 
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
