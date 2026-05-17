@@ -101,6 +101,14 @@ describe('configSchema — structural blocks', () => {
     ).toThrow();
   });
 
+  it('accepts the structure pack', () => {
+    const parsed = configSchema.parse({
+      project: { tsconfig: './tsconfig.json' },
+      packs: ['structure'],
+    });
+    expect(parsed.packs).toEqual(['structure']);
+  });
+
   it('rejects an invalid baseline.missingBehavior', () => {
     expect(() =>
       configSchema.parse({
