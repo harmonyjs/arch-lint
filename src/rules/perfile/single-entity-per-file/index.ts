@@ -3,7 +3,7 @@
  * (class or component) per file. Reads file AST from the RuleContext project (D9).
  */
 
-import type { SourceFile } from 'ts-morph';
+import type { SourceFile, VariableDeclaration } from 'ts-morph';
 import { Node } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
@@ -14,25 +14,39 @@ function isPascalCase(name: string | undefined): boolean {
   return name !== undefined && /^[A-Z]/.test(name);
 }
 
-/** Counts exported entities of a file: a class, or a PascalCase function/arrow const. */
-function entityCount(sf: SourceFile): number {
+/** Counts exported classes — every exported class is an entity. */
+function exportedClassCount(sf: SourceFile): number {
+  return sf.getClasses().filter((cls) => cls.isExported()).length;
+}
+
+/** Counts exported PascalCase function declarations — the component heuristic. */
+function exportedComponentFunctionCount(sf: SourceFile): number {
+  return sf.getFunctions().filter((fn) => fn.isExported() && isPascalCase(fn.getName())).length;
+}
+
+/** A declaration is a component when it binds a PascalCase name to an arrow/function expression. */
+function isComponentDeclaration(decl: VariableDeclaration): boolean {
+  const init = decl.getInitializer();
+  const isFn =
+    init !== undefined && (Node.isArrowFunction(init) || Node.isFunctionExpression(init));
+  return isFn && isPascalCase(decl.getName());
+}
+
+/** Counts exported PascalCase arrow/function consts across all exported variable statements. */
+function exportedComponentConstCount(sf: SourceFile): number {
   let count = 0;
-  for (const cls of sf.getClasses()) {
-    if (cls.isExported()) count += 1;
-  }
-  for (const fn of sf.getFunctions()) {
-    if (fn.isExported() && isPascalCase(fn.getName())) count += 1;
-  }
   for (const stmt of sf.getVariableStatements()) {
     if (!stmt.isExported()) continue;
-    for (const decl of stmt.getDeclarations()) {
-      const init = decl.getInitializer();
-      const isFn =
-        init !== undefined && (Node.isArrowFunction(init) || Node.isFunctionExpression(init));
-      if (isFn && isPascalCase(decl.getName())) count += 1;
-    }
+    count += stmt.getDeclarations().filter(isComponentDeclaration).length;
   }
   return count;
+}
+
+/** Counts exported entities of a file: a class, or a PascalCase function/arrow const. */
+function entityCount(sf: SourceFile): number {
+  return (
+    exportedClassCount(sf) + exportedComponentFunctionCount(sf) + exportedComponentConstCount(sf)
+  );
 }
 
 /** Rule: at most one exported entity (class/component) per file (§13.1, A2). */

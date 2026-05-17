@@ -4,8 +4,8 @@
  */
 
 import picomatch from 'picomatch';
-import type { SourceFile } from 'ts-morph';
-import { Node } from 'ts-morph';
+import type { ExportDeclaration, ExportSpecifier, Statement } from 'ts-morph';
+import { Node, type SourceFile } from 'ts-morph';
 import type { Diagnostic, Location } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
 import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
@@ -15,22 +15,37 @@ interface Options {
   readonly exemptPaths: readonly string[];
 }
 
+/** Builds a 1-column location at the given node's start line. */
+function locationOf(node: Statement | ExportSpecifier, fileId: string): Location {
+  return { file: fileId, line: node.getStartLineNumber(), column: 1 };
+}
+
+/** A statement is a default export when it is `export default expr` or a `default`-flagged declaration. */
+function isDefaultExportStatement(stmt: Statement): boolean {
+  if (Node.isExportAssignment(stmt) && !stmt.isExportEquals()) return true;
+  return Node.isExportable(stmt) && stmt.isDefaultExport();
+}
+
+/** Finds a `default`-named (or `as default`-aliased) specifier in a re-export, or null. */
+function defaultSpecifierLocation(stmt: ExportDeclaration, fileId: string): Location | null {
+  for (const spec of stmt.getNamedExports()) {
+    const alias = spec.getAliasNode()?.getText();
+    if (spec.getName() === 'default' || alias === 'default') {
+      return locationOf(spec, fileId);
+    }
+  }
+  return null;
+}
+
 /** Finds the position of a file's default export, or null. */
 function defaultExportLocation(sf: SourceFile, fileId: string): Location | null {
   for (const stmt of sf.getStatements()) {
-    if (Node.isExportAssignment(stmt) && !stmt.isExportEquals()) {
-      return { file: fileId, line: stmt.getStartLineNumber(), column: 1 };
-    }
-    if (Node.isExportable(stmt) && stmt.isDefaultExport()) {
-      return { file: fileId, line: stmt.getStartLineNumber(), column: 1 };
+    if (isDefaultExportStatement(stmt)) {
+      return locationOf(stmt, fileId);
     }
     if (Node.isExportDeclaration(stmt)) {
-      for (const spec of stmt.getNamedExports()) {
-        const alias = spec.getAliasNode()?.getText();
-        if (spec.getName() === 'default' || alias === 'default') {
-          return { file: fileId, line: spec.getStartLineNumber(), column: 1 };
-        }
-      }
+      const specLoc = defaultSpecifierLocation(stmt, fileId);
+      if (specLoc !== null) return specLoc;
     }
   }
   return null;
