@@ -4,13 +4,12 @@
  * descriptors suppress consumes, so suppress depends on the interface, never on graph
  * internals.
  */
+import { ancestorsOf, baseNameOf, dropExtension } from '#entity-id/index.js';
 import type { EntityResolver, SuppressEntity } from '#types.js';
 import type { ConsumerGraph } from './types.js';
 
 function entityName(entityId: string): string {
-  const base = entityId.slice(entityId.lastIndexOf('/') + 1);
-  const dot = base.lastIndexOf('.');
-  return dot > 0 ? base.slice(0, dot) : base;
+  return dropExtension(baseNameOf(entityId));
 }
 function entryFileOf(entityId: string, graph: ConsumerGraph): string {
   if (graph.nodes.get(entityId)?.kind === 'file') return entityId;
@@ -24,12 +23,8 @@ function entryFileOf(entityId: string, graph: ConsumerGraph): string {
 function entityIdOfFile(fileId: string, graph: ConsumerGraph): string {
   const node = graph.nodes.get(fileId);
   if (node?.isEntity === true) return fileId;
-  let folder = fileId.slice(0, fileId.lastIndexOf('/'));
-  while (folder.length > 0) {
+  for (const folder of ancestorsOf(fileId)) {
     if (graph.nodes.get(folder)?.isEntity === true) return folder;
-    const slash = folder.lastIndexOf('/');
-    if (slash < 0) break;
-    folder = folder.slice(0, slash);
   }
   return fileId;
 }
