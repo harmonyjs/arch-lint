@@ -65,6 +65,22 @@ function dispatchRule(rule: Rule, env: DispatchEnv): Diagnostic[] {
   }
 }
 
+/** The frozen graph and its parsed sources the engine runs against. */
+export interface EngineInputs {
+  readonly graph: ConsumerGraph;
+  readonly config: ResolvedConfig;
+  readonly suppress: SuppressIndex;
+  readonly project: Project;
+}
+
+/** The optional run-shaping inputs the runner threads into a single pass. */
+export interface RunOptions {
+  /** Restrict the run to these rule ids; absent runs every active rule. */
+  readonly ruleFilter?: readonly string[] | undefined;
+  /** The baseline diagnostics are classified against; absent or null skips classification. */
+  readonly baseline?: BaselineFile | null | undefined;
+}
+
 /**
  * Run the §8.1 pipeline over a frozen graph: dispatch each rule by its engine — graph
  * rules see the ConsumerGraph, syntactic rules also see the parsed `project`, manifest
@@ -72,14 +88,9 @@ function dispatchRule(rule: Rule, env: DispatchEnv): Diagnostic[] {
  * placement verdicts, run the §10.2 self-check, then classify against the baseline.
  * Free of file I/O — `suppress`, `project` and `baseline` are supplied by the runner.
  */
-export function runEngine(
-  graph: ConsumerGraph,
-  config: ResolvedConfig,
-  suppress: SuppressIndex,
-  project: Project,
-  ruleFilter?: readonly string[],
-  baseline?: BaselineFile | null,
-): CheckResult {
+export function runEngine(inputs: EngineInputs, options: RunOptions = {}): CheckResult {
+  const { graph, config, suppress, project } = inputs;
+  const { ruleFilter, baseline } = options;
   const activeRules = getActiveRules(config, ruleFilter);
   if (activeRules.some((r) => r.engine === 'syntactic')) {
     assertGraphProjectConsistent(graph, project);

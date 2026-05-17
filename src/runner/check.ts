@@ -42,7 +42,7 @@ export function check(
   ruleFilter?: readonly string[],
   baseline?: BaselineFile | null,
 ): CheckResult {
-  return runEngine(graph, config, suppress, project, ruleFilter, baseline);
+  return runEngine({ graph, config, suppress, project }, { ruleFilter, baseline });
 }
 
 /** Options that steer baseline resolution. */

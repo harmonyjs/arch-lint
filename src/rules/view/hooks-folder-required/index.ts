@@ -24,6 +24,20 @@ const DEFAULTS: HooksFolderRequiredOptions = {
 /** Which side of the hooks/ boundary a file violates. */
 type Kind = 'misplaced' | 'non-hook';
 
+/** The hooks/ boundary settings resolved once per run from config and rule options. */
+interface HooksBoundary {
+  readonly hooksSegment: string;
+  readonly hookFilePattern: string;
+  readonly strictCheck: boolean;
+}
+
+/** Per-file facts the boundary check classifies against. */
+interface FileBoundaryFacts {
+  readonly fileId: string;
+  readonly isHookName: boolean;
+  readonly inHooksFolder: boolean;
+}
+
 /** The basename of a file id. */
 function baseNameOf(fileId: string): string {
   return fileId.slice(fileId.lastIndexOf('/') + 1);
@@ -39,14 +53,14 @@ function makeDiag(
   fileId: string,
   context: SyntacticRuleContext<HooksFolderRequiredOptions>,
   kind: Kind,
-  hooksSegment: string,
-  pattern: string,
+  boundary: HooksBoundary,
 ): Diagnostic {
+  const { hooksSegment, hookFilePattern } = boundary;
   const targetDir = `${segmentsOf(fileId).slice(0, -1).join('/')}/${hooksSegment}`;
   const message =
     kind === 'misplaced'
       ? `Hook file '${fileId}' must live inside a '${hooksSegment}/' folder`
-      : `File '${fileId}' inside '${hooksSegment}/' does not match the hook pattern ${pattern}`;
+      : `File '${fileId}' inside '${hooksSegment}/' does not match the hook pattern ${hookFilePattern}`;
   const suggestion =
     kind === 'misplaced'
       ? {
@@ -76,14 +90,13 @@ function makeDiag(
 
 /** The violation kind a file carries against the hooks/ boundary, or null. */
 function violationOf(
-  fileId: string,
-  isHookName: boolean,
-  inHooksFolder: boolean,
-  strictCheck: boolean,
+  facts: FileBoundaryFacts,
+  boundary: HooksBoundary,
   config: ResolvedConfig,
 ): Kind | null {
+  const { fileId, isHookName, inHooksFolder } = facts;
   if (isHookName && !inHooksFolder) return 'misplaced';
-  if (strictCheck && !isHookName && inHooksFolder && !isBarrel(fileId, config)) {
+  if (boundary.strictCheck && !isHookName && inHooksFolder && !isBarrel(fileId, config)) {
     return 'non-hook';
   }
   return null;
@@ -100,16 +113,23 @@ export const hooksFolderRequired: SyntacticRule<HooksFolderRequiredOptions> = {
       ...DEFAULTS,
       ...(context.options as Partial<HooksFolderRequiredOptions>),
     };
+    const boundary: HooksBoundary = {
+      hooksSegment: config.conventions.hooksSegment,
+      hookFilePattern,
+      strictCheck,
+    };
     const hookRe = new RegExp(hookFilePattern);
-    const hooksSegment = config.conventions.hooksSegment;
     const diagnostics: Diagnostic[] = [];
     for (const node of graph.nodes.values()) {
       if (node.kind !== 'file') continue;
-      const isHookName = hookRe.test(baseNameOf(node.id));
-      const inHooksFolder = isUnderSegment(node.id, hooksSegment);
-      const kind = violationOf(node.id, isHookName, inHooksFolder, strictCheck, config);
+      const facts: FileBoundaryFacts = {
+        fileId: node.id,
+        isHookName: hookRe.test(baseNameOf(node.id)),
+        inHooksFolder: isUnderSegment(node.id, boundary.hooksSegment),
+      };
+      const kind = violationOf(facts, boundary, config);
       if (kind === null) continue;
-      diagnostics.push(makeDiag(node.id, context, kind, hooksSegment, hookFilePattern));
+      diagnostics.push(makeDiag(node.id, context, kind, boundary));
     }
     return dedupByFingerprint(diagnostics);
   },

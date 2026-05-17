@@ -162,8 +162,8 @@ describe('runCheckCommand', () => {
     expect(loadConfigMock).toHaveBeenCalledWith('/repo', undefined);
     // changed-only off — the git base is never consulted.
     expect(getChangedFilesMock).not.toHaveBeenCalled();
-    // No rule filter — runEngine receives undefined as its rule-filter argument.
-    expect(runEngineMock.mock.calls[0]![4]).toBeUndefined();
+    // No rule filter — runEngine receives undefined as its rule-filter option.
+    expect(runEngineMock.mock.calls[0]![1].ruleFilter).toBeUndefined();
     expect(outcome).toEqual({ stdout: 'report-text', stderr: [], exitCode: 0 });
   });
 
@@ -185,7 +185,7 @@ describe('runCheckCommand', () => {
     // changed-only on — the git base is consulted with the supplied ref.
     expect(getChangedFilesMock).toHaveBeenCalledWith('/repo', 'origin/main');
     // The rule filter reaches the engine.
-    expect(runEngineMock.mock.calls[0]![4]).toEqual(['layer-boundary']);
+    expect(runEngineMock.mock.calls[0]![1].ruleFilter).toEqual(['layer-boundary']);
     // preCommit verdict does not fail on violations, so a new violation is exit 0.
     expect(outcome.stdout).toBe('report-text');
     expect(outcome.stderr).toEqual([

@@ -33,18 +33,23 @@ function isInsideCluster(fileId: string, cluster: string): boolean {
   return clusterSegs.every((s, i) => fileSegs[i] === s);
 }
 
+/** The rule identity stamped onto every diagnostic — supplied by the RuleContext. */
+interface DiagnosticIdentity {
+  readonly ruleId: string;
+  readonly severity: Diagnostic['severity'];
+}
+
 /** Builds the cluster-membership diagnostic for one file. */
 function membershipDiagnostic(
   fileId: string,
   triggers: readonly string[],
   mustLiveIn: string,
-  ruleId: string,
-  severity: Diagnostic['severity'],
+  identity: DiagnosticIdentity,
 ): Diagnostic {
   const list = triggers.join(', ');
   return {
-    ruleId,
-    severity,
+    ruleId: identity.ruleId,
+    severity: identity.severity,
     entity: fileId,
     message: `File imports trigger package(s) ${list} but lives outside the UI cluster '${mustLiveIn}'`,
     actual: fileId,
@@ -87,7 +92,10 @@ export const uiClusterMembership: SyntacticRule<UiClusterMembershipOptions> = {
       ];
       if (triggers.length === 0) continue;
       diagnostics.push(
-        membershipDiagnostic(fileId, triggers, mustLiveIn, context.ruleId, context.severity),
+        membershipDiagnostic(fileId, triggers, mustLiveIn, {
+          ruleId: context.ruleId,
+          severity: context.severity,
+        }),
       );
     }
     return diagnostics;
