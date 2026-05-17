@@ -94,6 +94,30 @@ describe('parseEntitySuppress', () => {
     expect(data.malformed[0]?.kind).toBe('no-main-export');
   });
 
+  it('ignores a marker that appears only inside a string literal, not a comment', () => {
+    const data = parseEntitySuppress(
+      sf("export const defaultMarker = '@arch-decision';\nexport const helper = 1;"),
+      widget,
+      cfg,
+    );
+    expect(data).toEqual({ valid: [], malformed: [] });
+  });
+
+  it('still flags a stray marker living in a genuine unanchored comment', () => {
+    const data = parseEntitySuppress(
+      sf(
+        "export const defaultMarker = '@arch-decision';\n" +
+          '// @arch-decision: stray decision with no main export\n' +
+          'export const helper = 1;',
+      ),
+      widget,
+      cfg,
+    );
+    expect(data.valid).toEqual([]);
+    expect(data.malformed).toHaveLength(1);
+    expect(data.malformed[0]?.kind).toBe('no-main-export');
+  });
+
   it('does not scan jsdoc when scanLocations excludes it', () => {
     const data = parseEntitySuppress(
       sf(
