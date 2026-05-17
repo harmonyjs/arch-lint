@@ -1,7 +1,8 @@
 /**
  * @fileoverview Entity-tree helpers — derive component parents, LCA and layer of an entity.
  */
-import type { ConsumerGraph, ConventionsConfig, LayersConfig } from '../../types.js';
+import type { ConventionsConfig, LayersConfig } from '../../config/types.js';
+import type { ConsumerGraph } from '../../types.js';
 
 /** The role-segment subset of conventions — folders that are transparent in the tree. */
 export type RoleConv = Pick<

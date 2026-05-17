@@ -2,7 +2,7 @@
  * @fileoverview Tests for the manifest path resolver of the hygiene pack.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../types.js';
+import type { ResolvedConfig } from '../../../config/types.js';
 import { manifestPath } from './manifest-path.js';
 
 function configWithCwd(cwd: string): ResolvedConfig {

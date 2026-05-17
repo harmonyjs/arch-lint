@@ -12,7 +12,8 @@ import { buildGraphFromSources } from '../graph/build.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import { formatReport } from '../report/cli.js';
 import { buildSuppressIndex } from '../suppress/suppress-index.js';
-import type { BaselineFile, ConsumerGraph, ResolvedConfig } from '../types.js';
+import type { ResolvedConfig } from '../config/types.js';
+import type { BaselineFile, ConsumerGraph } from '../types.js';
 import { check, deriveSuppressEntities, resolveBaseline } from './index.js';
 
 /** Accumulates events and flushes them once after a quiet period. */

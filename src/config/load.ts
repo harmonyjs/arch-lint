@@ -11,7 +11,7 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createJiti } from 'jiti';
 import { ConfigError } from '../errors.js';
-import type { Config } from '../types.js';
+import type { Config } from './types.js';
 import { type ConfigSource, discoverConfig } from './discover.js';
 import { validateConfig } from './schema.js';
 

@@ -8,7 +8,8 @@ import { Project as TsProject } from 'ts-morph';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GraphBuildError } from '../errors.js';
 import { makeGraph } from '../rules/test-support/make-graph.js';
-import type { CheckResult, ConsumerGraph, Diagnostic, ResolvedConfig } from '../types.js';
+import type { ResolvedConfig } from '../config/types.js';
+import type { CheckResult, ConsumerGraph, Diagnostic } from '../types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 

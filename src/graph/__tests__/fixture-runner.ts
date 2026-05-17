@@ -4,7 +4,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { ResolvedConfig } from '../../types.js';
+import type { ResolvedConfig } from '../../config/types.js';
 import { buildGraph } from '../build.js';
 
 interface NormalizedEdge {

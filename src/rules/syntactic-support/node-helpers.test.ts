@@ -2,7 +2,7 @@
  * @fileoverview Tests for graph-node classification (component-folder, barrel, role folder).
  */
 import { describe, expect, it } from 'vitest';
-import type { ConventionsConfig } from '../../types.js';
+import type { ConventionsConfig } from '../../config/types.js';
 import {
   componentFolderOf,
   isBarrelFile,

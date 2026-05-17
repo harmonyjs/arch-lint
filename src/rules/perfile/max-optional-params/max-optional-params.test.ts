@@ -2,7 +2,7 @@
  * @fileoverview Tests for the max-optional-params rule of the perfile pack.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../types.js';
+import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { perfileTestGraph } from '../support/perfile-test-graph.js';

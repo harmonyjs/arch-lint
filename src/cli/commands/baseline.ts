@@ -20,7 +20,8 @@ import { resolveConfig } from '../../config/resolve-defaults.js';
 import { ConfigError } from '../../errors.js';
 import { packageRoot } from '../../paths.js';
 import { type RunCheckOptions, resolveBaseline, runCheck } from '../../runner/index.js';
-import type { BaselineFile, CheckResult, ResolvedConfig } from '../../types.js';
+import type { ResolvedConfig } from '../../config/types.js';
+import type { BaselineFile, CheckResult } from '../../types.js';
 
 /** Inputs shared by every baseline subcommand. */
 export interface BaselineCommandOptions {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Config } from '../types.js';
+import type { Config } from './types.js';
 import { resolveConfig } from './resolve-defaults.js';
 
 const minimal: Config = { project: { tsconfig: './tsconfig.json' } };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { defineConfig } from './define-config.js';
-import type { Config } from './types.js';
+import type { Config } from './config/types.js';
 
 describe('defineConfig', () => {
   it('returns the config object unchanged (identity)', () => {

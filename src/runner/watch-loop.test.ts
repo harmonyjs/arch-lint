@@ -6,7 +6,8 @@
 import { EventEmitter } from 'node:events';
 import type { FSWatcher } from 'chokidar';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { CheckResult, ConsumerGraph, ResolvedConfig } from '../types.js';
+import type { ResolvedConfig } from '../config/types.js';
+import type { CheckResult, ConsumerGraph } from '../types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 

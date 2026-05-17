@@ -2,7 +2,7 @@
  * @fileoverview Tests for ui-cluster-membership — a trigger-package file must live in the cluster.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../types.js';
+import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { type UiClusterMembershipOptions, uiClusterMembership } from './index.js';

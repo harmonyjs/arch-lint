@@ -11,53 +11,55 @@ export { defineConfig } from './define-config.js';
 export { buildGraph } from './graph/build.js';
 export { check } from './runner/index.js';
 
-// ── Types (Resolution excluded — internal resolver helper) ───────────────────
+// ── Types: config ────────────────────────────────────────────────────────────
 export type {
-  ActiveSeverity,
   BaselineConfig,
-  BaselineFile,
-  // Baseline
-  BaselineRecord,
-  // Runner
-  CheckResult,
   CiRunMode,
   Config,
-  ConsumerGraph,
-  // Diagnostics
-  ConsumerInfo,
   ConventionsConfig,
-  Diagnostic,
-  Edge,
   ExplicitPlacementRule,
   LayerConfig,
   LayersConfig,
-  // Graph
-  Location,
-  Node,
-  // Primitives
   Pack,
-  // Suppress
-  ParsedSuppress,
   PreCommitRunMode,
-  // Config
   ProjectConfig,
   ReportCliConfig,
   ReportConfig,
   ResolveConfig,
   ResolvedConfig,
   ResolvedRuleSetting,
+  RuleSetting,
+  RuleSettingObject,
+  RunModeConfig,
+  WatchRunMode,
+} from './config/types.js';
+
+// ── Types: core (Resolution excluded — internal resolver helper) ─────────────
+export type {
+  ActiveSeverity,
+  BaselineFile,
+  // Baseline
+  BaselineRecord,
+  // Runner
+  CheckResult,
+  ConsumerGraph,
+  // Diagnostics
+  ConsumerInfo,
+  Diagnostic,
+  Edge,
+  // Graph
+  Location,
+  Node,
+  // Suppress
+  ParsedSuppress,
   // Rules
   Rule,
   RuleContext,
   RuleEngine,
-  RuleSetting,
-  RuleSettingObject,
-  RunModeConfig,
+  // Primitives
   Severity,
   Suggestion,
-  SuppressConfig,
   SuppressIndex,
   UnresolvedImport,
   UnresolvedReason,
-  WatchRunMode,
 } from './types.js';

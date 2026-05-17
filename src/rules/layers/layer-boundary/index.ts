@@ -3,7 +3,8 @@
  */
 
 import { ConfigError } from '../../../errors.js';
-import type { Diagnostic, Edge, LayersConfig, ResolvedConfig, Rule } from '../../../types.js';
+import type { LayersConfig, ResolvedConfig } from '../../../config/types.js';
+import type { Diagnostic, Edge, Rule } from '../../../types.js';
 import { layerOf } from '../../placement/tree.js';
 
 /** Validate that every layer's sideEffectOnly is a subset of its canImport (else exit 2). */
