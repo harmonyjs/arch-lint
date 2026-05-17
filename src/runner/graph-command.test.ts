@@ -5,6 +5,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { GraphBuildError, IOError } from '../errors.js';
 import { runGraphCommand } from './graph.js';
 
 let dir = '';
@@ -54,5 +55,21 @@ describe('runGraphCommand', () => {
     const outcome = await runGraphCommand({ cwd: dir, subsystem: 'src' });
     expect(outcome.exitCode).toBe(0);
     expect(outcome.stdout).toContain('# Project dependency graph');
+  });
+
+  it('wraps a graph-build failure in a GraphBuildError', async () => {
+    // Point the config at a tsconfig that does not exist — ts-morph throws a
+    // plain Error during project construction, which the command must wrap.
+    await writeFile(
+      join(dir, 'arch-lint.config.mjs'),
+      `export default { project: { tsconfig: './missing-tsconfig.json', sourceRoot: 'src', cwd: ${JSON.stringify(dir)} }, baseline: { missingBehavior: 'ignore' } };`,
+    );
+    await expect(runGraphCommand({ cwd: dir })).rejects.toBeInstanceOf(GraphBuildError);
+  });
+
+  it('raises an IOError when the --out destination cannot be written', async () => {
+    // A path nested under a non-existent directory makes writeFile fail ENOENT.
+    const unwritable = join(dir, 'no-such-dir', 'graph.md');
+    await expect(runGraphCommand({ cwd: dir, out: unwritable })).rejects.toBeInstanceOf(IOError);
   });
 });

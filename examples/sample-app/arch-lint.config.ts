@@ -3,10 +3,19 @@
  * TypeScript project that arch-lint checks cleanly. The app layer depends on the
  * domain layer, the domain layer depends on the support layer, never the reverse.
  */
-import { defineConfig } from '../../src/public-api.js';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+// Import defineConfig from its source module rather than the public-api barrel:
+// the loader evaluates this config through jiti, and pulling in the whole
+// barrel would load the entire arch-lint module tree as a parallel instance.
+import { defineConfig } from '../../src/config/define-config.js';
+
+// Pin the project root to this config's own directory so arch-lint graphs the
+// sample-app sources regardless of the process working directory.
+const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  project: { tsconfig: './tsconfig.json', sourceRoot: 'src' },
+  project: { tsconfig: './tsconfig.json', sourceRoot: 'src', cwd: projectRoot },
   // layers — direction of allowed dependencies between source layers.
   // barrels — folder internals stay private behind the folder barrel.
   // placement — every entity sits at the lowest common ancestor of its consumers.
