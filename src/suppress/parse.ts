@@ -49,11 +49,25 @@ function interpretAll(
   return { valid, malformed };
 }
 
-/** Search the whole file for a @arch-decision marker that could not be anchored. */
+/**
+ * Search the file's comments for a @arch-decision marker that could not be anchored.
+ * Only comment text is scanned — a marker inside a string literal or ordinary code is
+ * not a suppress directive and must be ignored.
+ */
 function findStrayMarker(entryFile: SourceFile, config: SuppressConfig): MalformedSuppress | null {
-  const idx = entryFile.getFullText().indexOf(config.marker);
-  if (idx === -1) return null;
-  const { line, column } = entryFile.getLineAndColumnAtPos(idx);
-  const location: Location = { file: entryFile.getFilePath(), line, column };
-  return { kind: 'no-main-export', ruleId: null, reason: undefined, location };
+  const fullText = entryFile.getFullText();
+  const seen = new Set<number>();
+  for (const node of [entryFile, ...entryFile.getDescendants()]) {
+    for (const range of [...node.getLeadingCommentRanges(), ...node.getTrailingCommentRanges()]) {
+      const pos = range.getPos();
+      if (seen.has(pos)) continue;
+      seen.add(pos);
+      const offset = fullText.slice(pos, range.getEnd()).indexOf(config.marker);
+      if (offset === -1) continue;
+      const { line, column } = entryFile.getLineAndColumnAtPos(pos + offset);
+      const location: Location = { file: entryFile.getFilePath(), line, column };
+      return { kind: 'no-main-export', ruleId: null, reason: undefined, location };
+    }
+  }
+  return null;
 }
