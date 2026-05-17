@@ -4,7 +4,7 @@
  */
 
 import type { SourceFile } from 'ts-morph';
-import { Node } from 'ts-morph';
+import { type Node, SyntaxKind } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
 import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
@@ -17,18 +17,41 @@ interface Options {
 
 const DEFAULTS: Options = { tag: '@fileoverview', minLength: 12 };
 
+/** True when the node is a comment node — its own text is the leading comment. */
+function isCommentNode(node: Node): boolean {
+  const kind = node.getKind();
+  return kind === SyntaxKind.SingleLineCommentTrivia || kind === SyntaxKind.MultiLineCommentTrivia;
+}
+
+/** Extracts the description that follows the tag, stripping JSDoc decoration. */
+function descriptionAfterTag(text: string, tag: string): string {
+  const afterTag = text.slice(text.indexOf(tag) + tag.length);
+  return afterTag
+    .replace(/\*\/\s*$/, '')
+    .split('\n')
+    .map((line) => line.replace(/^\s*\*?\s?/, ''))
+    .join(' ')
+    .trim();
+}
+
 /** Checks a file's leading JSDoc block; returns a failure reason or null. */
 function checkFile(sf: SourceFile, opts: Options): string | null {
   const first = sf.getStatementsWithComments()[0];
-  const jsdoc = first && Node.isJSDocable(first) ? first.getJsDocs()[0] : undefined;
-  if (!jsdoc) return 'file does not open with a JSDoc block /** */';
-  if (!jsdoc.getText().includes('\n')) {
+  if (first === undefined) return 'file does not open with a JSDoc block /** */';
+  // ImportDeclaration is not a JSDocable node in ts-morph, so the leading
+  // /** */ block is read from the raw comment range rather than getJsDocs().
+  const leadingText = isCommentNode(first)
+    ? first.getText()
+    : first.getLeadingCommentRanges()[0]?.getText();
+  if (leadingText === undefined || !leadingText.startsWith('/**')) {
+    return 'file does not open with a JSDoc block /** */';
+  }
+  if (!leadingText.includes('\n')) {
     return 'the file description must be a multiline JSDoc block';
   }
-  const tag = jsdoc.getTags().find((t) => `@${t.getTagName()}` === opts.tag);
-  if (!tag) return `the JSDoc block has no ${opts.tag} tag`;
-  const comment = (tag.getCommentText() ?? '').trim();
-  if (opts.minLength > 0 && comment.length < opts.minLength) {
+  if (!leadingText.includes(opts.tag)) return `the JSDoc block has no ${opts.tag} tag`;
+  const description = descriptionAfterTag(leadingText, opts.tag);
+  if (opts.minLength > 0 && description.length < opts.minLength) {
     return `the ${opts.tag} description is shorter than ${opts.minLength} characters`;
   }
   return null;

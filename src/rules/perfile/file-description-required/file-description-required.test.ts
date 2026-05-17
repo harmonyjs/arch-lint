@@ -25,6 +25,14 @@ describe('file-description-required', () => {
     expect(ds).toEqual([]);
   });
 
+  it('passes an import-first file with a leading multiline @fileoverview block', () => {
+    const ds = run({
+      'src/a.ts':
+        '/**\n * @fileoverview Loads the user profile data layer.\n */\nimport { join } from "node:path";\nexport const a = join("x");\n',
+    });
+    expect(ds).toEqual([]);
+  });
+
   it('flags a file with no leading JSDoc', () => {
     const ds = run({ 'src/a.ts': 'export const a = 1;\n' });
     expect(ds).toHaveLength(1);

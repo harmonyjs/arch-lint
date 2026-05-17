@@ -53,4 +53,25 @@ describe('unresolvedImportRule', () => {
   it('emits nothing for an empty unresolved list', () => {
     expect(unresolvedImportRule.check(makeGraph({}), cfg, ctx)).toEqual([]);
   });
+
+  it('skips node: builtin specifiers and only flags genuine relative imports', () => {
+    const builtin: UnresolvedImport = {
+      file: 'src/a.ts',
+      specifier: 'node:path',
+      symbol: 'join',
+      location: { file: 'src/a.ts', line: 1, column: 1 },
+      reason: 'alias-unresolved',
+    };
+    const relative: UnresolvedImport = {
+      file: 'src/a.ts',
+      specifier: './missing.js',
+      symbol: 'Thing',
+      location: { file: 'src/a.ts', line: 2, column: 1 },
+      reason: 'missing',
+    };
+    const g = makeGraph({ unresolved: [builtin, relative] });
+    const out = unresolvedImportRule.check(g, cfg, ctx);
+    expect(out).toHaveLength(1);
+    expect(out[0]!.actual).toBe('./missing.js');
+  });
 });

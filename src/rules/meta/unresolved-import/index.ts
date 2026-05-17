@@ -14,6 +14,8 @@ export const unresolvedImportRule: GraphRule = {
     const out: Diagnostic[] = [];
     const seen = new Set<string>();
     for (const u of graph.unresolved) {
+      // Node builtins are always valid; this rule only reports internal imports.
+      if (u.specifier.startsWith('node:')) continue;
       const fingerprint = `${u.file}#${u.specifier}#${u.symbol}`;
       if (seen.has(fingerprint)) continue;
       seen.add(fingerprint);
