@@ -35,6 +35,7 @@ function makeConfig(): ResolvedConfig {
       modelSegment: 'model',
       indexFiles: ['index.ts', 'index.tsx'],
     },
+    view: { region: 'auto' },
     packs: ['layers'],
     explicitPlacement: [],
     resolve: {
@@ -103,5 +104,15 @@ describe('buildGraph', () => {
     write('src/app.ts', "import { Gone } from './missing.js'; export const u = Gone;");
     const graph = await buildGraph(makeConfig());
     expect(graph.unresolved.some((u) => u.file === 'src/app.ts' && u.symbol === 'Gone')).toBe(true);
+  });
+
+  it('stamps region "view" on nodes inside a JSX subtree', async () => {
+    write('src/ui/Button.tsx', 'export const Button = () => <button />;');
+    write('src/ui/helper.ts', 'export const helper = 1;');
+    write('src/lib/util.ts', 'export const util = 1;');
+    const graph = await buildGraph(makeConfig());
+    expect(graph.nodes.get('src/ui/Button.tsx')?.region).toBe('view');
+    expect(graph.nodes.get('src/ui/helper.ts')?.region).toBe('view');
+    expect(graph.nodes.get('src/lib/util.ts')?.region).toBeUndefined();
   });
 });

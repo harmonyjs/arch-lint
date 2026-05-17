@@ -52,6 +52,7 @@ function fixtureConfig(projectDir: string): ResolvedConfig {
       modelSegment: 'model',
       indexFiles: ['index.ts', 'index.tsx'],
     },
+    view: { region: 'auto' },
     packs: ['layers'],
     explicitPlacement: [],
     resolve: {

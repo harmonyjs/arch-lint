@@ -30,7 +30,7 @@ export function buildGraphFromSources(
     maxResolveDepth: config.resolve.maxResolveDepth,
     cacheSize: config.resolve.cacheSize,
   });
-  const nodes = buildNodes(sources, config.conventions, config.explicitPlacement);
+  const nodes = buildNodes(sources, config.conventions, config.explicitPlacement, config.view);
   const { edges, unresolved } = buildEdges(sources, resolver, config.resolve.treatTypeOnlyAsEdge);
   const entityCtx: EntityContext = { sources, conventions: config.conventions };
   return freezeGraph({ nodes, edges, unresolved, entityCtx, rootDir: sources.rootDir });

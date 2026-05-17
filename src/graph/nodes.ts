@@ -5,10 +5,11 @@
 
 import picomatch from 'picomatch';
 import { type SourceFile, Node as TsNode } from 'ts-morph';
-import type { ConventionsConfig, ExplicitPlacementRule } from '#config/types.js';
+import type { ConventionsConfig, ExplicitPlacementRule, ViewConfig } from '#config/types.js';
 import { baseNameOf, dirOf, dropExtension } from '#entity-id.js';
 import type { SourceFileSet } from './discover-source-files.js';
 import { type EntityContext, isComponentFolder } from './entities.js';
+import { classifyRegion, classifyRegionFromPrefixes, hasJsx } from './region.js';
 import type { Node } from './types.js';
 
 /** True if a source file consists solely of re-export declarations (a pure barrel). */
@@ -57,11 +58,35 @@ function collectComponentFolders(
   }
 }
 
+/**
+ * Computes the set of node ids inside the view region (#26). In 'auto' mode
+ * the roots come from JSX-bearing `.tsx` files; an explicit prefix list skips
+ * JSX detection entirely. `allIds` must include both file and folder ids so a
+ * component folder inside the region is classified too.
+ */
+function viewRegionIds(
+  set: SourceFileSet,
+  view: ViewConfig,
+  allIds: readonly string[],
+): ReadonlySet<string> {
+  if (view.region !== 'auto') {
+    return classifyRegionFromPrefixes(view.region, allIds);
+  }
+  const jsxBearing: string[] = [];
+  for (const [fileId, sourceFile] of set.files) {
+    if (fileId.endsWith('.tsx') && hasJsx(sourceFile)) {
+      jsxBearing.push(fileId);
+    }
+  }
+  return classifyRegion(jsxBearing, allIds);
+}
+
 /** Builds the node map: file nodes plus folder nodes for component folders (§4.1). */
 export function buildNodes(
   set: SourceFileSet,
   conventions: ConventionsConfig,
   explicitPlacement: readonly ExplicitPlacementRule[],
+  view: ViewConfig,
 ): ReadonlyMap<string, Node> {
   const entityCtx: EntityContext = { sources: set, conventions };
   const nodes = new Map<string, Node>();
@@ -86,6 +111,13 @@ export function buildNodes(
       isEntity: true,
       ...placementOf(folderId, explicitPlacement),
     });
+  }
+
+  const region = viewRegionIds(set, view, [...nodes.keys()]);
+  for (const [id, node] of nodes) {
+    if (region.has(id)) {
+      nodes.set(id, { ...node, region: 'view' });
+    }
   }
   return nodes;
 }
