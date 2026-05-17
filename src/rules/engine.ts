@@ -4,7 +4,8 @@
 import type { Project } from 'ts-morph';
 import { classifyDiagnostics } from '../baseline/classify.js';
 import type { ResolvedConfig } from '../config/types.js';
-import type { ActiveSeverity, BaselineFile, CheckResult, ConsumerGraph, Diagnostic, SuppressIndex } from '../types.js';
+import type { ConsumerGraph } from '../graph/types.js';
+import type { ActiveSeverity, BaselineFile, CheckResult, Diagnostic, SuppressIndex } from '../types.js';
 import { buildRuleContext } from './build-context.js';
 import { dedupPlacement } from './dedup-placement.js';
 import { getActiveRules } from './index.js';

@@ -2,8 +2,7 @@
  * @fileoverview Builds the forward (consumersOf) and reverse (producersOf) edge
  * indices of the consumer graph from a flat edge list.
  */
-import type { Edge } from '../types.js';
-
+import type { Edge } from './types.js';
 export interface EdgeIndices {
   readonly consumersOf: ReadonlyMap<string, readonly Edge[]>;
   readonly producersOf: ReadonlyMap<string, readonly Edge[]>;

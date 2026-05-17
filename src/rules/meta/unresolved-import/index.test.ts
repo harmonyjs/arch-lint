@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../config/types.js';
-import type { UnresolvedImport } from '../../../types.js';
+import type { UnresolvedImport } from '../../../graph/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { unresolvedImportRule } from './index.js';

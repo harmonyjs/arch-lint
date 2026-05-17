@@ -6,7 +6,7 @@
 import picomatch from 'picomatch';
 import { type SourceFile, Node as TsNode } from 'ts-morph';
 import type { ConventionsConfig, ExplicitPlacementRule } from '../config/types.js';
-import type { Node } from '../types.js';
+import type { Node } from './types.js';
 import { type EntityContext, isComponentFolder } from './entities.js';
 import type { SourceFileSet } from './source-files.js';
 

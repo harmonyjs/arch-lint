@@ -34,7 +34,16 @@ export type {
   WatchRunMode,
 } from './config/types.js';
 
-// ── Types: core (Resolution excluded — internal resolver helper) ─────────────
+// ── Types: graph (Resolution excluded — internal resolver helper) ────────────
+export type {
+  ConsumerGraph,
+  Edge,
+  Node,
+  UnresolvedImport,
+  UnresolvedReason,
+} from './graph/types.js';
+
+// ── Types: core ──────────────────────────────────────────────────────────────
 export type {
   ActiveSeverity,
   BaselineFile,
@@ -42,14 +51,11 @@ export type {
   BaselineRecord,
   // Runner
   CheckResult,
-  ConsumerGraph,
   // Diagnostics
   ConsumerInfo,
   Diagnostic,
-  Edge,
   // Graph
   Location,
-  Node,
   // Suppress
   ParsedSuppress,
   // Rules
@@ -60,6 +66,4 @@ export type {
   Severity,
   Suggestion,
   SuppressIndex,
-  UnresolvedImport,
-  UnresolvedReason,
 } from './types.js';

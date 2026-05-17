@@ -3,7 +3,7 @@
  * config by discovering sources, resolving imports and projecting onto entities.
  */
 import type { ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from '../types.js';
+import type { ConsumerGraph } from './types.js';
 import { freezeGraph } from './consumer-graph.js';
 import { buildEdges } from './edges.js';
 import type { EntityContext } from './entities.js';

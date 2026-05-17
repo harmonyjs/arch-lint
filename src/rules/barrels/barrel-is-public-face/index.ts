@@ -3,7 +3,8 @@
  * entity through its barrel, not a folder internal directly (decision D7). Works on edges.
  */
 import type { ResolvedConfig } from '../../../config/types.js';
-import type { ConsumerGraph, Diagnostic, Edge, Rule, RuleContext } from '../../../types.js';
+import type { ConsumerGraph, Edge } from '../../../graph/types.js';
+import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
 import { componentFolderOf, isBarrelFile } from '../../syntactic-support/node-helpers.js';
 import { enforceForSegmentsMatches, segmentsOf } from '../../syntactic-support/segments.js';

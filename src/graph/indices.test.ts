@@ -2,7 +2,7 @@
  * @fileoverview Tests for forward/reverse edge indices consumersOf and producersOf.
  */
 import { describe, expect, it } from 'vitest';
-import type { Edge } from '../types.js';
+import type { Edge } from './types.js';
 import { buildIndices } from './indices.js';
 
 const edges: Edge[] = [

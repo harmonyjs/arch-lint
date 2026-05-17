@@ -4,7 +4,8 @@
 import type { Project } from 'ts-morph';
 import { describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
-import type { BaselineFile, CheckResult, ConsumerGraph, SuppressIndex } from '../types.js';
+import type { ConsumerGraph } from '../graph/types.js';
+import type { BaselineFile, CheckResult, SuppressIndex } from '../types.js';
 const runEngineMock = vi.fn();
 vi.mock('../rules/engine.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
