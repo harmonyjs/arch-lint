@@ -10,6 +10,7 @@ interface NodeSpec {
   readonly isEntity?: boolean;
   readonly placementMode?: 'reactive' | 'explicit';
   readonly cluster?: string;
+  readonly region?: 'view';
 }
 
 export interface MakeGraphSpec {
@@ -32,7 +33,8 @@ function toNode(id: string, spec: NodeSpec): Node {
     isEntity: spec.isEntity ?? false,
     placementMode: spec.placementMode ?? 'reactive',
   } as const;
-  return spec.cluster === undefined ? base : { ...base, cluster: spec.cluster };
+  const withCluster = spec.cluster === undefined ? base : { ...base, cluster: spec.cluster };
+  return spec.region === undefined ? withCluster : { ...withCluster, region: spec.region };
 }
 
 /** Builds the in-memory ts-morph Project, seeded from the files spec. */

@@ -11,6 +11,12 @@ export interface Node {
   readonly isEntity: boolean;
   readonly placementMode: 'reactive' | 'explicit';
   readonly cluster?: string;
+  /**
+   * View-region classification (#26). `'view'` marks a node inside the
+   * auto-detected (or config-declared) view region; absent means unclassified.
+   * A string-union for future regions — today the only value is `'view'`.
+   */
+  readonly region?: 'view';
 }
 
 export interface Edge {
