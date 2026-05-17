@@ -37,5 +37,10 @@ lint:
     npm run build
     node bin/arch-lint.js check
 
+# Run arch-lint against the example project (examples/sample-app)
+example:
+    npm run build
+    cd examples/sample-app && node ../../bin/arch-lint.js check
+
 # Type-check, lint and test in one shot
 check: typecheck check-biome test
