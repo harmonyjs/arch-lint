@@ -14,6 +14,7 @@ import type { Rule } from './types.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   return {
+    project: { tsconfig: 't', sourceRoot: 'src', cwd: '/nonexistent', includeOutOfRoot: false },
     conventions: {
       privateSegment: 'slots',
       sharedSegment: 'items',
@@ -59,6 +60,27 @@ describe('runEngine pipeline steps 1-2', () => {
   it('runs nothing for an empty graph', () => {
     const result = runEngine(makeGraph({}), cfg(), makeSuppressIndex(), emptyProject);
     expect(result.diagnostics).toEqual([]);
+  });
+
+  it('dispatches a manifest rule with only its manifest context', () => {
+    let sawContext = false;
+    const manifestProbe: Rule = {
+      id: 'manifest-probe',
+      pack: 'hygiene',
+      engine: 'manifest',
+      defaultSeverity: 'error',
+      check: (context) => {
+        sawContext = context.manifests !== undefined && typeof context.cwd === 'string';
+        return [];
+      },
+    };
+    runEngine(
+      makeGraph({}),
+      cfg({ packs: ['hygiene'], plugins: [manifestProbe] }),
+      makeSuppressIndex(),
+      emptyProject,
+    );
+    expect(sawContext).toBe(true);
   });
 
   it('threads the supplied project into rule contexts (D9)', () => {

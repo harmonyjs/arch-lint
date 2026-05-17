@@ -1,5 +1,5 @@
 /**
- * @fileoverview runEngine — executes the §8.1 rule pipeline over a frozen graph.
+ * @fileoverview runEngine — executes the rule pipeline over a frozen graph.
  */
 import type { Project } from 'ts-morph';
 import { classifyDiagnostics } from '../baseline/classify.js';
@@ -8,8 +8,9 @@ import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import type { SuppressIndex } from '../suppress/types.js';
 import type { ActiveSeverity, Diagnostic } from '../types.js';
-import { buildRuleContext } from './build-context.js';
+import { buildGraphContext, buildManifestContext, buildSyntacticContext } from './build-context.js';
 import { dedupPlacement } from './dedup-placement.js';
+import { buildManifestBundle } from './engine/manifest-bundle.js';
 import { getActiveRules } from './index.js';
 import { runtimeSelfCheck } from './self-check.js';
 import type { CheckResult } from './types.js';
@@ -37,10 +38,11 @@ function buildResult(diagnostics: readonly Diagnostic[]): CheckResult {
 }
 
 /**
- * Run the §8.1 pipeline over a frozen graph: collect rule diagnostics (each rule sees
- * `project` per D9), drop suppressed ones, dedup placement verdicts, run the §10.2
- * self-check, then classify against the baseline. Free of file I/O — `suppress`,
- * `project` and `baseline` are supplied by the runner (M7).
+ * Run the §8.1 pipeline over a frozen graph: dispatch each rule by its engine — graph
+ * rules see the ConsumerGraph, syntactic rules also see the parsed `project`, manifest
+ * rules see the project manifests parsed once — drop suppressed diagnostics, dedup
+ * placement verdicts, run the §10.2 self-check, then classify against the baseline.
+ * Free of file I/O — `suppress`, `project` and `baseline` are supplied by the runner.
  */
 export function runEngine(
   graph: ConsumerGraph,
@@ -51,9 +53,18 @@ export function runEngine(
   baseline?: BaselineFile | null,
 ): CheckResult {
   const activeRules = getActiveRules(config, ruleFilter);
-  let diagnostics: Diagnostic[] = activeRules.flatMap((rule) =>
-    rule.check(graph, config, buildRuleContext(rule, config, suppress, project)),
-  );
+  const manifests = buildManifestBundle(config);
+  const cwd = config.project.cwd;
+  let diagnostics: Diagnostic[] = activeRules.flatMap((rule) => {
+    switch (rule.engine) {
+      case 'graph':
+        return rule.check(graph, config, buildGraphContext(rule, config, suppress));
+      case 'syntactic':
+        return rule.check(graph, config, buildSyntacticContext(rule, config, suppress, project));
+      case 'manifest':
+        return rule.check(buildManifestContext(rule, config, manifests, cwd));
+    }
+  });
   diagnostics = diagnostics.filter((d) => !suppress.isSuppressed(d));
   diagnostics = [...dedupPlacement(diagnostics)];
   runtimeSelfCheck(diagnostics);
