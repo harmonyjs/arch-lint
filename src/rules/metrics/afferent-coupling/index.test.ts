@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import type { Edge } from '../../../graph/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { afferentCoupling } from './index.js';
 
 function edge(consumer: string, producer: string): Edge {
@@ -55,15 +56,14 @@ describe('afferentCoupling — check', () => {
       ],
     });
     const ctx = makeContext('afferent-coupling', { severity: 'info', options: { max: 1 } });
-    const out = afferentCoupling.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('afferent-coupling');
-    expect(out[0]!.entity).toBe('src/graph');
-    expect(out[0]!.fingerprint).toBe('afferent-coupling#graph');
-    expect(out[0]!.message).toBe('subsystem graph is depended on by many subsystems');
-    expect(out[0]!.expected).toBe('≤ 1 inbound subsystem dependencies');
-    expect(out[0]!.actual).toBe('2 (report, runner)');
-    expect(out[0]!.location).toEqual({ file: 'src/graph', line: 1, column: 1 });
+    const d = only(afferentCoupling.check(graph, cfg(), ctx));
+    expect(d.ruleId).toBe('afferent-coupling');
+    expect(d.entity).toBe('src/graph');
+    expect(d.fingerprint).toBe('afferent-coupling#graph');
+    expect(d.message).toBe('subsystem graph is depended on by many subsystems');
+    expect(d.expected).toBe('≤ 1 inbound subsystem dependencies');
+    expect(d.actual).toBe('2 (report, runner)');
+    expect(d.location).toEqual({ file: 'src/graph', line: 1, column: 1 });
   });
 
   it('defaults max to 6', () => {
@@ -75,8 +75,7 @@ describe('afferentCoupling — check', () => {
     }
     const graph = makeGraph({ nodes, edges });
     const ctx = makeContext('afferent-coupling', { severity: 'info' });
-    const out = afferentCoupling.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.actual).toBe('7 (a, b, c, d, e, f, g)');
+    const d = only(afferentCoupling.check(graph, cfg(), ctx));
+    expect(d.actual).toBe('7 (a, b, c, d, e, f, g)');
   });
 });

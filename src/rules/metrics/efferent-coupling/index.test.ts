@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import type { Edge } from '../../../graph/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { efferentCoupling } from './index.js';
 
 function edge(consumer: string, producer: string): Edge {
@@ -55,15 +56,14 @@ describe('efferentCoupling — check', () => {
       ],
     });
     const ctx = makeContext('efferent-coupling', { severity: 'warning', options: { max: 1 } });
-    const out = efferentCoupling.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('efferent-coupling');
-    expect(out[0]!.entity).toBe('src/runner');
-    expect(out[0]!.fingerprint).toBe('efferent-coupling#runner');
-    expect(out[0]!.message).toBe('subsystem runner depends on too many other subsystems');
-    expect(out[0]!.expected).toBe('≤ 1 outbound subsystem dependencies');
-    expect(out[0]!.actual).toBe('2 (graph, report)');
-    expect(out[0]!.location).toEqual({ file: 'src/runner', line: 1, column: 1 });
+    const d = only(efferentCoupling.check(graph, cfg(), ctx));
+    expect(d.ruleId).toBe('efferent-coupling');
+    expect(d.entity).toBe('src/runner');
+    expect(d.fingerprint).toBe('efferent-coupling#runner');
+    expect(d.message).toBe('subsystem runner depends on too many other subsystems');
+    expect(d.expected).toBe('≤ 1 outbound subsystem dependencies');
+    expect(d.actual).toBe('2 (graph, report)');
+    expect(d.location).toEqual({ file: 'src/runner', line: 1, column: 1 });
   });
 
   it('skips a subsystem listed in allow', () => {
@@ -113,8 +113,7 @@ describe('efferentCoupling — check', () => {
     }
     const graph = makeGraph({ nodes, edges });
     const ctx = makeContext('efferent-coupling', { severity: 'warning' });
-    const out = efferentCoupling.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.actual).toBe('5 (a, b, c, d, e)');
+    const d = only(efferentCoupling.check(graph, cfg(), ctx));
+    expect(d.actual).toBe('5 (a, b, c, d, e)');
   });
 });
