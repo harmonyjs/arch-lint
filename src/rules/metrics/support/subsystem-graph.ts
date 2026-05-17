@@ -51,11 +51,40 @@ function accumulatorFor(
 }
 
 /**
+ * Cache keyed on the `(graph, sourceRoot)` pair: every metric rule folds the same
+ * graph, so the fold is computed once per pair and reused. The ConsumerGraph is
+ * frozen for the lifetime of a run, so a WeakMap key is safe and auto-clears.
+ */
+const couplingCache = new WeakMap<
+  ConsumerGraph,
+  Map<string, ReadonlyMap<string, SubsystemCoupling>>
+>();
+
+/**
  * Folds the file-level ConsumerGraph into per-subsystem coupling figures. Every
  * `kind: 'file'` node contributes its membership; every cross-subsystem edge records
  * an outbound link on the consumer subsystem and an inbound link on the producer one.
+ * The fold is memoized per `(graph, sourceRoot)` pair — repeated calls are a lookup.
  */
 export function subsystemCoupling(
+  graph: ConsumerGraph,
+  sourceRoot: string,
+): ReadonlyMap<string, SubsystemCoupling> {
+  let byRoot = couplingCache.get(graph);
+  if (byRoot === undefined) {
+    byRoot = new Map();
+    couplingCache.set(graph, byRoot);
+  }
+  const cached = byRoot.get(sourceRoot);
+  if (cached !== undefined) return cached;
+
+  const coupling = computeSubsystemCoupling(graph, sourceRoot);
+  byRoot.set(sourceRoot, coupling);
+  return coupling;
+}
+
+/** Performs the graph fold without caching — the body behind `subsystemCoupling`. */
+function computeSubsystemCoupling(
   graph: ConsumerGraph,
   sourceRoot: string,
 ): ReadonlyMap<string, SubsystemCoupling> {

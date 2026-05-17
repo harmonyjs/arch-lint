@@ -17,6 +17,7 @@ import {
   runtimeSelfCheck,
 } from './engine/index.js';
 import { getActiveRules } from './index.js';
+import { assertGraphProjectConsistent } from './syntactic-support/index.js';
 import type { CheckResult, ManifestBundle, Rule } from './types.js';
 
 /** Tally classified diagnostics into the CheckResult summary and exit code (§10.3). */
@@ -58,11 +59,7 @@ function dispatchRule(rule: Rule, env: DispatchEnv): Diagnostic[] {
     case 'graph':
       return rule.check(graph, config, buildGraphContext(rule, config, suppress));
     case 'syntactic':
-      return rule.check(
-        graph,
-        config,
-        buildSyntacticContext(rule, config, suppress, project, graph),
-      );
+      return rule.check(graph, config, buildSyntacticContext(rule, config, suppress, project));
     case 'manifest':
       return rule.check(buildManifestContext(rule, config, manifests, cwd));
   }
@@ -84,6 +81,9 @@ export function runEngine(
   baseline?: BaselineFile | null,
 ): CheckResult {
   const activeRules = getActiveRules(config, ruleFilter);
+  if (activeRules.some((r) => r.engine === 'syntactic')) {
+    assertGraphProjectConsistent(graph, project);
+  }
   const env: DispatchEnv = {
     graph,
     config,

@@ -33,11 +33,11 @@ describe('placement rule family', () => {
   });
 
   for (const descriptor of placementRuleDescriptors) {
-    describe(descriptor.ruleId, () => {
-      const rule = rulesById.get(descriptor.ruleId)!;
+    describe(descriptor.id, () => {
+      const rule = rulesById.get(descriptor.id)!;
 
       it('has the canonical metadata', () => {
-        expect(rule.id).toBe(descriptor.ruleId);
+        expect(rule.id).toBe(descriptor.id);
         expect(rule.pack).toBe('placement');
         expect(rule.engine).toBe('graph');
         expect(rule.defaultSeverity).toBe(descriptor.defaultSeverity);

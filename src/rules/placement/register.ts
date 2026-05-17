@@ -8,7 +8,5 @@ import { makeThinPlacementRule } from './thin-rule.js';
 
 /** Every placement Rule, projected from the family descriptors. */
 export function registerPlacementRules(): readonly GraphRule[] {
-  return placementRuleDescriptors.map((d) =>
-    makeThinPlacementRule({ id: d.ruleId, defaultSeverity: d.defaultSeverity }),
-  );
+  return placementRuleDescriptors.map(makeThinPlacementRule);
 }

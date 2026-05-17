@@ -6,7 +6,6 @@ import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../config/types.js';
 import { makeSuppressIndex } from '../test-support/make-context.js';
-import { makeGraph } from '../test-support/make-graph.js';
 import type { GraphRule, ManifestBundle } from '../types.js';
 import { buildGraphContext, buildManifestContext, buildSyntacticContext } from './build-context.js';
 
@@ -23,7 +22,6 @@ function cfg(rules: ResolvedConfig['rules']): ResolvedConfig {
 }
 
 const project = new Project({ useInMemoryFileSystem: true });
-const emptyGraph = makeGraph({ nodes: {} });
 const EMPTY_BUNDLE: ManifestBundle = { packageJson: null, npmrc: null, tsconfig: null };
 
 describe('buildGraphContext', () => {
@@ -60,23 +58,16 @@ describe('buildGraphContext', () => {
 describe('buildSyntacticContext', () => {
   it('carries the suppress index and the parsed ts-morph project', () => {
     const suppress = makeSuppressIndex();
-    const ctx = buildSyntacticContext(rule, cfg({}), suppress, project, emptyGraph);
+    const ctx = buildSyntacticContext(rule, cfg({}), suppress, project);
     expect(ctx.suppress).toBe(suppress);
     expect(ctx.project).toBe(project);
   });
 
   it('resolves severity and strips the severity option', () => {
     const config = cfg({ 'lca-placement': { severity: 'error', promotionThreshold: 3 } });
-    const ctx = buildSyntacticContext(rule, config, makeSuppressIndex(), project, emptyGraph);
+    const ctx = buildSyntacticContext(rule, config, makeSuppressIndex(), project);
     expect(ctx.severity).toBe('error');
     expect(ctx.options).toEqual({ promotionThreshold: 3 });
-  });
-
-  it('throws when a graph file node has no matching SourceFile', () => {
-    const graph = makeGraph({ nodes: { 'src/missing.ts': { kind: 'file' } } });
-    expect(() => buildSyntacticContext(rule, cfg({}), makeSuppressIndex(), project, graph)).toThrow(
-      /src\/missing\.ts/,
-    );
   });
 });
 

@@ -2,22 +2,17 @@
  * @fileoverview Builds a thin placement Rule that projects one §7.3 verdict ruleId (D3).
  */
 
-import type { ActiveSeverity, Diagnostic } from '../../types.js';
+import type { Diagnostic } from '../../types.js';
 import type { GraphRule } from '../types.js';
-import { analyzePlacement, type PlacementVerdict } from './analyze.js';
+import { analyzePlacement } from './analyze.js';
+import type { PlacementRuleDescriptor } from './rules.js';
 import { verdictToDiagnostic } from './verdict-to-diagnostic.js';
-
-/** Metadata describing one thin placement rule. */
-export interface ThinRuleSpec {
-  readonly id: PlacementVerdict['ruleId'];
-  readonly defaultSeverity: ActiveSeverity;
-}
 
 /**
  * Builds a placement Rule that calls analyzePlacement and emits a Diagnostic only for
- * entities whose §7.3 verdict matches `spec.id` — verdicts never overlap by construction.
+ * entities whose verdict matches `spec.id` — verdicts never overlap by construction.
  */
-export function makeThinPlacementRule(spec: ThinRuleSpec): GraphRule {
+export function makeThinPlacementRule(spec: PlacementRuleDescriptor): GraphRule {
   return {
     id: spec.id,
     pack: 'placement',

@@ -83,6 +83,32 @@ describe('runEngine pipeline steps 1-2', () => {
     expect(sawContext).toBe(true);
   });
 
+  it('throws when a syntactic rule runs against a graph/project inconsistency', () => {
+    const syntacticProbe: Rule = {
+      id: 'lib-purity',
+      pack: 'layers',
+      engine: 'syntactic',
+      defaultSeverity: 'error',
+      check: () => [],
+    };
+    const graph = makeGraph({ nodes: { 'src/missing.ts': { kind: 'file' } } });
+    expect(() =>
+      runEngine(
+        graph,
+        cfg({ packs: ['layers'], plugins: [syntacticProbe] }),
+        makeSuppressIndex(),
+        emptyProject,
+      ),
+    ).toThrow(/src\/missing\.ts/);
+  });
+
+  it('does not assert graph/project consistency when no syntactic rule is active', () => {
+    const graph = makeGraph({ nodes: { 'src/missing.ts': { kind: 'file' } } });
+    expect(() =>
+      runEngine(graph, cfg({ packs: ['placement'] }), makeSuppressIndex(), emptyProject),
+    ).not.toThrow();
+  });
+
   it('threads the supplied project into rule contexts (D9)', () => {
     let seen: Project | null = null;
     const probe: Rule = {

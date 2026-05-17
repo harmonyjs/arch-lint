@@ -32,7 +32,6 @@ export const exactDependencyVersions: ManifestRule = {
     const doc = context.manifests.packageJson;
     if (doc === null) return [];
     const sections = opts.sections.filter((s) => !FORBIDDEN_SECTIONS.has(s));
-    const seen = new Set<string>();
     const out: Diagnostic[] = [];
     for (const section of sections) {
       const deps = doc.getSection(section);
@@ -40,8 +39,6 @@ export const exactDependencyVersions: ManifestRule = {
       for (const [pkg, spec] of Object.entries(deps)) {
         if (isExact(spec)) continue;
         const fingerprint = `${section}#${pkg}`;
-        if (seen.has(fingerprint)) continue;
-        seen.add(fingerprint);
         const loc = doc.sectionKeyLocation(section, pkg) ?? doc.rootLocation();
         out.push({
           ruleId: context.ruleId,

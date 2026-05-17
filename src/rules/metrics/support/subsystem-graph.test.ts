@@ -74,4 +74,12 @@ describe('subsystemCoupling', () => {
     expect([...(c.get('graph')?.files ?? [])]).toEqual(['src/graph/a.ts']);
     expect([...(c.get('graph')?.inboundSubsystems ?? [])]).toEqual(['runner']);
   });
+
+  it('memoizes the fold per (graph, root) — repeated calls return the same object', () => {
+    const graph = makeGraph({
+      nodes: { 'src/runner/cli.ts': { kind: 'file' }, 'src/graph/a.ts': { kind: 'file' } },
+      edges: [edge('src/runner/cli.ts', 'src/graph/a.ts')],
+    });
+    expect(subsystemCoupling(graph, 'src')).toBe(subsystemCoupling(graph, 'src'));
+  });
 });

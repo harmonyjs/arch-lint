@@ -11,14 +11,14 @@ import type { PlacementVerdict } from './analyze.js';
  * rule id) and its default severity.
  */
 export interface PlacementRuleDescriptor {
-  readonly ruleId: PlacementVerdict['ruleId'];
+  readonly id: PlacementVerdict['ruleId'];
   readonly defaultSeverity: ActiveSeverity;
 }
 
 /** The placement rule family — add a rule here and it is registered automatically. */
 export const placementRuleDescriptors: readonly PlacementRuleDescriptor[] = [
-  { ruleId: 'lca-placement', defaultSeverity: 'warning' },
-  { ruleId: 'slots-privacy', defaultSeverity: 'error' },
-  { ruleId: 'siblings-forbidden', defaultSeverity: 'error' },
-  { ruleId: 'empty-items-folder', defaultSeverity: 'warning' },
+  { id: 'lca-placement', defaultSeverity: 'warning' },
+  { id: 'slots-privacy', defaultSeverity: 'error' },
+  { id: 'siblings-forbidden', defaultSeverity: 'error' },
+  { id: 'empty-items-folder', defaultSeverity: 'warning' },
 ];

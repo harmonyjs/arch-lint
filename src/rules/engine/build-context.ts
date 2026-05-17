@@ -5,10 +5,8 @@
  */
 import type { Project } from 'ts-morph';
 import type { ResolvedConfig } from '../../config/types.js';
-import type { ConsumerGraph } from '../../graph/types.js';
 import type { SuppressIndex } from '../../suppress/types.js';
 import type { ActiveSeverity } from '../../types.js';
-import { assertGraphProjectConsistent } from '../syntactic-support/index.js';
 import type {
   GraphRuleContext,
   ManifestBundle,
@@ -48,9 +46,7 @@ export function buildSyntacticContext(
   config: ResolvedConfig,
   suppress: SuppressIndex,
   project: Project,
-  graph: ConsumerGraph,
 ): SyntacticRuleContext {
-  assertGraphProjectConsistent(graph, project);
   return { ...baseContext(rule, config), suppress, project };
 }
 

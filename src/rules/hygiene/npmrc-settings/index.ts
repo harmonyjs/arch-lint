@@ -22,11 +22,8 @@ export const npmrcSettings: ManifestRule = {
   check: (context: ManifestRuleContext): Diagnostic[] => {
     const opts: Options = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const doc = context.manifests.npmrc ?? parseNpmrc('');
-    const seen = new Set<string>();
     const out: Diagnostic[] = [];
     for (const [key, want] of Object.entries(opts.required)) {
-      if (seen.has(key)) continue;
-      seen.add(key);
       const actual = doc.get(key);
       const expected = String(want);
       if (actual === expected) continue;
