@@ -3,12 +3,12 @@
  * must own a barrel (decision D6). A structural check over the graph node set.
  */
 import type { ResolvedConfig } from '#config/types.js';
+import { folderOf } from '#entity-id/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import {
   isComponentFolderEntry,
   roleFolderSegment,
 } from '#rules/syntactic-support/node-helpers.js';
-import { segmentsOf } from '#rules/syntactic-support/segments.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
@@ -42,7 +42,7 @@ function hasIndexChild(folderId: string, graph: ConsumerGraph, config: ResolvedC
 function isComponentFolder(folderId: string, graph: ConsumerGraph): boolean {
   for (const node of graph.nodes.values()) {
     if (node.kind !== 'file' || !isComponentFolderEntry(node.id)) continue;
-    if (segmentsOf(node.id).slice(0, -1).join('/') === folderId) return true;
+    if (folderOf(node.id) === folderId) return true;
   }
   return false;
 }

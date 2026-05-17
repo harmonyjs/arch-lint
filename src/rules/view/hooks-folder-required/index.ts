@@ -3,9 +3,10 @@
  * (decision D7). The view pack is parametrized by config — no hardcoded React naming.
  */
 import type { ResolvedConfig } from '#config/types.js';
+import { baseNameOf, folderOf } from '#entity-id/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
-import { isUnderSegment, segmentsOf } from '#rules/syntactic-support/segments.js';
+import { isUnderSegment } from '#rules/syntactic-support/segments.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
@@ -38,11 +39,6 @@ interface FileBoundaryFacts {
   readonly inHooksFolder: boolean;
 }
 
-/** The basename of a file id. */
-function baseNameOf(fileId: string): string {
-  return fileId.slice(fileId.lastIndexOf('/') + 1);
-}
-
 /** True when a file is a barrel of the convention. */
 function isBarrel(fileId: string, config: ResolvedConfig): boolean {
   return config.conventions.indexFiles.includes(baseNameOf(fileId));
@@ -56,7 +52,7 @@ function makeDiag(
   boundary: HooksBoundary,
 ): Diagnostic {
   const { hooksSegment, hookFilePattern } = boundary;
-  const targetDir = `${segmentsOf(fileId).slice(0, -1).join('/')}/${hooksSegment}`;
+  const targetDir = `${folderOf(fileId)}/${hooksSegment}`;
   const message =
     kind === 'misplaced'
       ? `Hook file '${fileId}' must live inside a '${hooksSegment}/' folder`

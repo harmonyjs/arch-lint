@@ -3,6 +3,7 @@
  * entity through its barrel, not a folder internal directly (decision D7). Works on edges.
  */
 import type { ResolvedConfig } from '#config/types.js';
+import { folderOf } from '#entity-id/index.js';
 import type { ConsumerGraph, Edge } from '#graph/types.js';
 import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
 import { componentFolderOf, isBarrelFile } from '#rules/syntactic-support/node-helpers.js';
@@ -79,7 +80,7 @@ function evaluateEdge(
   }
   const producerIsBarrel =
     isBarrelFile(edge.producer, config.conventions) &&
-    segmentsOf(edge.producer).slice(0, -1).join('/') === producerFolder;
+    folderOf(edge.producer) === producerFolder;
   if (producerIsBarrel) {
     if (!options.allowExplicitIndex && pathPointsAtIndex(edge.syntacticPath)) {
       return 'explicit-index';

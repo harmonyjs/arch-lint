@@ -2,6 +2,7 @@
  * @fileoverview barrel-narrow-export rule — a component-folder barrel re-exports only
  * the folder's own entity (decision D7). Reads AST from the RuleContext project (D9).
  */
+import { folderOf } from '#entity-id/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
 import { importsOf } from '#rules/syntactic-support/import-info.js';
@@ -27,7 +28,7 @@ const DEFAULTS: BarrelNarrowExportOptions = {
  * the barrel's folder is not a component folder (a role-folder barrel — exempt).
  */
 function componentEntityName(barrelId: string, graph: ConsumerGraph): string | null {
-  const folderId = segmentsOf(barrelId).slice(0, -1).join('/');
+  const folderId = folderOf(barrelId);
   const folder = graph.nodes.get(folderId);
   if (folder === undefined || folder.kind !== 'folder') return null;
   const entityName = segmentsOf(folderId).at(-1) ?? null;
@@ -115,7 +116,7 @@ export const barrelNarrowExport: SyntacticRule<BarrelNarrowExportOptions> = {
       if (!isBarrelFile(fileId, config.conventions)) continue;
       const entityName = componentEntityName(fileId, graph);
       if (entityName === null) continue;
-      const folderId = segmentsOf(fileId).slice(0, -1).join('/');
+      const folderId = folderOf(fileId);
       const { offenders, location } = foreignReexports(fileId, context.project, entityName, opts);
       if (offenders.length === 0) continue;
       diagnostics.push(
