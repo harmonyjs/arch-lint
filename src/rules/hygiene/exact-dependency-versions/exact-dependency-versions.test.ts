@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { makeManifestContext } from '../../test-support/make-context.js';
+import { only } from '../../test-support/only.js';
 import type { ManifestBundle } from '../../types.js';
 import { parsePackageJson } from '../support/package-json.js';
 
@@ -31,10 +32,10 @@ describe('exact-dependency-versions', () => {
 
   it('flags a caret range', () => {
     const ds = run('{"dependencies":{"zod":"^4.4.3"}}', { sections: ['dependencies'] });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('dependencies#zod');
-    expect(ds[0]!.entity).toBe('package.json');
-    expect(ds[0]!.location.file).toBe('package.json');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('dependencies#zod');
+    expect(d.entity).toBe('package.json');
+    expect(d.location.file).toBe('package.json');
   });
 
   it('flags a tilde range and a dist-tag', () => {

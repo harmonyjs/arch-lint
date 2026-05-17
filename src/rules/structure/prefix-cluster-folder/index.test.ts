@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { prefixClusterFolder } from './index.js';
 
 const cfg = {} as ResolvedConfig;
@@ -26,12 +27,12 @@ describe('prefixClusterFolder', () => {
       },
     });
     const out = prefixClusterFolder.check(g, cfg, makeContext('prefix-cluster-folder'));
-    expect(out).toHaveLength(1);
-    expect(out[0]!.entity).toBe('src/auth');
-    expect(out[0]!.fingerprint).toBe('prefix-cluster-folder#src/auth#auth');
-    expect(out[0]!.message).toBe('3 files in src/auth share the "auth-" prefix');
-    expect(out[0]!.actual).toBe('auth-login.ts, auth-logout.ts, auth-session.ts');
-    expect(out[0]!.location).toEqual({ file: 'src/auth', line: 1, column: 1 });
+    const d = only(out);
+    expect(d.entity).toBe('src/auth');
+    expect(d.fingerprint).toBe('prefix-cluster-folder#src/auth#auth');
+    expect(d.message).toBe('3 files in src/auth share the "auth-" prefix');
+    expect(d.actual).toBe('auth-login.ts, auth-logout.ts, auth-session.ts');
+    expect(d.location).toEqual({ file: 'src/auth', line: 1, column: 1 });
   });
 
   it('does not flag a 2-file cluster under the default min of 3', () => {

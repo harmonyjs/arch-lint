@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { makeManifestContext } from '../../test-support/make-context.js';
+import { only } from '../../test-support/only.js';
 import type { ManifestBundle } from '../../types.js';
 import { parsePackageJson } from '../support/package-json.js';
 
@@ -27,10 +28,10 @@ describe('package-engines', () => {
 
   it('flags a missing engine key', () => {
     const ds = run('{"engines":{"node":">=22"}}', { requiredKeys: ['node', 'npm'] });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('npm');
-    expect(ds[0]!.entity).toBe('package.json');
-    expect(ds[0]!.location.file).toBe('package.json');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('npm');
+    expect(d.entity).toBe('package.json');
+    expect(d.location.file).toBe('package.json');
   });
 
   it('flags every missing key when engines is absent', () => {

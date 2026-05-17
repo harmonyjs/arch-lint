@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { makeManifestContext } from '../../test-support/make-context.js';
+import { only } from '../../test-support/only.js';
 import type { ManifestBundle } from '../../types.js';
 import { parseNpmrc } from '../support/npmrc.js';
 
@@ -31,19 +32,19 @@ describe('npmrc-settings', () => {
     const ds = run('engine-strict=true\n', {
       required: { 'engine-strict': true, 'save-exact': true },
     });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('save-exact');
-    expect(ds[0]!.entity).toBe('.npmrc');
-    expect(ds[0]!.location.file).toBe('.npmrc');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('save-exact');
+    expect(d.entity).toBe('.npmrc');
+    expect(d.location.file).toBe('.npmrc');
   });
 
   it('flags a key with the wrong value', () => {
     const ds = run('engine-strict=false\nsave-exact=true\n', {
       required: { 'engine-strict': true, 'save-exact': true },
     });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('engine-strict');
-    expect(ds[0]!.actual).toContain('false');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('engine-strict');
+    expect(d.actual).toContain('false');
   });
 
   it('flags every required key when .npmrc is absent', () => {
@@ -56,6 +57,6 @@ describe('npmrc-settings', () => {
     const ds = run('save-exact=true\nengine-strict=false\n', {
       required: { 'engine-strict': true },
     });
-    expect(ds[0]!.location.line).toBe(2);
+    expect(only(ds).location.line).toBe(2);
   });
 });
