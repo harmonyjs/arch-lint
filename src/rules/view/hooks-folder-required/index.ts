@@ -15,6 +15,12 @@ export interface HooksFolderRequiredOptions {
   readonly strictCheck: boolean;
 }
 
+/** Default options — the kebab-case `use-*` convention, applied when the config omits options. */
+const DEFAULTS: HooksFolderRequiredOptions = {
+  hookFilePattern: '^use-[a-z][a-z0-9-]*\\.tsx?$',
+  strictCheck: true,
+};
+
 /** Which side of the hooks/ boundary a file violates. */
 type Kind = 'misplaced' | 'non-hook';
 
@@ -90,7 +96,10 @@ export const hooksFolderRequired: SyntacticRule<HooksFolderRequiredOptions> = {
   engine: 'syntactic',
   defaultSeverity: 'error',
   check: (graph: ConsumerGraph, config, context): Diagnostic[] => {
-    const { hookFilePattern, strictCheck } = context.options;
+    const { hookFilePattern, strictCheck } = {
+      ...DEFAULTS,
+      ...(context.options as Partial<HooksFolderRequiredOptions>),
+    };
     const hookRe = new RegExp(hookFilePattern);
     const hooksSegment = config.conventions.hooksSegment;
     const diagnostics: Diagnostic[] = [];

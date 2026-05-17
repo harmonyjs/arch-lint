@@ -15,6 +15,12 @@ export interface BarrelRequiredForRoleOptions {
   readonly exemptPaths: readonly string[];
 }
 
+/** Default options — the broad, lenient defaults applied when the config omits per-rule options. */
+const DEFAULTS: BarrelRequiredForRoleOptions = {
+  enforceForSegments: 'all',
+  exemptPaths: [],
+};
+
 /**
  * True when a role folder is in scope of enforceForSegments. The role folder
  * itself IS the role segment, so the check matches its own role name (D7) —
@@ -94,10 +100,11 @@ export const barrelRequiredForRole: SyntacticRule<BarrelRequiredForRoleOptions> 
   engine: 'syntactic',
   defaultSeverity: 'error',
   check: (graph, config, context): Diagnostic[] => {
+    const opts = { ...DEFAULTS, ...(context.options as Partial<BarrelRequiredForRoleOptions>) };
     const diagnostics: Diagnostic[] = [];
     for (const node of graph.nodes.values()) {
       if (node.kind !== 'folder') continue;
-      const verdict = violatesBarrelRule(node.id, graph, config, context.options);
+      const verdict = violatesBarrelRule(node.id, graph, config, opts);
       if (verdict === null) continue;
       diagnostics.push(missingBarrelDiagnostic(node.id, verdict.role, config, context));
     }

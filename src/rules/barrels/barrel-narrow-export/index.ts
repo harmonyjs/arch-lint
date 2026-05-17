@@ -16,6 +16,12 @@ export interface BarrelNarrowExportOptions {
   readonly allowTypeReexports: boolean;
 }
 
+/** Default options — the lenient defaults applied when the config omits per-rule options. */
+const DEFAULTS: BarrelNarrowExportOptions = {
+  allowPrefixedConstants: true,
+  allowTypeReexports: true,
+};
+
 /**
  * The component-folder entity name a barrel legitimately re-exports, or null when
  * the barrel's folder is not a component folder (a role-folder barrel — exempt).
@@ -97,6 +103,7 @@ export const barrelNarrowExport: SyntacticRule<BarrelNarrowExportOptions> = {
   engine: 'syntactic',
   defaultSeverity: 'warning',
   check: (graph, config, context): Diagnostic[] => {
+    const opts = { ...DEFAULTS, ...(context.options as Partial<BarrelNarrowExportOptions>) };
     const diagnostics: Diagnostic[] = [];
     for (const fileId of fileNodeIds(graph)) {
       if (!isBarrelFile(fileId, config.conventions)) continue;
@@ -107,7 +114,7 @@ export const barrelNarrowExport: SyntacticRule<BarrelNarrowExportOptions> = {
         fileId,
         context.project,
         entityName,
-        context.options,
+        opts,
       );
       if (offenders.length === 0) continue;
       diagnostics.push(
@@ -116,7 +123,7 @@ export const barrelNarrowExport: SyntacticRule<BarrelNarrowExportOptions> = {
           entityName,
           offenders,
           location,
-          context.options,
+          opts,
           context.ruleId,
           context.severity,
         ),

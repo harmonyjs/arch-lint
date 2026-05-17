@@ -19,6 +19,12 @@ export interface TokensImportIsSideEffectOptions {
   readonly requiredForm: 'side-effect';
 }
 
+/** Default options — the lenient defaults applied when the config omits per-rule options. */
+const DEFAULTS: TokensImportIsSideEffectOptions = {
+  allowedImporters: [],
+  requiredForm: 'side-effect',
+};
+
 /** True when an import specifier leads into the tokens folder. */
 function specifierTargetsTokens(specifier: string): boolean {
   const parts = specifier.split('/').filter((p) => p !== '' && p !== '.' && p !== '..');
@@ -68,7 +74,10 @@ export const tokensImportIsSideEffect: SyntacticRule<TokensImportIsSideEffectOpt
   engine: 'syntactic',
   defaultSeverity: 'warning',
   check: (graph, _config, context): Diagnostic[] => {
-    const { allowedImporters } = context.options;
+    const { allowedImporters } = {
+      ...DEFAULTS,
+      ...(context.options as Partial<TokensImportIsSideEffectOptions>),
+    };
     const diagnostics: Diagnostic[] = [];
     for (const fileId of fileNodeIds(graph)) {
       if (isAllowedImporter(fileId, allowedImporters)) continue;

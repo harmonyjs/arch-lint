@@ -131,4 +131,15 @@ describe('ui-cluster-membership', () => {
     );
     expect(diags).toEqual([]);
   });
+
+  it('applies its option defaults when the context carries no options', () => {
+    const graph = graphFor({ 'src/App/App.tsx': `import { useButton } from '@react-aria/button';` });
+    const emptyCtx = makeContext<UiClusterMembershipOptions>('ui-cluster-membership', {
+      severity: 'error',
+      project: graph.project,
+    });
+    expect(() => uiClusterMembership.check(graph, config, emptyCtx)).not.toThrow();
+    // Default triggerPackages:[] makes the rule a no-op until a project names its packages.
+    expect(uiClusterMembership.check(graph, config, emptyCtx)).toEqual([]);
+  });
 });

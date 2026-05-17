@@ -16,6 +16,15 @@ export interface UiClusterMembershipOptions {
   readonly mustLiveIn: string;
 }
 
+/**
+ * Default options — empty `triggerPackages` makes the rule a no-op until a project
+ * names its UI primitive packages, the lenient default when the config omits options.
+ */
+const DEFAULTS: UiClusterMembershipOptions = {
+  triggerPackages: [],
+  mustLiveIn: '',
+};
+
 /** True when a file lies under the cluster path (per-segment prefix). */
 function isInsideCluster(fileId: string, cluster: string): boolean {
   const fileSegs = segmentsOf(fileId);
@@ -59,7 +68,10 @@ export const uiClusterMembership: SyntacticRule<UiClusterMembershipOptions> = {
   engine: 'syntactic',
   defaultSeverity: 'error',
   check: (graph, _config, context): Diagnostic[] => {
-    const { triggerPackages, mustLiveIn } = context.options;
+    const { triggerPackages, mustLiveIn } = {
+      ...DEFAULTS,
+      ...(context.options as Partial<UiClusterMembershipOptions>),
+    };
     const matchesTrigger = triggerPackageMatcher(triggerPackages);
     const diagnostics: Diagnostic[] = [];
     for (const fileId of fileNodeIds(graph)) {

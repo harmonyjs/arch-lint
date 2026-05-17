@@ -98,4 +98,15 @@ describe('tokens-import-is-side-effect', () => {
       }),
     ).toHaveLength(2);
   });
+
+  it('applies its option defaults when the context carries no options', () => {
+    const graph = graphFor({ 'src/App/App.tsx': `import { a } from '../tokens/x';` });
+    const emptyCtx = makeContext<TokensImportIsSideEffectOptions>('tokens-import-is-side-effect', {
+      severity: 'warning',
+      project: graph.project,
+    });
+    expect(() => tokensImportIsSideEffect.check(graph, config, emptyCtx)).not.toThrow();
+    // Default allowedImporters:[] keeps the rule active — the value import is flagged.
+    expect(tokensImportIsSideEffect.check(graph, config, emptyCtx)).toHaveLength(1);
+  });
 });

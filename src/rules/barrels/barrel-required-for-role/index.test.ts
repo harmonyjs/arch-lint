@@ -118,4 +118,17 @@ describe('barrel-required-for-role', () => {
     const diags = barrelRequiredForRole.check(graph, config, ctx({ enforceForSegments: ['lib'] }));
     expect(diags).toHaveLength(1);
   });
+
+  it('applies its option defaults when the context carries no options', () => {
+    const graph = graphOf([
+      ['src/App/Header', 'folder'],
+      ['src/App/Header/Header.tsx', 'file'],
+    ]);
+    const emptyCtx = makeContext<BarrelRequiredForRoleOptions>('barrel-required-for-role', {
+      severity: 'error',
+    });
+    expect(() => barrelRequiredForRole.check(graph, config, emptyCtx)).not.toThrow();
+    // Default enforceForSegments:'all', exemptPaths:[] still flags the missing barrel.
+    expect(barrelRequiredForRole.check(graph, config, emptyCtx)).toHaveLength(1);
+  });
 });

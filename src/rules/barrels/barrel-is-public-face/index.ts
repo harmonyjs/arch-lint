@@ -17,6 +17,13 @@ export interface BarrelIsPublicFaceOptions {
   readonly allowSiblingImports: boolean;
 }
 
+/** Default options — the broad, lenient defaults applied when the config omits per-rule options. */
+const DEFAULTS: BarrelIsPublicFaceOptions = {
+  enforceForSegments: 'all',
+  allowExplicitIndex: false,
+  allowSiblingImports: true,
+};
+
 /** The kind of barrel-boundary violation an edge carries, if any. */
 type Verdict = 'bypass' | 'sibling' | 'explicit-index';
 
@@ -131,10 +138,11 @@ export const barrelIsPublicFace: SyntacticRule<BarrelIsPublicFaceOptions> = {
   engine: 'syntactic',
   defaultSeverity: 'error',
   check: (graph, config, context): Diagnostic[] => {
+    const opts = { ...DEFAULTS, ...(context.options as Partial<BarrelIsPublicFaceOptions>) };
     const folders = componentFolders(graph);
     const diagnostics: Diagnostic[] = [];
     for (const edge of graph.edges) {
-      const verdict = evaluateEdge(edge, folders, config, context.options);
+      const verdict = evaluateEdge(edge, folders, config, opts);
       if (verdict === null) continue;
       const folder = componentFolderOf(edge.producer, folders) ?? edge.producer;
       diagnostics.push(bypassDiagnostic(edge, verdict, folder, context));

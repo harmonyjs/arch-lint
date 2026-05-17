@@ -210,6 +210,28 @@ describe('barrel-is-public-face', () => {
     expect(diags[0]?.fingerprint).toBe('src/App/main.tsx#src/App/lib/Tool/internal.ts');
   });
 
+  it('applies its option defaults when the context carries no options', () => {
+    const graph = graphOf(
+      ['src/App/Card'],
+      ['src/App/Card/Card.tsx', 'src/App/Card/internal.ts', 'src/App/main.tsx'],
+      [
+        {
+          consumer: 'src/App/main.tsx',
+          producer: 'src/App/Card/internal.ts',
+          symbol: 'helper',
+          typeOnly: false,
+          syntacticPath: './Card/internal',
+        },
+      ],
+    );
+    const emptyCtx = makeContext<BarrelIsPublicFaceOptions>('barrel-is-public-face', {
+      severity: 'error',
+    });
+    expect(() => barrelIsPublicFace.check(graph, config, emptyCtx)).not.toThrow();
+    // Default enforceForSegments:'all' keeps the check broad — the bypass is still flagged.
+    expect(barrelIsPublicFace.check(graph, config, emptyCtx)).toHaveLength(1);
+  });
+
   it('deduplicates two edges of one (consumer, producer) pair', () => {
     const graph = graphOf(
       ['src/App/Card'],

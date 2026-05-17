@@ -101,4 +101,16 @@ describe('hooks-folder-required', () => {
       hooksFolderRequired.check(graphOf(['src/App/use-a.ts', 'src/App/use-b.tsx']), config, ctx()),
     ).toHaveLength(2);
   });
+
+  it('applies its option defaults when the context carries no options', () => {
+    const graph = graphOf(['src/App/use-toggle.ts']);
+    const emptyCtx = makeContext<HooksFolderRequiredOptions>('hooks-folder-required', {
+      severity: 'error',
+    });
+    expect(() => hooksFolderRequired.check(graph, config, emptyCtx)).not.toThrow();
+    // Default hookFilePattern matches kebab-case use-* — the misplaced hook is flagged.
+    const diags = hooksFolderRequired.check(graph, config, emptyCtx);
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.entity).toBe('src/App/use-toggle.ts');
+  });
 });

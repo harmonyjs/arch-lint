@@ -150,4 +150,21 @@ describe('barrel-narrow-export', () => {
       ),
     ).toHaveLength(1);
   });
+
+  it('applies its option defaults when the context carries no options', () => {
+    const graph = graphFor(
+      {
+        'src/App/Card/Card.tsx': 'export const Card = 1;',
+        'src/App/Card/index.ts': `export { Card } from './Card';\nexport { Other } from './other';`,
+      },
+      ['src/App/Card'],
+    );
+    const emptyCtx = makeContext<BarrelNarrowExportOptions>('barrel-narrow-export', {
+      severity: 'warning',
+      project: graph.project,
+    });
+    expect(() => barrelNarrowExport.check(graph, config, emptyCtx)).not.toThrow();
+    // Defaults keep the rule active — a foreign re-export is still flagged.
+    expect(barrelNarrowExport.check(graph, config, emptyCtx)).toHaveLength(1);
+  });
 });
