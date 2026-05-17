@@ -2,10 +2,10 @@
  * @fileoverview afferent-coupling rule — flags a subsystem that many other subsystems
  * depend on. A widely-depended-on subsystem is a high-blast-radius change point.
  */
-import type { ResolvedConfig } from '../../../config/types.js';
-import { subsystemCoupling } from '../../../graph/index.js';
-import type { Diagnostic } from '../../../types.js';
-import type { GraphRule, GraphRuleContext } from '../../types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { subsystemCoupling } from '#graph/index.js';
+import type { GraphRule, GraphRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Tunable options of the afferent-coupling rule. */
 interface Options {

@@ -3,12 +3,12 @@
  * per run so ManifestRules read pre-parsed docs instead of re-reading disk per rule.
  */
 import { existsSync, readFileSync } from 'node:fs';
-import type { ResolvedConfig } from '../../config/types.js';
-import { manifestPath } from '../hygiene/support/manifest-path.js';
-import { parseNpmrc } from '../hygiene/support/npmrc.js';
-import { parsePackageJson } from '../hygiene/support/package-json.js';
-import { effectiveCompilerOptions } from '../hygiene/support/tsconfig-effective.js';
-import type { ManifestBundle } from '../types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { manifestPath } from '#rules/hygiene/support/manifest-path.js';
+import { parseNpmrc } from '#rules/hygiene/support/npmrc.js';
+import { parsePackageJson } from '#rules/hygiene/support/package-json.js';
+import { effectiveCompilerOptions } from '#rules/hygiene/support/tsconfig-effective.js';
+import type { ManifestBundle } from '#rules/types.js';
 
 /** Parse the three project manifests once; each entry is null when its file is absent. */
 export function buildManifestBundle(config: ResolvedConfig): ManifestBundle {

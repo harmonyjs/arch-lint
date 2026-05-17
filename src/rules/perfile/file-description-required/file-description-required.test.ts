@@ -2,11 +2,11 @@
  * @fileoverview Tests for the file-description-required rule of the perfile pack.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { only } from '../../test-support/only.js';
-import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { makeContext } from '#rules/test-support/make-context.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
+import { only } from '#rules/test-support/only.js';
+import { perfileTestGraph } from '#rules/test-support/perfile-test-graph.js';
 import { fileDescriptionRequired } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;

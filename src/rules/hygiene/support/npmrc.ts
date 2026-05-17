@@ -2,7 +2,7 @@
  * @fileoverview Line-aware position-aware INI parser of .npmrc — exposes values and the
  * Location of each key (decision D5).
  */
-import type { Location } from '../../../types.js';
+import type { Location } from '#types.js';
 
 /** One parsed .npmrc key with its position. */
 interface NpmrcEntry {

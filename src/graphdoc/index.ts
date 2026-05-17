@@ -2,8 +2,8 @@
  * @fileoverview Public surface of the graphdoc subsystem — renders a
  * ConsumerGraph into a layered Mermaid project map.
  */
-import type { ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from '../graph/types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import type { ConsumerGraph } from '#graph/types.js';
 import { renderDocument } from './document.js';
 import { type BuildModelOptions, buildGraphDoc } from './model/index.js';
 

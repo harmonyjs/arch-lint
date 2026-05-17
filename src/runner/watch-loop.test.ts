@@ -6,39 +6,39 @@
 import { EventEmitter } from 'node:events';
 import type { FSWatcher } from 'chokidar';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from '../graph/types.js';
-import type { CheckResult } from '../rules/types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import type { ConsumerGraph } from '#graph/types.js';
+import type { CheckResult } from '#rules/types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 
 const loadConfigMock = vi.fn();
-vi.mock('../config/load.js', () => ({
+vi.mock('#config/load.js', () => ({
   loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
 }));
 
 const resolveConfigMock = vi.fn();
-vi.mock('../config/resolve-defaults.js', () => ({
+vi.mock('#config/resolve-defaults.js', () => ({
   resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
 }));
 
 const buildGraphFromSourcesMock = vi.fn();
-vi.mock('../graph/build.js', () => ({
+vi.mock('#graph/build.js', () => ({
   buildGraphFromSources: (...args: unknown[]): unknown => buildGraphFromSourcesMock(...args),
 }));
 
 const loadSourceFilesMock = vi.fn();
-vi.mock('../graph/discover-source-files.js', () => ({
+vi.mock('#graph/discover-source-files.js', () => ({
   loadSourceFiles: (...args: unknown[]): unknown => loadSourceFilesMock(...args),
 }));
 
 const buildSuppressIndexMock = vi.fn();
-vi.mock('../suppress/suppress-index.js', () => ({
+vi.mock('#suppress/suppress-index.js', () => ({
   buildSuppressIndex: (...args: unknown[]): unknown => buildSuppressIndexMock(...args),
 }));
 
 const formatReportMock = vi.fn();
-vi.mock('../report/index.js', () => ({
+vi.mock('#report/index.js', () => ({
   formatReport: (...args: unknown[]): unknown => formatReportMock(...args),
 }));
 

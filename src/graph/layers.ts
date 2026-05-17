@@ -3,7 +3,7 @@
  * key by longest segment-wise prefix match. A graph-derived structural query
  * shared by the layer-boundary rule and the graph document.
  */
-import type { LayersConfig } from '../config/types.js';
+import type { LayersConfig } from '#config/types.js';
 
 /** True when `prefix` is a segment-wise prefix of `path` (or equal). */
 function isSegmentPrefix(prefix: string, path: string): boolean {

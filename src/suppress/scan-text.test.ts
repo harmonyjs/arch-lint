@@ -2,7 +2,7 @@
  * @fileoverview Tests for the @arch-decision comment-text scanner — all three §9 forms.
  */
 import { describe, expect, it } from 'vitest';
-import type { Location } from '../types.js';
+import type { Location } from '#types.js';
 import { hasArchDecisionDirective, scanSuppressText } from './scan-text.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };

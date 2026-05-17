@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ConfigError } from '../errors/index.js';
+import { ConfigError } from '#errors/index.js';
 import { discoverConfig } from './discover.js';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');

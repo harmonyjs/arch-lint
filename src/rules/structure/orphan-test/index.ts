@@ -2,10 +2,11 @@
  * @fileoverview orphan-test rule — flags a `<name>.test.<ext>` file that has no
  * `<name>` source sibling, a test co-located with nothing it tests.
  */
-import type { Diagnostic } from '../../../types.js';
-import { fileNodeIds } from '../../syntactic-support/find-source-file.js';
-import type { GraphRule, GraphRuleContext } from '../../types.js';
-import { baseNameOf, dirOf, isTestFile, stemOf } from '../support/file-paths.js';
+
+import { baseNameOf, dirOf, isTestFile, stemOf } from '#rules/structure/support/file-paths.js';
+import { fileNodeIds } from '#rules/syntactic-support/find-source-file.js';
+import type { GraphRule, GraphRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Tunable options of the orphan-test rule. */
 interface Options {

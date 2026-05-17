@@ -3,12 +3,12 @@
  * side-effects only. Reads AST from the RuleContext project (decision D9).
  */
 
-import type { Diagnostic } from '../../../types.js';
-import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
-import { type ImportInfo, importsOf } from '../../syntactic-support/import-info.js';
-import { segmentsOf } from '../../syntactic-support/segments.js';
-import type { SyntacticRule } from '../../types.js';
+import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
+import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import { type ImportInfo, importsOf } from '#rules/syntactic-support/import-info.js';
+import { segmentsOf } from '#rules/syntactic-support/segments.js';
+import type { SyntacticRule } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** The fixed segment name of the design-tokens folder. */
 const TOKENS_SEGMENT = 'tokens';

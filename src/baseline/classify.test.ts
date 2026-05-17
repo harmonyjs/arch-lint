@@ -2,7 +2,7 @@
  * @fileoverview Tests for classifyDiagnostics — assigns new / inBaseline status (D2).
  */
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic, Location } from '../types.js';
+import type { Diagnostic, Location } from '#types.js';
 import { classifyDiagnostics } from './classify.js';
 import type { BaselineFile } from './types.js';
 

@@ -2,11 +2,11 @@
  * @fileoverview Tests for the unresolved-import rule.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import type { UnresolvedImport } from '../../../graph/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { only } from '../../test-support/only.js';
+import type { ResolvedConfig } from '#config/types.js';
+import type { UnresolvedImport } from '#graph/types.js';
+import { makeContext } from '#rules/test-support/make-context.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
+import { only } from '#rules/test-support/only.js';
 import { unresolvedImportRule } from './index.js';
 
 const cfg = {} as ResolvedConfig;

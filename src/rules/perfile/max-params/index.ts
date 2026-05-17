@@ -3,9 +3,9 @@
  * Reads file AST from the RuleContext project (decision D9).
  */
 import { Node } from 'ts-morph';
-import type { Diagnostic } from '../../../types.js';
-import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
-import { functionLocation, scanFunctions } from '../support/scan-functions.js';
+import { functionLocation, scanFunctions } from '#rules/perfile/support/scan-functions.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Options of max-params. */
 interface Options {

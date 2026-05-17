@@ -2,7 +2,7 @@
  * @fileoverview Placement family registration — the rule registry calls this
  * once; the family's membership stays a placement implementation detail.
  */
-import type { GraphRule } from '../types.js';
+import type { GraphRule } from '#rules/types.js';
 import { placementRuleDescriptors } from './rules.js';
 import { makeThinPlacementRule } from './thin-rule.js';
 

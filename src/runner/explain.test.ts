@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { runExplain } from './explain.js';
 
-vi.mock('../rules/index.js', () => ({
+vi.mock('#rules/index.js', () => ({
   allRules: [{ id: 'lca-placement' }, { id: 'layer-boundary' }],
 }));
 

@@ -2,7 +2,7 @@
  * @fileoverview Normalized parse of a file's import/export constructs for syntactic rules.
  */
 import type { ExportDeclaration, ExportSpecifier, ImportDeclaration, SourceFile } from 'ts-morph';
-import type { Location } from '../../types.js';
+import type { Location } from '#types.js';
 
 /** A normalized import or re-export construct of a file. */
 export interface ImportInfo {

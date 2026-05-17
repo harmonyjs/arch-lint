@@ -4,10 +4,10 @@
  * outcome of a check run that the runner assembles from the engine's diagnostics.
  */
 import type { Project } from 'ts-morph';
-import type { Pack, ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from '../graph/types.js';
-import type { SuppressIndex } from '../suppress/types.js';
-import type { ActiveSeverity, Diagnostic, Location } from '../types.js';
+import type { Pack, ResolvedConfig } from '#config/types.js';
+import type { ConsumerGraph } from '#graph/types.js';
+import type { SuppressIndex } from '#suppress/types.js';
+import type { ActiveSeverity, Diagnostic, Location } from '#types.js';
 import type { NpmrcDoc } from './hygiene/support/npmrc.js';
 import type { PackageJsonDoc } from './hygiene/support/package-json.js';
 import type { EffectiveTsconfig } from './hygiene/support/tsconfig-effective.js';

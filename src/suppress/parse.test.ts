@@ -4,8 +4,8 @@
 
 import { Project, type SourceFile } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { SuppressConfig } from '../config/types.js';
-import type { SuppressEntity } from '../types.js';
+import type { SuppressConfig } from '#config/types.js';
+import type { SuppressEntity } from '#types.js';
 import { parseEntitySuppress } from './parse.js';
 
 const cfg: SuppressConfig = {

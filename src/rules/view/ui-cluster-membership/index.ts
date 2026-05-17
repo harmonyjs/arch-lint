@@ -3,11 +3,11 @@
  * live in the UI cluster. Reads AST from the RuleContext project (decision D9).
  */
 
-import type { Diagnostic } from '../../../types.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
-import { importsOf } from '../../syntactic-support/import-info.js';
-import { segmentsOf } from '../../syntactic-support/segments.js';
-import type { SyntacticRule } from '../../types.js';
+import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import { importsOf } from '#rules/syntactic-support/import-info.js';
+import { segmentsOf } from '#rules/syntactic-support/segments.js';
+import type { SyntacticRule } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 import { triggerPackageMatcher } from './matcher.js';
 
 /** Options of ui-cluster-membership. */

@@ -4,7 +4,7 @@
  * kinds of malformed @arch-decision comments and intermediate parse shapes. Only
  * ParsedSuppress and SuppressIndex are part of the public API.
  */
-import type { Diagnostic, Location } from '../types.js';
+import type { Diagnostic, Location } from '#types.js';
 
 /** Why a parsed @arch-decision comment is invalid and must be reported by `expired-suppress`. */
 export type MalformedKind =

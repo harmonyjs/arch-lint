@@ -5,7 +5,7 @@
  * leaving the actual printing and `process.exit` to the CLI layer.
  */
 import { readFile } from 'node:fs/promises';
-import { allRules } from '../rules/index.js';
+import { allRules } from '#rules/index.js';
 import { ruleDocPath } from './paths.js';
 
 /** Result of running `explain`: the text to print and the process exit code. */

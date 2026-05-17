@@ -2,7 +2,7 @@
  * @fileoverview Tests for the rule registry — allRules and getActiveRules.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../config/types.js';
+import type { ResolvedConfig } from '#config/types.js';
 import { allRules, getActiveRules } from './index.js';
 import type { Rule } from './types.js';
 

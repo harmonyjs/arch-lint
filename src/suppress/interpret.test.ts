@@ -2,8 +2,8 @@
  * @fileoverview Tests for semantic interpretation of raw @arch-decision comments.
  */
 import { describe, expect, it } from 'vitest';
-import type { SuppressConfig } from '../config/types.js';
-import type { Location } from '../types.js';
+import type { SuppressConfig } from '#config/types.js';
+import type { Location } from '#types.js';
 import { interpretSuppress } from './interpret.js';
 import type { RawSuppressComment } from './types.js';
 

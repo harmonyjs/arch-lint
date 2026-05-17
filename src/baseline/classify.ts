@@ -3,7 +3,7 @@
  * `inBaseline` status by matching its (ruleId, entity, fingerprint?) logical id.
  */
 
-import type { Diagnostic } from '../types.js';
+import type { Diagnostic } from '#types.js';
 import type { BaselineFile, BaselineRecord } from './types.js';
 /**
  * Classify diagnostics against a baseline. A `null` baseline yields all-new (D2);

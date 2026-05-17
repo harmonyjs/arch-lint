@@ -5,9 +5,9 @@
 import { fileURLToPath } from 'node:url';
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import { resolveConfig } from '../../../config/index.js';
-import { buildGraph } from '../../../graph/index.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { resolveConfig } from '#config/index.js';
+import { buildGraph } from '#graph/index.js';
+import { makeContext } from '#rules/test-support/make-context.js';
 import { type BarrelIsPublicFaceOptions, barrelIsPublicFace } from './index.js';
 
 const fixtureRoot = fileURLToPath(new URL('./fixtures/bypass-import', import.meta.url));

@@ -3,9 +3,9 @@
  * rule tests — every context carries an in-memory ts-morph Project (decision D9).
  */
 import { Project } from 'ts-morph';
-import type { ParsedSuppress, SuppressIndex } from '../../suppress/types.js';
-import type { ActiveSeverity, Diagnostic } from '../../types.js';
-import type { ManifestBundle, ManifestRuleContext, SyntacticRuleContext } from '../types.js';
+import type { ManifestBundle, ManifestRuleContext, SyntacticRuleContext } from '#rules/types.js';
+import type { ParsedSuppress, SuppressIndex } from '#suppress/types.js';
+import type { ActiveSeverity, Diagnostic } from '#types.js';
 
 interface SuppressIndexSpec {
   readonly suppressed?: readonly string[];

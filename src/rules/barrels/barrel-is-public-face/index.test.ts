@@ -2,10 +2,10 @@
  * @fileoverview Tests for barrel-is-public-face — bypassing a barrel is forbidden (D7).
  */
 import { describe, expect, it } from 'vitest';
-import type { ConventionsConfig, ResolvedConfig } from '../../../config/types.js';
-import type { Edge } from '../../../graph/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
+import type { ConventionsConfig, ResolvedConfig } from '#config/types.js';
+import type { Edge } from '#graph/types.js';
+import { makeContext } from '#rules/test-support/make-context.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import { type BarrelIsPublicFaceOptions, barrelIsPublicFace } from './index.js';
 
 const conventions: ConventionsConfig = {

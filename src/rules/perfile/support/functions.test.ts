@@ -4,7 +4,7 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import { only } from '../../test-support/only.js';
+import { only } from '#rules/test-support/only.js';
 import { collectFunctions } from './functions.js';
 
 function unitsOf(code: string): ReturnType<typeof collectFunctions> {

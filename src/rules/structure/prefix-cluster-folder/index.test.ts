@@ -2,10 +2,10 @@
  * @fileoverview Tests for the prefix-cluster-folder rule.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { only } from '../../test-support/only.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { makeContext } from '#rules/test-support/make-context.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
+import { only } from '#rules/test-support/only.js';
 import { prefixClusterFolder } from './index.js';
 
 const cfg = {} as ResolvedConfig;

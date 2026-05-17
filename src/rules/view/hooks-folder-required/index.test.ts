@@ -2,9 +2,9 @@
  * @fileoverview Tests for hooks-folder-required — use-* files must live in hooks/ (D7).
  */
 import { describe, expect, it } from 'vitest';
-import type { ConventionsConfig, ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
+import type { ConventionsConfig, ResolvedConfig } from '#config/types.js';
+import { makeContext } from '#rules/test-support/make-context.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import { type HooksFolderRequiredOptions, hooksFolderRequired } from './index.js';
 
 const conventions: ConventionsConfig = {

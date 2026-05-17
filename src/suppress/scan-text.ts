@@ -2,7 +2,7 @@
  * @fileoverview Lexical scanner for @arch-decision comment text — recognizes the three
  * §9 forms (broad, rule-scoped, with `until` expiry) and yields a structured raw result.
  */
-import type { Location } from '../types.js';
+import type { Location } from '#types.js';
 import type { RawSuppressComment } from './types.js';
 
 /** The directive opener that must follow the marker: an optional `[ruleId]` then `:`. */

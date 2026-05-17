@@ -2,7 +2,7 @@
  * @fileoverview Tests for pruneBaseline — the `baseline prune` operation.
  */
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic, Location } from '../types.js';
+import type { Diagnostic, Location } from '#types.js';
 import { pruneBaseline } from './prune.js';
 import type { BaselineFile } from './types.js';
 

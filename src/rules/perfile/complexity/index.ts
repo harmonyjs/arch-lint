@@ -3,10 +3,10 @@
  * SonarSource metric, D4). Reads file AST from the RuleContext project (decision D9).
  */
 
-import type { Diagnostic } from '../../../types.js';
-import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
-import { cognitiveComplexity } from '../support/complexity-metric.js';
-import { functionLocation, scanFunctions } from '../support/scan-functions.js';
+import { cognitiveComplexity } from '#rules/perfile/support/complexity-metric.js';
+import { functionLocation, scanFunctions } from '#rules/perfile/support/scan-functions.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Options of complexity. */
 interface Options {

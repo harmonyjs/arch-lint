@@ -6,10 +6,10 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { makeManifestContext } from '../../test-support/make-context.js';
-import { only } from '../../test-support/only.js';
-import type { ManifestBundle } from '../../types.js';
-import { effectiveCompilerOptions } from '../support/tsconfig-effective.js';
+import { effectiveCompilerOptions } from '#rules/hygiene/support/tsconfig-effective.js';
+import { makeManifestContext } from '#rules/test-support/make-context.js';
+import { only } from '#rules/test-support/only.js';
+import type { ManifestBundle } from '#rules/types.js';
 
 import { tsconfigStrict } from './index.js';
 

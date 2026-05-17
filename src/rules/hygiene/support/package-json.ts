@@ -3,7 +3,7 @@
  * and the Location of each key (decision D5).
  */
 import ts from 'typescript';
-import type { Location } from '../../../types.js';
+import type { Location } from '#types.js';
 
 /** A parsed package.json with access to values and key positions. */
 export interface PackageJsonDoc {

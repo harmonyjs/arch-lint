@@ -10,7 +10,7 @@ import { readFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createJiti } from 'jiti';
-import { ConfigError } from '../errors/index.js';
+import { ConfigError } from '#errors/index.js';
 import { type ConfigSource, discoverConfig } from './discover.js';
 import { validateConfig } from './schema.js';
 import type { Config } from './types.js';

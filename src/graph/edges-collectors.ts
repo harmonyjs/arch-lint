@@ -3,7 +3,7 @@
  * conversion of a single imported symbol into an edge or an unresolved-import entry.
  */
 import type { ImportDeclaration, Node } from 'ts-morph';
-import type { Location } from '../types.js';
+import type { Location } from '#types.js';
 import {
   fileIdOf,
   moduleResolutionContextOf,

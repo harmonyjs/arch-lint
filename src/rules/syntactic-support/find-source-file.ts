@@ -3,7 +3,7 @@
  * syntactic rules read AST from `context.project`, not from a separate ts-morph Project.
  */
 import type { Project, SourceFile } from 'ts-morph';
-import type { ConsumerGraph } from '../../graph/types.js';
+import type { ConsumerGraph } from '#graph/types.js';
 /**
  * Returns the parsed SourceFile for a graph node id, reading it from the project
  * carried by RuleContext (D9). The id is tried verbatim first (in-memory test

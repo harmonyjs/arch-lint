@@ -4,10 +4,10 @@
  * projects a folder's direct children into diagram nodes and clusters.
  */
 
-import type { ResolvedConfig } from '../../config/types.js';
-import { isRoleFolder, layerOf } from '../../graph/index.js';
-import type { ConsumerGraph, Node } from '../../graph/types.js';
-import type { NodeRole, RenderCluster, RenderNode } from '../types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { isRoleFolder, layerOf } from '#graph/index.js';
+import type { ConsumerGraph, Node } from '#graph/types.js';
+import type { NodeRole, RenderCluster, RenderNode } from '#graphdoc/types.js';
 import { type FolderTree, THRESHOLD } from './tree.js';
 
 /** Mints diagram-local mermaid-safe ids (n0, n1, ...). */

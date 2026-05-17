@@ -2,10 +2,10 @@
  * @fileoverview runEngine — executes the rule pipeline over a frozen graph.
  */
 import type { Project } from 'ts-morph';
-import type { ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from '../graph/types.js';
-import type { SuppressIndex } from '../suppress/types.js';
-import type { Diagnostic } from '../types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import type { ConsumerGraph } from '#graph/types.js';
+import type { SuppressIndex } from '#suppress/types.js';
+import type { Diagnostic } from '#types.js';
 import {
   buildGraphContext,
   buildManifestBundle,

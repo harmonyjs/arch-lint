@@ -9,12 +9,12 @@
  */
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
-import { diffBaseline, pruneBaseline, snapshotBaseline, writeBaseline } from '../baseline/index.js';
-import type { BaselineFile } from '../baseline/types.js';
-import { loadConfig, resolveConfig } from '../config/index.js';
-import type { ResolvedConfig } from '../config/types.js';
-import { ConfigError } from '../errors/index.js';
-import type { CheckResult } from '../rules/types.js';
+import { diffBaseline, pruneBaseline, snapshotBaseline, writeBaseline } from '#baseline/index.js';
+import type { BaselineFile } from '#baseline/types.js';
+import { loadConfig, resolveConfig } from '#config/index.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { ConfigError } from '#errors/index.js';
+import type { CheckResult } from '#rules/types.js';
 import { type RunCheckOptions, resolveBaseline, runCheck } from './check.js';
 import { packageRoot } from './paths.js';
 /** Inputs shared by every baseline subcommand. */

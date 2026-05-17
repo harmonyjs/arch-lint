@@ -3,9 +3,9 @@
  * blank and comment lines. Reads file text from the RuleContext project (decision D9).
  */
 import type { SourceFile } from 'ts-morph';
-import type { Diagnostic } from '../../../types.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
-import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
+import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Options of max-lines. */
 interface Options {

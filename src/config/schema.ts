@@ -6,7 +6,7 @@
  * and raises a path-aware ConfigError on failure.
  */
 import { z } from 'zod';
-import { ConfigError } from '../errors/index.js';
+import { ConfigError } from '#errors/index.js';
 import type { Config, RuleSetting } from './types.js';
 
 /** Severity enum — the four allowed rule severities. */

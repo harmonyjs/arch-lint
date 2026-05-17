@@ -7,20 +7,20 @@
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 import type { Project } from 'ts-morph';
-import { classifyDiagnostics, parseBaselineFile } from '../baseline/index.js';
-import type { BaselineFile } from '../baseline/types.js';
-import { loadConfig, resolveConfig } from '../config/index.js';
-import type { ResolvedConfig } from '../config/types.js';
-import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors/index.js';
-import { loadSourceFiles, type SourceFileSet } from '../graph/discover-source-files.js';
-import { buildGraphFromSources, graphEntityResolver } from '../graph/index.js';
-import type { ConsumerGraph } from '../graph/types.js';
-import { formatReport } from '../report/index.js';
-import { runEngine } from '../rules/engine.js';
-import type { CheckResult } from '../rules/types.js';
-import { buildSuppressIndex } from '../suppress/suppress-index.js';
-import type { SuppressIndex } from '../suppress/types.js';
-import type { ActiveSeverity, Diagnostic } from '../types.js';
+import { classifyDiagnostics, parseBaselineFile } from '#baseline/index.js';
+import type { BaselineFile } from '#baseline/types.js';
+import { loadConfig, resolveConfig } from '#config/index.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { ArchLintError, ConfigError, GraphBuildError, IOError } from '#errors/index.js';
+import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-files.js';
+import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
+import type { ConsumerGraph } from '#graph/types.js';
+import { formatReport } from '#report/index.js';
+import { runEngine } from '#rules/engine.js';
+import type { CheckResult } from '#rules/types.js';
+import { buildSuppressIndex } from '#suppress/suppress-index.js';
+import type { SuppressIndex } from '#suppress/types.js';
+import type { ActiveSeverity, Diagnostic } from '#types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */

@@ -3,7 +3,7 @@
  * the resolver produces. Resolution is the resolver's internal transit type and is
  * not part of the public API.
  */
-import type { Location } from '../types.js';
+import type { Location } from '#types.js';
 
 export interface Node {
   readonly id: string;

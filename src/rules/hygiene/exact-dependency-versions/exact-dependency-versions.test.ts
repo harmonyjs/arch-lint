@@ -3,10 +3,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { makeManifestContext } from '../../test-support/make-context.js';
-import { only } from '../../test-support/only.js';
-import type { ManifestBundle } from '../../types.js';
-import { parsePackageJson } from '../support/package-json.js';
+import { parsePackageJson } from '#rules/hygiene/support/package-json.js';
+import { makeManifestContext } from '#rules/test-support/make-context.js';
+import { only } from '#rules/test-support/only.js';
+import type { ManifestBundle } from '#rules/types.js';
 
 import { exactDependencyVersions } from './index.js';
 

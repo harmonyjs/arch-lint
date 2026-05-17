@@ -2,7 +2,7 @@
  * @fileoverview Tests for the entity-tree helpers: componentParentOf, lca.
  */
 import { describe, expect, it } from 'vitest';
-import { makeGraph } from '../test-support/make-graph.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import { componentParentOf, lca } from './tree.js';
 
 const conv = {

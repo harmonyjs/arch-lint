@@ -2,7 +2,7 @@
  * @fileoverview Tests for fingerprint-based diagnostic deduplication done before emit (§10.2).
  */
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic } from '../../types.js';
+import type { Diagnostic } from '#types.js';
 import { dedupByFingerprint } from './dedup.js';
 
 function diag(ruleId: string, entity: string, fingerprint: string): Diagnostic {

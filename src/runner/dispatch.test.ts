@@ -5,8 +5,8 @@
  * adapters are mocked at their module seams.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GraphBuildError } from '../errors/index.js';
-import { only } from '../rules/test-support/only.js';
+import { GraphBuildError } from '#errors/index.js';
+import { only } from '#rules/test-support/only.js';
 
 const runCheckCommandMock = vi.fn();
 vi.mock('./check.js', () => ({

@@ -4,7 +4,7 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { SuppressConfig } from '../config/types.js';
+import type { SuppressConfig } from '#config/types.js';
 import { collectSuppressComments } from './collect-comments.js';
 
 const cfg: SuppressConfig = {

@@ -4,16 +4,16 @@
  * `severity` field from the rule's configured options.
  */
 import type { Project } from 'ts-morph';
-import type { ResolvedConfig } from '../../config/types.js';
-import type { SuppressIndex } from '../../suppress/types.js';
-import type { ActiveSeverity } from '../../types.js';
+import type { ResolvedConfig } from '#config/types.js';
 import type {
   GraphRuleContext,
   ManifestBundle,
   ManifestRuleContext,
   Rule,
   SyntacticRuleContext,
-} from '../types.js';
+} from '#rules/types.js';
+import type { SuppressIndex } from '#suppress/types.js';
+import type { ActiveSeverity } from '#types.js';
 
 /** Effective severity plus options with `severity` stripped — shared by every builder. */
 function baseContext(

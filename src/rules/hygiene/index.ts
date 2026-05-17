@@ -1,7 +1,7 @@
 /**
  * @fileoverview hygiene pack aggregate — collects all 4 manifest-strictness rules for the registry.
  */
-import type { Rule } from '../types.js';
+import type { Rule } from '#rules/types.js';
 import { exactDependencyVersions } from './exact-dependency-versions/index.js';
 import { npmrcSettings } from './npmrc-settings/index.js';
 import { packageEngines } from './package-engines/index.js';

@@ -2,8 +2,9 @@
  * @fileoverview exact-dependency-versions rule — requires exact dependency versions
  * (no range operators, no dist-tags). Reads the parsed package.json from the manifest bundle.
  */
-import type { Diagnostic } from '../../../types.js';
-import type { ManifestRule, ManifestRuleContext } from '../../types.js';
+
+import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Options of exact-dependency-versions. */
 interface Options {

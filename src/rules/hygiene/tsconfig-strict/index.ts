@@ -2,8 +2,9 @@
  * @fileoverview tsconfig-strict rule — requires a strict effective compilerOptions
  * (D7 presets). Reads the parsed tsconfig from the manifest bundle; the graph is unused.
  */
-import type { Diagnostic } from '../../../types.js';
-import type { ManifestRule, ManifestRuleContext } from '../../types.js';
+
+import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Options of tsconfig-strict (D7). */
 interface Options {

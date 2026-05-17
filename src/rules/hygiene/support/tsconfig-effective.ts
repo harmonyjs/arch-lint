@@ -3,7 +3,7 @@
  * compilerOptions keys (decision D5 / A3).
  */
 import { Node, Project, SyntaxKind } from 'ts-morph';
-import type { Location } from '../../../types.js';
+import type { Location } from '#types.js';
 
 /** An effective tsconfig: option values plus key positions. */
 export interface EffectiveTsconfig {

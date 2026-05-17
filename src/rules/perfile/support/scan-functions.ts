@@ -4,9 +4,9 @@
  * function unit, and resolves a function's source location.
  */
 import type { Project } from 'ts-morph';
-import type { ConsumerGraph } from '../../../graph/types.js';
-import type { Location } from '../../../types.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
+import type { ConsumerGraph } from '#graph/types.js';
+import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import type { Location } from '#types.js';
 import type { FunctionUnit } from './functions.js';
 import { collectFunctions } from './functions.js';
 

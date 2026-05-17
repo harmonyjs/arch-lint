@@ -2,8 +2,9 @@
  * @fileoverview package-engines rule — requires declared `engines` keys in package.json.
  * Reads the parsed package.json from the manifest bundle; the graph is unused.
  */
-import type { Diagnostic } from '../../../types.js';
-import type { ManifestRule, ManifestRuleContext } from '../../types.js';
+
+import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Options of package-engines. */
 interface Options {

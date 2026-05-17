@@ -7,18 +7,18 @@
 import type { Project } from 'ts-morph';
 import { Project as TsProject } from 'ts-morph';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from '../graph/types.js';
-import { makeGraph } from '../rules/test-support/make-graph.js';
-import { only } from '../rules/test-support/only.js';
-import type { Diagnostic } from '../types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import type { ConsumerGraph } from '#graph/types.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
+import { only } from '#rules/test-support/only.js';
+import type { Diagnostic } from '#types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 
 const loadConfigMock = vi.fn();
 const resolveConfigMock = vi.fn();
-vi.mock('../config/index.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../config/index.js')>();
+vi.mock('#config/index.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('#config/index.js')>();
   return {
     ...actual,
     loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
@@ -27,8 +27,8 @@ vi.mock('../config/index.js', async (importOriginal) => {
 });
 
 const buildGraphFromSourcesMock = vi.fn();
-vi.mock('../graph/index.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../graph/index.js')>();
+vi.mock('#graph/index.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('#graph/index.js')>();
   return {
     ...actual,
     buildGraphFromSources: (...args: unknown[]): unknown => buildGraphFromSourcesMock(...args),
@@ -36,22 +36,22 @@ vi.mock('../graph/index.js', async (importOriginal) => {
 });
 
 const loadSourceFilesMock = vi.fn();
-vi.mock('../graph/discover-source-files.js', () => ({
+vi.mock('#graph/discover-source-files.js', () => ({
   loadSourceFiles: (...args: unknown[]): unknown => loadSourceFilesMock(...args),
 }));
 
 const buildSuppressIndexMock = vi.fn();
-vi.mock('../suppress/suppress-index.js', () => ({
+vi.mock('#suppress/suppress-index.js', () => ({
   buildSuppressIndex: (...args: unknown[]): unknown => buildSuppressIndexMock(...args),
 }));
 
 const runEngineMock = vi.fn();
-vi.mock('../rules/engine.js', () => ({
+vi.mock('#rules/engine.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 
 const formatReportMock = vi.fn();
-vi.mock('../report/index.js', () => ({
+vi.mock('#report/index.js', () => ({
   formatReport: (...args: unknown[]): unknown => formatReportMock(...args),
 }));
 

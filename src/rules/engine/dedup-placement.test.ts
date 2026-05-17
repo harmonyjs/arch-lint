@@ -2,8 +2,8 @@
  * @fileoverview Tests for dedupPlacement — the defensive placement-dedup engine step.
  */
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic } from '../../types.js';
-import { only } from '../test-support/only.js';
+import { only } from '#rules/test-support/only.js';
+import type { Diagnostic } from '#types.js';
 import { dedupPlacement } from './dedup-placement.js';
 
 function diag(ruleId: string, entity: string): Diagnostic {

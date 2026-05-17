@@ -2,7 +2,7 @@
  * @fileoverview Tests for Tarjan SCC and cyclic-node detection.
  */
 import { describe, expect, it } from 'vitest';
-import { only } from '../rules/test-support/only.js';
+import { only } from '#rules/test-support/only.js';
 import { cyclicNodes, stronglyConnectedComponents } from './scc.js';
 
 describe('stronglyConnectedComponents', () => {

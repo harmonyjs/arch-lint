@@ -6,7 +6,7 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../config/types.js';
+import type { ResolvedConfig } from '#config/types.js';
 import { buildManifestBundle } from './manifest-bundle.js';
 
 function cfg(cwd: string): ResolvedConfig {

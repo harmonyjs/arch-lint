@@ -2,12 +2,12 @@
  * @fileoverview layer-boundary rule — enforces canImport barriers between src/ layers.
  */
 
-import type { LayersConfig, ResolvedConfig } from '../../../config/types.js';
-import { ConfigError } from '../../../errors/index.js';
-import { layerOf } from '../../../graph/index.js';
-import type { Edge } from '../../../graph/types.js';
-import type { Diagnostic } from '../../../types.js';
-import type { GraphRule, GraphRuleContext } from '../../types.js';
+import type { LayersConfig, ResolvedConfig } from '#config/types.js';
+import { ConfigError } from '#errors/index.js';
+import { layerOf } from '#graph/index.js';
+import type { Edge } from '#graph/types.js';
+import type { GraphRule, GraphRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Validate that every layer's sideEffectOnly is a subset of its canImport (else exit 2). */
 function assertSideEffectSubset(layers: LayersConfig): void {

@@ -4,10 +4,10 @@
 
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { resolveConfig } from '../../../config/index.js';
-import { loadSourceFiles } from '../../../graph/discover-source-files.js';
-import { buildGraph } from '../../../graph/index.js';
-import { makeContext } from '../../test-support/make-context.js';
+import { resolveConfig } from '#config/index.js';
+import { loadSourceFiles } from '#graph/discover-source-files.js';
+import { buildGraph } from '#graph/index.js';
+import { makeContext } from '#rules/test-support/make-context.js';
 import { type UiClusterMembershipOptions, uiClusterMembership } from './index.js';
 
 const fixtureRoot = fileURLToPath(new URL('./fixtures/trigger-outside', import.meta.url));

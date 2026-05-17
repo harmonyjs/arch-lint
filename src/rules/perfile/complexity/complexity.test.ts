@@ -2,11 +2,11 @@
  * @fileoverview Tests for the complexity rule of the perfile pack (cognitive complexity, D4).
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
-import { only } from '../../test-support/only.js';
-import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { makeContext } from '#rules/test-support/make-context.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
+import { only } from '#rules/test-support/only.js';
+import { perfileTestGraph } from '#rules/test-support/perfile-test-graph.js';
 import { complexity } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;

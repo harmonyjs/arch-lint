@@ -3,7 +3,7 @@
  */
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import { makeGraph } from '../test-support/make-graph.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import { assertGraphProjectConsistent } from './assert-consistent.js';
 
 function projectWith(...ids: string[]): Project {

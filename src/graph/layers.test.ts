@@ -2,7 +2,7 @@
  * @fileoverview Tests for layerOf — longest segment-wise prefix layer match.
  */
 import { describe, expect, it } from 'vitest';
-import type { LayersConfig } from '../config/types.js';
+import type { LayersConfig } from '#config/types.js';
 import { layerOf } from './layers.js';
 
 describe('layerOf', () => {

@@ -2,8 +2,8 @@
  * @fileoverview Tests for analyzePlacement — the placement decision tree.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../config/types.js';
-import { makeGraph } from '../test-support/make-graph.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import { analyzePlacement } from './analyze.js';
 import { componentParentOf } from './tree.js';
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeGraph } from '../rules/test-support/make-graph.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import { graphEntityResolver } from './entity-resolver.js';
 
 describe('graphEntityResolver', () => {

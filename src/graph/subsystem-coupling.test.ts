@@ -2,7 +2,7 @@
  * @fileoverview Tests for the subsystem-coupling helper — subsystemOf and subsystemCoupling.
  */
 import { describe, expect, it } from 'vitest';
-import { makeGraph } from '../rules/test-support/make-graph.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import { subsystemCoupling, subsystemOf } from './subsystem-coupling.js';
 import type { Edge } from './types.js';
 

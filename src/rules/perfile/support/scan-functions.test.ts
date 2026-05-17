@@ -2,7 +2,7 @@
  * @fileoverview Tests for the shared per-function scan helper of function-level perfile rules.
  */
 import { describe, expect, it } from 'vitest';
-import { makeGraph } from '../../test-support/make-graph.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import type { FunctionUnit } from './functions.js';
 import { functionLocation, scanFunctions } from './scan-functions.js';
 

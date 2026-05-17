@@ -2,9 +2,10 @@
  * @fileoverview npmrc-settings rule — requires declared key-value pairs in .npmrc.
  * Reads the parsed .npmrc from the manifest bundle; the graph is unused.
  */
-import type { Diagnostic } from '../../../types.js';
-import type { ManifestRule, ManifestRuleContext } from '../../types.js';
-import { parseNpmrc } from '../support/npmrc.js';
+
+import { parseNpmrc } from '#rules/hygiene/support/npmrc.js';
+import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Options of npmrc-settings. */
 interface Options {

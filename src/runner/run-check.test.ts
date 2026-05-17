@@ -5,53 +5,53 @@
  */
 import { Project as TsProject } from 'ts-morph';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { ResolvedConfig } from '../config/types.js';
-import { GraphBuildError } from '../errors/index.js';
-import type { ConsumerGraph } from '../graph/types.js';
-import { makeGraph } from '../rules/test-support/make-graph.js';
-import type { Diagnostic } from '../types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { GraphBuildError } from '#errors/index.js';
+import type { ConsumerGraph } from '#graph/types.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
+import type { Diagnostic } from '#types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 
 const loadConfigMock = vi.fn();
-vi.mock('../config/load.js', () => ({
+vi.mock('#config/load.js', () => ({
   loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
 }));
 
 const resolveConfigMock = vi.fn();
-vi.mock('../config/resolve-defaults.js', () => ({
+vi.mock('#config/resolve-defaults.js', () => ({
   resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
 }));
 
 const buildGraphFromSourcesMock = vi.fn();
-vi.mock('../graph/build.js', () => ({
+vi.mock('#graph/build.js', () => ({
   buildGraphFromSources: (...args: unknown[]): unknown => buildGraphFromSourcesMock(...args),
 }));
 
 const loadSourceFilesMock = vi.fn();
-vi.mock('../graph/discover-source-files.js', () => ({
+vi.mock('#graph/discover-source-files.js', () => ({
   loadSourceFiles: (...args: unknown[]): unknown => loadSourceFilesMock(...args),
 }));
 
 const buildSuppressIndexMock = vi.fn();
-vi.mock('../suppress/suppress-index.js', () => ({
+vi.mock('#suppress/suppress-index.js', () => ({
   buildSuppressIndex: (...args: unknown[]): unknown => buildSuppressIndexMock(...args),
 }));
 
 const runEngineMock = vi.fn();
-vi.mock('../rules/engine.js', () => ({
+vi.mock('#rules/engine.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 
 // Classification is exercised in check.test.ts and classify.test.ts — here it is an
 // identity pass so a test's diagnostics keep the status it set, isolating runCheck.
-vi.mock('../baseline/index.js', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../baseline/index.js')>()),
+vi.mock('#baseline/index.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('#baseline/index.js')>()),
   classifyDiagnostics: (diagnostics: readonly Diagnostic[]): readonly Diagnostic[] => diagnostics,
 }));
 
 const formatReportMock = vi.fn();
-vi.mock('../report/index.js', () => ({
+vi.mock('#report/index.js', () => ({
   formatReport: (...args: unknown[]): unknown => formatReportMock(...args),
 }));
 

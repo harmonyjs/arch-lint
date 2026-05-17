@@ -3,19 +3,19 @@
  * records that no longer reproduce, gated by an injected confirmation prompt.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { BaselineFile } from '../baseline/types.js';
-import type { ResolvedConfig } from '../config/types.js';
-import { ConfigError } from '../errors/index.js';
-import type { CheckResult } from '../rules/types.js';
-import type { Diagnostic } from '../types.js';
+import type { BaselineFile } from '#baseline/types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { ConfigError } from '#errors/index.js';
+import type { CheckResult } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 const loadConfigMock = vi.fn();
-vi.mock('../config/load.js', () => ({
+vi.mock('#config/load.js', () => ({
   loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
 }));
 
 const resolveConfigMock = vi.fn();
-vi.mock('../config/resolve-defaults.js', () => ({
+vi.mock('#config/resolve-defaults.js', () => ({
   resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
 }));
 
@@ -28,7 +28,7 @@ vi.mock('./check.js', () => ({
 
 const pruneBaselineMock = vi.fn();
 const writeBaselineMock = vi.fn();
-vi.mock('../baseline/index.js', () => ({
+vi.mock('#baseline/index.js', () => ({
   snapshotBaseline: vi.fn(),
   diffBaseline: vi.fn(),
   pruneBaseline: (...args: unknown[]): unknown => pruneBaselineMock(...args),

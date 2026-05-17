@@ -5,7 +5,7 @@
  * so it throws — but only outside production, to keep the hot path free.
  */
 import type { Project } from 'ts-morph';
-import type { ConsumerGraph } from '../../graph/types.js';
+import type { ConsumerGraph } from '#graph/types.js';
 import { fileNodeIds } from './find-source-file.js';
 
 function hasFileFor(projectIds: ReadonlySet<string>, id: string): boolean {

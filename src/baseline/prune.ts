@@ -3,7 +3,7 @@
  * a matching diagnostic (resolved), preserving the metadata of records that survive.
  */
 
-import type { Diagnostic } from '../types.js';
+import type { Diagnostic } from '#types.js';
 import { sortRecords } from './serialize.js';
 import type { BaselineFile, BaselineRecord } from './types.js';
 

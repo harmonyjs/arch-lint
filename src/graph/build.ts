@@ -2,7 +2,7 @@
  * @fileoverview Cold build orchestration — assembles a ConsumerGraph from a resolved
  * config by discovering sources, resolving imports and projecting onto entities.
  */
-import type { ResolvedConfig } from '../config/types.js';
+import type { ResolvedConfig } from '#config/types.js';
 import { freezeGraph } from './consumer-graph.js';
 import {
   loadSourceFiles,

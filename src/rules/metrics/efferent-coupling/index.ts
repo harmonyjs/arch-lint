@@ -2,10 +2,10 @@
  * @fileoverview efferent-coupling rule — flags a subsystem that depends on too many
  * other subsystems. High efferent coupling makes a subsystem hard to extract.
  */
-import type { ResolvedConfig } from '../../../config/types.js';
-import { subsystemCoupling } from '../../../graph/index.js';
-import type { Diagnostic } from '../../../types.js';
-import type { GraphRule, GraphRuleContext } from '../../types.js';
+import type { ResolvedConfig } from '#config/types.js';
+import { subsystemCoupling } from '#graph/index.js';
+import type { GraphRule, GraphRuleContext } from '#rules/types.js';
+import type { Diagnostic } from '#types.js';
 
 /** Tunable options of the efferent-coupling rule. */
 interface Options {

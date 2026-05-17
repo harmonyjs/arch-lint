@@ -2,7 +2,7 @@
  * @fileoverview Tests for specificity-precedence resolution of a suppress stack (§9).
  */
 import { describe, expect, it } from 'vitest';
-import type { Location } from '../types.js';
+import type { Location } from '#types.js';
 import { isSuppressedByStack } from './precedence.js';
 import type { ParsedSuppress } from './types.js';
 

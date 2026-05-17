@@ -3,7 +3,7 @@
  * a matching in-memory ts-morph Project — for rule unit tests (decision D9).
  */
 import { Project } from 'ts-morph';
-import type { ConsumerGraph, Edge, Node, UnresolvedImport } from '../../graph/types.js';
+import type { ConsumerGraph, Edge, Node, UnresolvedImport } from '#graph/types.js';
 
 interface NodeSpec {
   readonly kind?: 'file' | 'folder';
