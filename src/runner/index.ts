@@ -4,3 +4,4 @@
  * the programmatic `check` operation.
  */
 export { check, resolveBaseline, runCheck } from './check.js';
+export { runCli } from './cli.js';

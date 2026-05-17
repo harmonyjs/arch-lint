@@ -1,18 +1,16 @@
 /**
- * @fileoverview The arch-lint command-line interface — assembles the commander
- * program and runs it. `buildProgram` wires the five global options and the
- * four commands (`check`, `watch`, `baseline`, `explain`) to their adapters;
- * each action is process-pure up to writing stdout/stderr and setting
- * `process.exitCode`. `runCli` parses argv and maps any thrown `ArchLintError`
- * onto its exit code, with an unknown failure falling back to exit code 5.
+ * @fileoverview The CLI router — the single place that parses argv and
+ * dispatches to a runner operation (check, baseline, explain, watch). This
+ * is where the complete command set can be read in one file.
  */
 import { createInterface } from 'node:readline/promises';
+import chokidar from 'chokidar';
 import { Command } from 'commander';
 import { ArchLintError, ConfigError } from '../errors.js';
-import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './commands/baseline.js';
-import { runCheckCommand } from './commands/check.js';
-import { runExplain } from './commands/explain.js';
-import { runWatchCommand } from './commands/watch.js';
+import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './baseline.js';
+import { runCheckCommand } from './check.js';
+import { runExplain } from './explain.js';
+import { runWatch } from './watch.js';
 
 /** The global options every command inherits, as parsed by commander. */
 interface GlobalOptions {
@@ -70,6 +68,9 @@ function writeStderr(lines: readonly string[]): void {
   }
 }
 
+/** ANSI escape sequence that clears the screen, its scrollback, and homes the cursor. */
+const CLEAR_SCREEN = '\x1B[2J\x1B[3J\x1B[H';
+
 /**
  * Builds the arch-lint commander program: the named root with its five global
  * options and the four commands. Each command's `.action` reads the merged
@@ -112,9 +113,16 @@ export function buildProgram(): Command {
     .description('watch the project and re-run the check on every change')
     .action(async (_local: unknown, cmd: Command) => {
       const globals = cmd.optsWithGlobals() as GlobalOptions;
-      const session = await runWatchCommand({
+      const session = await runWatch({
         cwd: process.cwd(),
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
+        createWatcher: (sourceRoot) => chokidar.watch(sourceRoot, { ignoreInitial: true }),
+        print: (text) => {
+          process.stdout.write(`${text}\n`);
+        },
+        clearScreen: () => {
+          process.stdout.write(CLEAR_SCREEN);
+        },
       });
       process.once('SIGINT', () => {
         void session.close().then(() => process.exit(0));
