@@ -79,8 +79,7 @@ function evaluateEdge(
     return null;
   }
   const producerIsBarrel =
-    isBarrelFile(edge.producer, config.conventions) &&
-    folderOf(edge.producer) === producerFolder;
+    isBarrelFile(edge.producer, config.conventions) && folderOf(edge.producer) === producerFolder;
   if (producerIsBarrel) {
     if (!options.allowExplicitIndex && pathPointsAtIndex(edge.syntacticPath)) {
       return 'explicit-index';

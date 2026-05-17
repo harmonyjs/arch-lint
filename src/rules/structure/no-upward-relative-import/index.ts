@@ -5,7 +5,7 @@
  * and `../../graph/x.js` resolve to the same graph edge, so only the source text can
  * tell them apart.
  */
-import { dirOf } from '#rules/structure/support/file-paths.js';
+import { dirOf } from '#entity-id/index.js';
 import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
 import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
 import { type ImportInfo, importsOf } from '#rules/syntactic-support/import-info.js';
