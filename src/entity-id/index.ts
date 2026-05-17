@@ -49,3 +49,12 @@ export function ancestorsOf(id: string): string[] {
   }
   return out;
 }
+
+/**
+ * True when the path lies INSIDE a folder named `segment` — the segment matches
+ * as a directory, not as a name substring and not as the last (file) segment.
+ */
+export function isUnderSegment(id: string, segment: string): boolean {
+  const segs = segmentsOf(id);
+  return segs.slice(0, -1).includes(segment);
+}

@@ -97,3 +97,17 @@ describe('ancestorsOf', () => {
     expect(ancestorsOf('index.ts')).toEqual([]);
   });
 });
+
+describe('isUnderSegment', () => {
+  it('is true when the path contains the segment folder', () => {
+    expect(isUnderSegment('src/App/lib/util.ts', 'lib')).toBe(true);
+  });
+
+  it('is false when the segment matched only as a name substring', () => {
+    expect(isUnderSegment('src/App/library/util.ts', 'lib')).toBe(false);
+  });
+
+  it('is false when the segment is the last (file) segment itself', () => {
+    expect(isUnderSegment('src/App/lib.ts', 'lib')).toBe(false);
+  });
+});
