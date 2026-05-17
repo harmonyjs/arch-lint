@@ -5,8 +5,7 @@
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { SuppressConfig } from '../config/types.js';
-import type { Diagnostic, Location } from '../types.js';
-import type { EntityResolver, SuppressEntity } from './entity-resolver.js';
+import type { Diagnostic, EntityResolver, Location, SuppressEntity } from '../types.js';
 import { buildSuppressIndex, SuppressIndexImpl } from './suppress-index.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
 

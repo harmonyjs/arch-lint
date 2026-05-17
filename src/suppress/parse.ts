@@ -4,10 +4,9 @@
  */
 import type { SourceFile } from 'ts-morph';
 import type { SuppressConfig } from '../config/types.js';
-import type { Location } from '../types.js';
+import type { Location, SuppressEntity } from '../types.js';
 import { findAnchorDeclaration } from './anchor.js';
 import { type CollectedComment, collectSuppressComments } from './collect-comments.js';
-import type { SuppressEntity } from './entity-resolver.js';
 import { interpretSuppress } from './interpret.js';
 import { hasArchDecisionDirective, scanSuppressText } from './scan-text.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';

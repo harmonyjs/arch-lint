@@ -4,8 +4,7 @@
  */
 import type { Project } from 'ts-morph';
 import type { SuppressConfig } from '../config/types.js';
-import type { Diagnostic } from '../types.js';
-import type { EntityResolver } from './entity-resolver.js';
+import type { Diagnostic, EntityResolver } from '../types.js';
 import { parseEntitySuppress } from './parse.js';
 import { isSuppressedByStack } from './precedence.js';
 import type {

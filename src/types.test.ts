@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { EntityResolver, SuppressEntity } from './entity-resolver.js';
+import type { EntityResolver, SuppressEntity } from './types.js';
 
 describe('EntityResolver contract', () => {
   it('a plain object satisfies the interface with a listEntities method', () => {
