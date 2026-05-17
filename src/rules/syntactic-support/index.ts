@@ -10,4 +10,4 @@ export {
   roleFolderSegment,
 } from './node-helpers.js';
 export { enforceForSegmentsMatches, isUnderSegment, segmentsOf } from './segments.js';
-export { fileNodeIds, sourceFileFor } from './source-files.js';
+export { fileNodeIds, sourceFileFor } from './find-source-file.js';

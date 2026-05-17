@@ -7,7 +7,7 @@ import type { Diagnostic, Location } from '../../../types.js';
 import { importsOf } from '../../syntactic-support/import-info.js';
 import { isBarrelFile } from '../../syntactic-support/node-helpers.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
+import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
 import type { SyntacticRule } from '../../types.js';
 
 /** Options of barrel-narrow-export (D7). */

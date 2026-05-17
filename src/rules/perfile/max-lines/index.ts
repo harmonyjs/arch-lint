@@ -4,7 +4,7 @@
  */
 import type { SourceFile } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
+import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
 import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** Options of max-lines. */

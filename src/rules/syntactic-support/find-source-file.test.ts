@@ -5,7 +5,7 @@
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import { makeGraph } from '../test-support/make-graph.js';
-import { fileNodeIds, sourceFileFor } from './source-files.js';
+import { fileNodeIds, sourceFileFor } from './find-source-file.js';
 
 describe('sourceFileFor', () => {
   it('finds a file by its exact node id', () => {
