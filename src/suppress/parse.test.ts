@@ -5,6 +5,7 @@
 import { Project, type SourceFile } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { SuppressConfig } from '../config/types.js';
+import type { SuppressEntity } from './entity-resolver.js';
 import { parseEntitySuppress } from './parse.js';
 
 const cfg: SuppressConfig = {
@@ -22,22 +23,22 @@ function sf(code: string): SourceFile {
   );
 }
 
+const widget: SuppressEntity = {
+  id: 'src/Widget',
+  name: 'Widget',
+  entryFilePath: 'src/Widget/Widget.tsx',
+};
+
 describe('parseEntitySuppress', () => {
   it('returns empty data for an entity without any @arch-decision comment', () => {
-    const data = parseEntitySuppress(
-      sf('export const Widget = () => null;'),
-      'Widget',
-      'src/Widget',
-      cfg,
-    );
+    const data = parseEntitySuppress(sf('export const Widget = () => null;'), widget, cfg);
     expect(data).toEqual({ valid: [], malformed: [] });
   });
 
   it('parses one valid broad suppress above the main export', () => {
     const data = parseEntitySuppress(
       sf('// @arch-decision: deliberate architectural choice\nexport const Widget = () => null;'),
-      'Widget',
-      'src/Widget',
+      widget,
       cfg,
     );
     expect(data.valid).toHaveLength(1);
@@ -51,8 +52,7 @@ describe('parseEntitySuppress', () => {
       sf(
         '// @arch-decision[lca-placement]: until 2026-12-31, migration in progress\nexport const Widget = () => null;',
       ),
-      'Widget',
-      'src/Widget',
+      widget,
       cfg,
     );
     expect(data.valid[0]?.ruleId).toBe('lca-placement');
@@ -62,8 +62,7 @@ describe('parseEntitySuppress', () => {
   it('collects a short-reason comment into malformed', () => {
     const data = parseEntitySuppress(
       sf('// @arch-decision: short\nexport const Widget = () => null;'),
-      'Widget',
-      'src/Widget',
+      widget,
       cfg,
     );
     expect(data.valid).toEqual([]);
@@ -78,8 +77,7 @@ describe('parseEntitySuppress', () => {
           '// @arch-decision: broad decision long enough\n' +
           'export const Widget = () => null;',
       ),
-      'Widget',
-      'src/Widget',
+      widget,
       cfg,
     );
     expect(data.valid).toHaveLength(2);
@@ -88,8 +86,7 @@ describe('parseEntitySuppress', () => {
   it('reports no-main-export malformed when a stray @arch-decision has no anchor', () => {
     const data = parseEntitySuppress(
       sf('// @arch-decision: stray decision with no main export\nexport const helper = 1;'),
-      'Widget',
-      'src/Widget',
+      widget,
       cfg,
     );
     expect(data.valid).toEqual([]);
@@ -102,8 +99,7 @@ describe('parseEntitySuppress', () => {
       sf(
         '/**\n * @arch-decision: jsdoc decision long enough\n */\nexport const Widget = () => null;',
       ),
-      'Widget',
-      'src/Widget',
+      widget,
       { ...cfg, scanLocations: ['leading-comment'] },
     );
     expect(data.valid).toEqual([]);

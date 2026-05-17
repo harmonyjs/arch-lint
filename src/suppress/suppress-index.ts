@@ -82,7 +82,7 @@ export function buildSuppressIndex(
   for (const entity of entities.listEntities()) {
     const entryFile = project.getSourceFile(entity.entryFilePath);
     if (entryFile === undefined) continue;
-    byEntity.set(entity.id, parseEntitySuppress(entryFile, entity.name, entity.id, config));
+    byEntity.set(entity.id, parseEntitySuppress(entryFile, entity, config));
   }
   return new SuppressIndexImpl(byEntity, now);
 }
