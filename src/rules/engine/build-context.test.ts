@@ -4,10 +4,10 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../config/types.js';
+import type { ResolvedConfig } from '../../config/types.js';
+import { makeSuppressIndex } from '../test-support/make-context.js';
+import type { GraphRule, ManifestBundle } from '../types.js';
 import { buildGraphContext, buildManifestContext, buildSyntacticContext } from './build-context.js';
-import { makeSuppressIndex } from './test-support/make-context.js';
-import type { GraphRule, ManifestBundle } from './types.js';
 
 const rule: GraphRule = {
   id: 'lca-placement',
