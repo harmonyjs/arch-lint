@@ -12,6 +12,12 @@
   "bin": {
     "arch-lint": "./bin/arch-lint.js"
   },
+  "imports": {
+    "#*": {
+      "development": "./src/*",
+      "default": "./dist/*"
+    }
+  },
   "files": [
     "dist",
     "bin",
