@@ -28,17 +28,19 @@ const config = {} as ResolvedConfig;
 const suppress = {} as SuppressIndex;
 const project = {} as Project;
 
+const inputs = { graph, config, suppress, project };
+
 describe('check', () => {
   it('returns exactly what runEngine returns', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
-    expect(check(graph, config, suppress, project)).toBe(engineResult);
+    expect(check(inputs)).toBe(engineResult);
   });
 
   it('forwards all six arguments to runEngine unchanged', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
     const baseline = { schemaVersion: 1, records: [] } as unknown as BaselineFile;
     const ruleFilter = ['layer-boundary'] as const;
-    check(graph, config, suppress, project, ruleFilter, baseline);
+    check(inputs, ruleFilter, baseline);
     expect(runEngineMock).toHaveBeenCalledWith(
       graph,
       config,
@@ -51,13 +53,13 @@ describe('check', () => {
 
   it('forwards an explicit null baseline through unchanged', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
-    check(graph, config, suppress, project, undefined, null);
+    check(inputs, undefined, null);
     expect(runEngineMock).toHaveBeenCalledWith(graph, config, suppress, project, undefined, null);
   });
 
   it('omits trailing optional arguments when not supplied', () => {
     runEngineMock.mockReturnValueOnce(engineResult);
-    check(graph, config, suppress, project);
+    check(inputs);
     expect(runEngineMock).toHaveBeenCalledWith(
       graph,
       config,

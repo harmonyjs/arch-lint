@@ -29,20 +29,41 @@ function isMissingFile(err: unknown): boolean {
 }
 
 /**
+ * The resolved environment a `check` run operates on: the dependency graph,
+ * the resolved config, the suppress index and the shared ts-morph Project.
+ * The graph and the Project must originate from the same source build so the
+ * engine can rely on them being consistent.
+ */
+export interface CheckInputs {
+  /** The frozen dependency graph the rule engine runs over. */
+  readonly graph: ConsumerGraph;
+  /** The fully resolved configuration governing the run. */
+  readonly config: ResolvedConfig;
+  /** Suppression directives indexed for the engine. */
+  readonly suppress: SuppressIndex;
+  /** The ts-morph Project the graph was built from. */
+  readonly project: Project;
+}
+
+/**
  * Pure engine wrapper — a synchronous passthrough to runEngine, free of any
- * file I/O. Every argument is supplied by the caller; the runner's I/O
+ * file I/O. Every input is supplied by the caller; the runner's I/O
  * orchestration (loading config, building the graph, resolving the baseline)
  * lives in `runCheck`.
  */
 export function check(
-  graph: ConsumerGraph,
-  config: ResolvedConfig,
-  suppress: SuppressIndex,
-  project: Project,
+  inputs: CheckInputs,
   ruleFilter?: readonly string[],
   baseline?: BaselineFile | null,
 ): CheckResult {
-  return runEngine(graph, config, suppress, project, ruleFilter, baseline);
+  return runEngine(
+    inputs.graph,
+    inputs.config,
+    inputs.suppress,
+    inputs.project,
+    ruleFilter,
+    baseline,
+  );
 }
 
 /** Options that steer baseline resolution. */
@@ -151,7 +172,11 @@ export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcom
   const { graph, sources } = await buildGraphAndSources(config);
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
-  const result = check(graph, config, suppress, sources.project, options.ruleFilter, baseline);
+  const result = check(
+    { graph, config, suppress, project: sources.project },
+    options.ruleFilter,
+    baseline,
+  );
 
   const warnings: string[] = [];
   let diagnostics: readonly Diagnostic[] = result.diagnostics;

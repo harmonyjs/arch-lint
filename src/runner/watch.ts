@@ -88,13 +88,13 @@ export async function runWatch(opts: WatchOptions): Promise<WatchSession> {
   const baseline = await resolveBaseline(config, { noBaseline: false });
 
   const initial = await rebuild(config);
-  render(initial.graph, initial.sources, config, baseline, opts);
+  render(initial, config, baseline, opts);
 
   const debouncer = createDebouncer<ClassifiedChange>(config.runMode.watch.debounceMs, () => {
     void (async () => {
       try {
         const next = await rebuild(config);
-        render(next.graph, next.sources, config, baseline, opts);
+        render(next, config, baseline, opts);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         opts.print(`Watch rebuild failed: ${message}`);
@@ -124,13 +124,19 @@ interface ClassifiedChange {
   readonly path: string;
 }
 
+/** The dependency graph and the ts-morph sources it was built from. */
+interface RebuildResult {
+  /** The frozen dependency graph for the current source tree. */
+  readonly graph: ConsumerGraph;
+  /** The source files the graph was built from; the graph shares its Project. */
+  readonly sources: SourceFileSet;
+}
+
 /**
  * Parses the source tree once and builds the graph from that single
  * SourceFileSet, so the graph and the engine share one ts-morph Project.
  */
-async function rebuild(
-  config: ResolvedConfig,
-): Promise<{ graph: ConsumerGraph; sources: SourceFileSet }> {
+async function rebuild(config: ResolvedConfig): Promise<RebuildResult> {
   const sources = await loadSourceFiles(config);
   return { graph: buildGraphFromSources(config, sources), sources };
 }
@@ -141,14 +147,14 @@ async function rebuild(
  * screen clear runs first.
  */
 function render(
-  graph: ConsumerGraph,
-  sources: SourceFileSet,
+  rebuilt: RebuildResult,
   config: ResolvedConfig,
   baseline: BaselineFile | null,
   opts: WatchOptions,
 ): void {
+  const { graph, sources } = rebuilt;
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
-  const result = check(graph, config, suppress, sources.project, undefined, baseline);
+  const result = check({ graph, config, suppress, project: sources.project }, undefined, baseline);
   if (config.runMode.watch.clearOnRerun) opts.clearScreen();
   opts.print(formatReport(result, config));
 }
