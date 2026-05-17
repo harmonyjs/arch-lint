@@ -13,7 +13,7 @@ import type { Config } from './types.js';
 const severitySchema = z.enum(['off', 'info', 'warning', 'error']);
 
 /** Pack enum — the seven rule packs. */
-const packSchema = z.enum(['layers', 'barrels', 'placement', 'perfile', 'hygiene', 'view', 'meta']);
+const packSchema = z.enum(['layers', 'barrels', 'placement', 'perfile', 'hygiene', 'view', 'meta', 'metrics']);
 
 /**
  * A rule setting: a bare severity string OR an object { severity?, ...options }.
