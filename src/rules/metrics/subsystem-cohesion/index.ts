@@ -4,9 +4,9 @@
  * not a subsystem.
  */
 import type { ResolvedConfig } from '../../../config/types.js';
+import { subsystemCoupling, subsystemOf } from '../../../graph/index.js';
 import type { Diagnostic } from '../../../types.js';
 import type { GraphRule, GraphRuleContext } from '../../types.js';
-import { subsystemCoupling, subsystemOf } from '../support/subsystem-graph.js';
 
 /** Tunable options of the subsystem-cohesion rule. */
 interface Options {
