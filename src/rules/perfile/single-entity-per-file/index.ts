@@ -6,7 +6,7 @@
 import type { SourceFile } from 'ts-morph';
 import { Node } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
+import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
 import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** PascalCase name — the component heuristic (decision A2). */

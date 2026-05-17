@@ -7,7 +7,7 @@ import type { Diagnostic } from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
 import { type ImportInfo, importsOf } from '../../syntactic-support/import-info.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
-import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
+import { fileNodeIds, sourceFileFor } from '../../syntactic-support/find-source-file.js';
 import type { SyntacticRule } from '../../types.js';
 
 /** The fixed segment name of the design-tokens folder. */

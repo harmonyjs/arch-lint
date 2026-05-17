@@ -15,7 +15,7 @@ import {
   isRoleFolder,
   projectEntityConsumers,
 } from './entities.js';
-import { loadSourceFiles } from './source-files.js';
+import { loadSourceFiles } from './discover-source-files.js';
 
 let dir: string;
 

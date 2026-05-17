@@ -13,7 +13,7 @@ import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors.js';
 import { buildGraphFromSources, graphEntityResolver } from '../graph/index.js';
-import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
+import { loadSourceFiles, type SourceFileSet } from '../graph/discover-source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { formatReport } from '../report/index.js';
 import { runEngine } from '../rules/engine.js';

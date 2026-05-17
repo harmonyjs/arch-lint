@@ -11,7 +11,7 @@ import {
   fileIdOf,
   loadSourceFiles,
   moduleResolutionContextOf,
-} from './source-files.js';
+} from './discover-source-files.js';
 
 let dir: string;
 

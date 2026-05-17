@@ -10,7 +10,7 @@ import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { buildGraphFromSources, graphEntityResolver } from '../graph/index.js';
-import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
+import { loadSourceFiles, type SourceFileSet } from '../graph/discover-source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { formatReport } from '../report/index.js';
 import { buildSuppressIndex } from '../suppress/suppress-index.js';
