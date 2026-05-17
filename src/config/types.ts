@@ -14,7 +14,8 @@ export type Pack =
   | 'hygiene'
   | 'view'
   | 'meta'
-  | 'metrics';
+  | 'metrics'
+  | 'structure';
 
 export interface ProjectConfig {
   readonly tsconfig: string;

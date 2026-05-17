@@ -12,7 +12,7 @@ import type { Config } from './types.js';
 /** Severity enum — the four allowed rule severities. */
 const severitySchema = z.enum(['off', 'info', 'warning', 'error']);
 
-/** Pack enum — the seven rule packs. */
+/** Pack enum — the nine rule packs. */
 const packSchema = z.enum([
   'layers',
   'barrels',
@@ -22,6 +22,7 @@ const packSchema = z.enum([
   'view',
   'meta',
   'metrics',
+  'structure',
 ]);
 
 /**
