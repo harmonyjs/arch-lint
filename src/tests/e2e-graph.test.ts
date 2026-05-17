@@ -5,10 +5,10 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { runGraphCommand } from './runner/graph.js';
+import { runGraphCommand } from '#runner/graph.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixture = join(here, 'fixtures', 'sample-project');
+const fixture = join(here, '..', 'fixtures', 'sample-project');
 
 describe('graph command end to end', () => {
   it('renders a layered Mermaid document for the sample project', async () => {
