@@ -22,3 +22,9 @@ export function dropExtension(baseName: string): string {
   const dot = baseName.lastIndexOf('.');
   return dot > 0 ? baseName.slice(0, dot) : baseName;
 }
+
+/** Strip every extension — the text before the first dot: `a.test.ts` -> `a`. */
+export function stemOf(baseName: string): string {
+  const dot = baseName.indexOf('.');
+  return dot === -1 ? baseName : baseName.slice(0, dot);
+}

@@ -51,3 +51,17 @@ describe('dropExtension', () => {
     expect(dropExtension('.gitignore')).toBe('.gitignore');
   });
 });
+
+describe('stemOf', () => {
+  it('strips a single extension', () => {
+    expect(stemOf('login.ts')).toBe('login');
+  });
+
+  it('strips every extension — the text before the first dot', () => {
+    expect(stemOf('App.test.tsx')).toBe('App');
+  });
+
+  it('returns the name unchanged when there is no extension', () => {
+    expect(stemOf('Makefile')).toBe('Makefile');
+  });
+});
