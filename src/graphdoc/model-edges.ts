@@ -95,7 +95,11 @@ export function projectFileEdges(
 
 /** A RenderNode standing for an unresolved import specifier. */
 function unresolvedNode(entry: UnresolvedImport, id: string): RenderNode {
-  return { ...baseNode(id, entry.specifier, entry.specifier), role: 'unresolved' };
+  return {
+    ...baseNode(id, entry.specifier, entry.specifier),
+    role: 'unresolved',
+    fileoverview: `unresolved (${entry.reason})`,
+  };
 }
 
 /** Adds unresolved-import nodes and edges for the importers in a section. */
@@ -103,11 +107,11 @@ export function projectUnresolved(
   body: SectionBody,
   mint: IdMint,
   ctx: ProjectionContext,
-): { nodes: RenderNode[]; edges: RenderEdge[]; reasons: string[] } {
+): { nodes: RenderNode[]; edges: RenderEdge[] } {
   const nodes: RenderNode[] = [];
   const edges: RenderEdge[] = [];
-  const reasons: string[] = [];
   const seen = new Map<string, RenderNode>();
+  const emitted = new Set<string>();
   for (const entry of ctx.graph.unresolved) {
     const importer = body.byPath.get(entry.file);
     if (importer === undefined) continue;
@@ -116,11 +120,13 @@ export function projectUnresolved(
       node = unresolvedNode(entry, mint.next());
       seen.set(entry.specifier, node);
       nodes.push(node);
-      reasons.push(`unresolved import ${entry.specifier} (${entry.reason})`);
     }
+    const key = pairKey(importer.id, node.id);
+    if (emitted.has(key)) continue;
+    emitted.add(key);
     edges.push({ fromId: importer.id, toId: node.id, typeOnly: false, back: false, weight: null });
   }
-  return { nodes, edges, reasons };
+  return { nodes, edges };
 }
 
 /** Turns the weight map into RenderEdges, tagging the minority cyclic direction. */

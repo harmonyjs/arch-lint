@@ -328,7 +328,7 @@ describe('renderDiagram', () => {
     expect(out).toMatch(/class n0 \S+/);
   });
 
-  it('emits an instability-band class for a node present in the coupling map', () => {
+  it('tags a high-instability node with the unstable band class', () => {
     const s = section({
       diagram: {
         nodes: [node({ id: 'n0', path: 'src/graph/build.ts', name: 'build.ts' })],
@@ -338,8 +338,34 @@ describe('renderDiagram', () => {
       },
     });
     const out = renderDiagram(s);
-    expect(out).toMatch(/classDef \w*[Ii]nstab\w*/);
-    expect(out).toContain('class n0 instability;');
+    expect(out).toContain('classDef unstable ');
+    expect(out).toContain('class n0 unstable;');
+  });
+
+  it('tags a low-instability node with the stable band class', () => {
+    const s = section({
+      diagram: {
+        nodes: [node({ id: 'n0', path: 'src/graph/build.ts', name: 'build.ts' })],
+        edges: [],
+        clusters: [],
+        coupling: new Map([['n0', { ca: 3, ce: 1, instability: 0.25 }]]),
+      },
+    });
+    const out = renderDiagram(s);
+    expect(out).toContain('classDef stable ');
+    expect(out).toContain('class n0 stable;');
+  });
+
+  it('appends Ca / Ce / I figures to a subsystem node label', () => {
+    const s = section({
+      diagram: {
+        nodes: [node({ id: 'n0', path: 'src/graph/build.ts', name: 'build.ts' })],
+        edges: [],
+        clusters: [],
+        coupling: new Map([['n0', { ca: 3, ce: 7, instability: 0.7 }]]),
+      },
+    });
+    expect(nodeLine(renderDiagram(s), 'n0')).toContain('Ca 3 · Ce 7 · I 0.70');
   });
 
   it('renders a node outside any cluster at top level', () => {

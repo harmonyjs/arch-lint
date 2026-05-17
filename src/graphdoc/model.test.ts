@@ -152,11 +152,12 @@ describe('buildGraphDoc', () => {
     const nodes = doc.sections.flatMap((s) => s.diagram.nodes);
     const unresolved = nodes.find((n) => n.role === 'unresolved');
     expect(unresolved?.path).toBe('./missing.js');
+    expect(unresolved?.fileoverview).toBe('unresolved (missing)');
     const section = doc.sections.find((s) =>
       s.diagram.nodes.some((n) => n.path === './missing.js'),
     );
     expect(section?.diagram.edges.some((e) => e.toId === unresolved?.id)).toBe(true);
-    expect(section?.note).toContain('missing');
+    expect(section?.note).toBeNull();
   });
 
   it('options.subsystem returns only that subsystem section with no Overview', () => {

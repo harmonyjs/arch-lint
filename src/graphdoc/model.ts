@@ -31,14 +31,10 @@ function buildFileSection(folder: FolderTree, ctx: ProjectionContext): DocSectio
   const { edges, ports } = projectFileEdges(body, mint, ctx);
   const unresolved = projectUnresolved(body, mint, ctx);
   const nodes = [...body.nodes, ...ports, ...unresolved.nodes];
-  const note =
-    unresolved.reasons.length > 0
-      ? unresolved.reasons.join('; ')
-      : folderNote(folder, ctx.fileoverviews);
   return {
     title: titleOf(folder.path, ctx.root),
     slug: slugOf(folder.path, ctx.root),
-    note,
+    note: folderNote(folder, ctx.fileoverviews),
     diagram: {
       nodes,
       edges: [...edges, ...unresolved.edges],
