@@ -24,6 +24,7 @@
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
 
+    "isolatedDeclarations": true,
     "noUncheckedSideEffectImports": true,
     "strictBuiltinIteratorReturn": true,
 

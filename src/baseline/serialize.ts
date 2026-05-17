@@ -15,18 +15,23 @@ const baselineRecordSchema = z.object({
   note: z.string().optional(),
 });
 
-/** Zod schema validating a BaselineFile (§10.1). */
+/**
+ * Zod schema validating a BaselineFile (§10.1). Cast to z.ZodType<BaselineFile>:
+ * Zod types optionals as `?: T | undefined`, which exactOptionalPropertyTypes
+ * rejects against BaselineRecord's bare `?:`. The runtime schema is authoritative;
+ * the annotation is also required by isolatedDeclarations.
+ */
 export const baselineFileSchema = z.object({
   schemaVersion: z.literal(1),
   generatedAt: z.string(),
   generatorVersion: z.string(),
   records: z.array(baselineRecordSchema),
-});
+}) as unknown as z.ZodType<BaselineFile>;
 
 /** Parse and validate a baseline JSON string; throws on malformed or invalid input. */
 export function parseBaselineFile(text: string): BaselineFile {
   const json: unknown = JSON.parse(text);
-  return baselineFileSchema.parse(json) as BaselineFile;
+  return baselineFileSchema.parse(json);
 }
 
 /** Sort baseline records alphabetically by (ruleId, entity, fingerprint). */

@@ -7,7 +7,7 @@
  */
 import { z } from 'zod';
 import { ConfigError } from '../errors/index.js';
-import type { Config } from './types.js';
+import type { Config, RuleSetting } from './types.js';
 
 /** Severity enum — the four allowed rule severities. */
 const severitySchema = z.enum(['off', 'info', 'warning', 'error']);
@@ -30,11 +30,15 @@ const packSchema = z.enum([
  * Not a discriminated union — the object branch has no tag field. Unknown
  * option keys pass through (looseObject) so plugins and future options do not
  * fail validation; known per-rule option shapes are checked at resolve time.
+ *
+ * The `as unknown as z.ZodType` cast bridges Zod's `?: T | undefined` optionals
+ * to RuleSetting's bare `?:` (exactOptionalPropertyTypes); the runtime schema is
+ * authoritative. The explicit annotation is also what isolatedDeclarations needs.
  */
 export const ruleSettingSchema = z.union([
   severitySchema,
   z.looseObject({ severity: severitySchema.optional() }),
-]);
+]) as unknown as z.ZodType<RuleSetting>;
 
 /** project block — tsconfig required, the rest optional. */
 const projectSchema = z.object({
@@ -152,6 +156,11 @@ const pluginRuleSchema = z.object({
  * The full arch-lint config schema. rules and perFileRules are records keyed by
  * rule id (plugin ids allowed) — keys are not fixed by the schema; each value is
  * a ruleSettingSchema covering the per-rule options of all 27 rules.
+ *
+ * Cast to z.ZodType<Config>: Zod types optionals as `?: T | undefined` and
+ * validates plugin rules shallowly, so the inferred shape does not assign to the
+ * hand-written Config under exactOptionalPropertyTypes. The runtime schema is
+ * authoritative; the annotation is also required by isolatedDeclarations.
  */
 export const configSchema = z.object({
   project: projectSchema,
@@ -168,7 +177,7 @@ export const configSchema = z.object({
   report: z.object({ cli: reportCliSchema.optional() }).optional(),
   runMode: runModeSchema.optional(),
   plugins: z.array(pluginRuleSchema).optional(),
-});
+}) as unknown as z.ZodType<Config>;
 
 /**
  * Validates a raw config object against the schema. On success returns the
@@ -178,10 +187,7 @@ export const configSchema = z.object({
 export function validateConfig(raw: unknown, configPath?: string): Config {
   const result = configSchema.safeParse(raw);
   if (result.success) {
-    // Cast through unknown: a plugin Rule is validated shallowly (check is just
-    // asserted to be a function), so the inferred shape does not structurally
-    // overlap with the deeply-typed Rule of the canonical contract.
-    return result.data as unknown as Config;
+    return result.data;
   }
   const details = result.error.issues
     .map((issue) => {
