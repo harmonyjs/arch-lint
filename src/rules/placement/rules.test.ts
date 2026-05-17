@@ -4,10 +4,10 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../config/types.js';
-import type { GraphRule } from '../types.js';
 import { makeContext } from '../test-support/make-context.js';
 import { makeGraph } from '../test-support/make-graph.js';
 import { only } from '../test-support/only.js';
+import type { GraphRule } from '../types.js';
 import { registerPlacementRules } from './register.js';
 import { placementRuleDescriptors } from './rules.js';
 

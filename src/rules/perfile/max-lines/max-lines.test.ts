@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
-import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
 import { only } from '../../test-support/only.js';
+import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
 import { maxLines } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;

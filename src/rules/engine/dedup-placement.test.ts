@@ -3,8 +3,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from '../../types.js';
+import { only } from '../test-support/only.js';
 import { dedupPlacement } from './dedup-placement.js';
-import { only } from './test-support/only.js';
 
 function diag(ruleId: string, entity: string): Diagnostic {
   return {

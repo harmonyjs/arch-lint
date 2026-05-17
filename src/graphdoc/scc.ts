@@ -3,54 +3,78 @@
  * the cycle detector behind the graph document's cycle highlighting.
  */
 
+/** Mutable bookkeeping shared across one Tarjan SCC traversal. */
+interface TarjanState {
+  /** The directed graph being traversed. */
+  readonly adjacency: ReadonlyMap<string, readonly string[]>;
+  /** Monotonic discovery counter handing each node its index. */
+  counter: number;
+  /** Discovery index of each visited node. */
+  readonly index: Map<string, number>;
+  /** Low-link value of each visited node. */
+  readonly low: Map<string, number>;
+  /** Nodes currently on the traversal stack. */
+  readonly onStack: Set<string>;
+  /** The traversal stack. */
+  readonly stack: string[];
+  /** Completed strongly-connected components. */
+  readonly out: string[][];
+}
+
+/** Pops the stack down to `root`, emitting the completed strongly-connected component. */
+function popComponent(state: TarjanState, root: string): void {
+  const component: string[] = [];
+  let w: string | undefined;
+  do {
+    w = state.stack.pop();
+    if (w === undefined) break;
+    state.onStack.delete(w);
+    component.push(w);
+  } while (w !== root);
+  state.out.push(component);
+}
+
+/** Tarjan's recursive visit: indexes `v`, relaxes its low-link, emits its SCC when it is a root. */
+function connect(state: TarjanState, v: string): void {
+  const vIndex = state.counter;
+  state.index.set(v, vIndex);
+  let vLow = vIndex;
+  state.low.set(v, vLow);
+  state.counter += 1;
+  state.stack.push(v);
+  state.onStack.add(v);
+  for (const w of state.adjacency.get(v) ?? []) {
+    const wIndex = state.index.get(w);
+    if (wIndex === undefined) {
+      connect(state, w);
+      // `connect` always assigns `low.get(w)`; fall back to its own index defensively.
+      vLow = Math.min(vLow, state.low.get(w) ?? Number.POSITIVE_INFINITY);
+      state.low.set(v, vLow);
+    } else if (state.onStack.has(w)) {
+      vLow = Math.min(vLow, wIndex);
+      state.low.set(v, vLow);
+    }
+  }
+  if (vLow === vIndex) popComponent(state, v);
+}
+
 /** Computes the strongly-connected components of a directed adjacency map. */
 export function stronglyConnectedComponents(
   adjacency: ReadonlyMap<string, readonly string[]>,
 ): readonly (readonly string[])[] {
-  let counter = 0;
-  const index = new Map<string, number>();
-  const low = new Map<string, number>();
-  const onStack = new Set<string>();
-  const stack: string[] = [];
-  const out: string[][] = [];
-
-  const connect = (v: string): void => {
-    const vIndex = counter;
-    index.set(v, vIndex);
-    let vLow = vIndex;
-    low.set(v, vLow);
-    counter += 1;
-    stack.push(v);
-    onStack.add(v);
-    for (const w of adjacency.get(v) ?? []) {
-      const wIndex = index.get(w);
-      if (wIndex === undefined) {
-        connect(w);
-        // `connect(w)` always assigns `low.get(w)`; fall back to its own index defensively.
-        vLow = Math.min(vLow, low.get(w) ?? Number.POSITIVE_INFINITY);
-        low.set(v, vLow);
-      } else if (onStack.has(w)) {
-        vLow = Math.min(vLow, wIndex);
-        low.set(v, vLow);
-      }
-    }
-    if (vLow === vIndex) {
-      const component: string[] = [];
-      let w: string | undefined;
-      do {
-        w = stack.pop();
-        if (w === undefined) break;
-        onStack.delete(w);
-        component.push(w);
-      } while (w !== v);
-      out.push(component);
-    }
+  const state: TarjanState = {
+    adjacency,
+    counter: 0,
+    index: new Map(),
+    low: new Map(),
+    onStack: new Set(),
+    stack: [],
+    out: [],
   };
-
   for (const v of adjacency.keys()) {
-    if (!index.has(v)) connect(v);
+    if (!state.index.has(v)) connect(state, v);
   }
-  return out;
+  return state.out;
 }
 
 /**
