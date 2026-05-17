@@ -8,6 +8,8 @@
 
 // Types — baseline module
 export type { BaselineFile, BaselineRecord } from './baseline/types.js';
+// Function — config helper
+export { defineConfig } from './config/define-config.js';
 // Function — config resolver
 export { resolveConfig } from './config/index.js';
 // Types — config module
@@ -32,8 +34,6 @@ export type {
   RunModeConfig,
   WatchRunMode,
 } from './config/types.js';
-// Function — config helper
-export { defineConfig } from './define-config.js';
 // Function — graph builder
 export { buildGraph } from './graph/index.js';
 // Types — graph module (Resolution excluded — internal resolver helper)

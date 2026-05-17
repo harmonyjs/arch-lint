@@ -4,7 +4,7 @@
  * runtime while preserving literal type inference for editor autocompletion.
  * Default resolution happens later in resolveConfig, invoked by the loader.
  */
-import type { Config } from './config/types.js';
+import type { Config } from './types.js';
 
 /**
  * Wraps an arch-lint config object so editors infer its precise literal type.

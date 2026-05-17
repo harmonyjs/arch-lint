@@ -8,12 +8,13 @@ import { fileURLToPath } from 'node:url';
 
 /**
  * Absolute path to the package root. The compiled module lives at
- * `dist/paths.js` (one level below the root); under vitest it runs as
- * `src/paths.ts` (also one level below). Both resolve to the same root.
+ * `dist/runner/paths.js` (two levels below the root); under vitest it runs
+ * as `src/runner/paths.ts` (also two levels below). Both resolve to the
+ * same root.
  */
 export function packageRoot(): string {
   const moduleDir = dirname(fileURLToPath(import.meta.url));
-  return resolve(moduleDir, '..');
+  return resolve(moduleDir, '..', '..');
 }
 
 /** Absolute path to the documentation file of a rule. */
