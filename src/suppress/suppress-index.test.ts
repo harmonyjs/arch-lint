@@ -6,8 +6,14 @@ import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { SuppressConfig } from '../config/types.js';
 import type { Diagnostic, Location } from '../types.js';
-import { buildSuppressIndex, type SuppressEntity, SuppressIndexImpl } from './suppress-index.js';
+import type { EntityResolver, SuppressEntity } from './entity-resolver.js';
+import { buildSuppressIndex, SuppressIndexImpl } from './suppress-index.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
+
+/** Wraps a fixed entity list into the EntityResolver buildSuppressIndex consumes. */
+function resolverOf(entities: readonly SuppressEntity[]): EntityResolver {
+  return { listEntities: () => entities };
+}
 
 const loc: Location = { file: 'src/Widget/Widget.tsx', line: 1, column: 1 };
 const NOW = new Date('2026-06-01T00:00:00Z');
@@ -162,7 +168,7 @@ describe('buildSuppressIndex', () => {
     const entities: SuppressEntity[] = [
       { id: 'src/Widget', name: 'Widget', entryFilePath: 'src/Widget/Widget.tsx' },
     ];
-    const index = buildSuppressIndex(project, cfg, entities, NOW);
+    const index = buildSuppressIndex(project, cfg, resolverOf(entities), NOW);
     expect(index.isSuppressed(diag({ entity: 'src/Widget' }))).toBe(true);
   });
 
@@ -171,7 +177,7 @@ describe('buildSuppressIndex', () => {
     const entities: SuppressEntity[] = [
       { id: 'src/Missing', name: 'Missing', entryFilePath: 'src/Missing/Missing.tsx' },
     ];
-    const index = buildSuppressIndex(project, cfg, entities, NOW);
+    const index = buildSuppressIndex(project, cfg, resolverOf(entities), NOW);
     expect(index.isSuppressed(diag({ entity: 'src/Missing' }))).toBe(false);
   });
 
@@ -184,7 +190,7 @@ describe('buildSuppressIndex', () => {
     const entities: SuppressEntity[] = [
       { id: 'src/Widget', name: 'Widget', entryFilePath: 'src/Widget/Widget.tsx' },
     ];
-    const index = buildSuppressIndex(project, cfg, entities, NOW);
+    const index = buildSuppressIndex(project, cfg, resolverOf(entities), NOW);
     expect(index.findExpired()).toHaveLength(1);
   });
 });

@@ -1,9 +1,8 @@
 /**
- * @fileoverview Tests for runCheck() orchestration and the deriveSuppressEntities
- * helper. Every I/O seam runCheck touches is mocked; changed-file detection is
- * mocked at getChangedFiles while its pure filtering helpers stay real.
+ * @fileoverview Tests for runCheck() orchestration. Every I/O seam runCheck
+ * touches is mocked; changed-file detection is mocked at getChangedFiles while
+ * its pure filtering helpers stay real.
  */
-import type { Project } from 'ts-morph';
 import { Project as TsProject } from 'ts-morph';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
@@ -59,7 +58,7 @@ vi.mock('./changed-files.js', async (importOriginal) => {
   };
 });
 
-const { deriveSuppressEntities, runCheck } = await import('./check.js');
+const { runCheck } = await import('./check.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -141,65 +140,6 @@ function arrange(opts: {
 
 afterEach(() => {
   vi.clearAllMocks();
-});
-
-// ── deriveSuppressEntities ───────────────────────────────────────────────────
-
-describe('deriveSuppressEntities', () => {
-  const sources = {
-    project: new TsProject({ useInMemoryFileSystem: true }) as Project,
-    files: new Map([
-      ['src/Widget/Widget.tsx', {} as never],
-      ['src/Panel/Panel.ts', {} as never],
-    ]) as ReadonlyMap<string, never>,
-    rootDir: '/repo/src',
-    cwd: '/repo',
-  };
-
-  it('skips nodes that are not entities', () => {
-    const graph = makeGraph({
-      nodes: { 'src/a.ts': { kind: 'file', isEntity: false } },
-    });
-    expect(deriveSuppressEntities(graph, sources)).toEqual([]);
-  });
-
-  it('maps a file entity: id is the entry file, name drops the extension', () => {
-    const graph = makeGraph({
-      nodes: { 'src/util.ts': { kind: 'file', isEntity: true } },
-    });
-    expect(deriveSuppressEntities(graph, sources)).toEqual([
-      { id: 'src/util.ts', name: 'util', entryFilePath: 'src/util.ts' },
-    ]);
-  });
-
-  it('drops a .tsx extension from a file entity name', () => {
-    const graph = makeGraph({
-      nodes: { 'src/Icon.tsx': { kind: 'file', isEntity: true } },
-    });
-    expect(deriveSuppressEntities(graph, sources)[0]).toEqual({
-      id: 'src/Icon.tsx',
-      name: 'Icon',
-      entryFilePath: 'src/Icon.tsx',
-    });
-  });
-
-  it('maps a folder entity to its .tsx entry file when one exists', () => {
-    const graph = makeGraph({
-      nodes: { 'src/Widget': { kind: 'folder', isEntity: true } },
-    });
-    expect(deriveSuppressEntities(graph, sources)).toEqual([
-      { id: 'src/Widget', name: 'Widget', entryFilePath: 'src/Widget/Widget.tsx' },
-    ]);
-  });
-
-  it('falls back to the .ts entry file for a folder with no .tsx', () => {
-    const graph = makeGraph({
-      nodes: { 'src/Panel': { kind: 'folder', isEntity: true } },
-    });
-    expect(deriveSuppressEntities(graph, sources)).toEqual([
-      { id: 'src/Panel', name: 'Panel', entryFilePath: 'src/Panel/Panel.ts' },
-    ]);
-  });
 });
 
 // ── runCheck ─────────────────────────────────────────────────────────────────

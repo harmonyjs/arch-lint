@@ -7,6 +7,7 @@ import type { SuppressConfig } from '../config/types.js';
 import type { Location } from '../types.js';
 import { findAnchorDeclaration } from './anchor.js';
 import { type CollectedComment, collectSuppressComments } from './collect-comments.js';
+import type { SuppressEntity } from './entity-resolver.js';
 import { interpretSuppress } from './interpret.js';
 import { scanSuppressText } from './scan-text.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
@@ -17,11 +18,10 @@ import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './ty
  */
 export function parseEntitySuppress(
   entryFile: SourceFile,
-  entityName: string,
-  _entityId: string,
+  entity: SuppressEntity,
   config: SuppressConfig,
 ): EntitySuppressData {
-  const anchor = findAnchorDeclaration(entryFile, entityName);
+  const anchor = findAnchorDeclaration(entryFile, entity.name);
   if (anchor === null) {
     const stray = findStrayMarker(entryFile, config);
     return { valid: [], malformed: stray === null ? [] : [stray] };

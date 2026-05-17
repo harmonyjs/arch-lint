@@ -9,12 +9,12 @@ import type { FSWatcher } from 'chokidar';
 import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
-import { buildGraphFromSources } from '../graph/index.js';
+import { buildGraphFromSources, graphEntityResolver } from '../graph/index.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { formatReport } from '../report/index.js';
 import { buildSuppressIndex } from '../suppress/suppress-index.js';
-import { check, deriveSuppressEntities, resolveBaseline } from './check.js';
+import { check, resolveBaseline } from './check.js';
 
 /** Accumulates events and flushes them once after a quiet period. */
 export interface Debouncer<T> {
@@ -147,11 +147,7 @@ function render(
   baseline: BaselineFile | null,
   opts: WatchOptions,
 ): void {
-  const suppress = buildSuppressIndex(
-    sources.project,
-    config.suppress,
-    deriveSuppressEntities(graph, sources),
-  );
+  const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const result = check(graph, config, suppress, sources.project, undefined, baseline);
   if (config.runMode.watch.clearOnRerun) opts.clearScreen();
   opts.print(formatReport(result, config));
