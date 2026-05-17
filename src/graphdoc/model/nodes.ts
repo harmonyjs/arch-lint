@@ -5,6 +5,7 @@
  */
 
 import type { ResolvedConfig } from '#config/types.js';
+import { baseNameOf, dirOf } from '#entity-id/index.js';
 import { isRoleFolder, layerOf } from '#graph/index.js';
 import type { ConsumerGraph, Node } from '#graph/types.js';
 import type { NodeRole, RenderCluster, RenderNode } from '#graphdoc/types.js';
@@ -23,16 +24,10 @@ export class IdMint {
 /** Recognised barrel basenames. */
 const BARREL_NAMES = new Set(['index.ts', 'index.tsx']);
 
-/** Basename of a path. */
-export function basename(path: string): string {
-  const slash = path.lastIndexOf('/');
-  return slash === -1 ? path : path.slice(slash + 1);
-}
-
 /** Base render role of a graph node before convention-folder adjustment. */
 function baseRoleOf(node: Node): NodeRole {
   if (node.kind === 'folder') return 'component-folder';
-  if (BARREL_NAMES.has(basename(node.id))) return 'barrel';
+  if (BARREL_NAMES.has(baseNameOf(node.id))) return 'barrel';
   if (node.isEntity) return 'entity-file';
   return 'plain-file';
 }
@@ -43,7 +38,7 @@ export function folderNote(
   fileoverviews: ReadonlyMap<string, string | null>,
 ): string | null {
   for (const file of folder.files) {
-    if (BARREL_NAMES.has(basename(file))) {
+    if (BARREL_NAMES.has(baseNameOf(file))) {
       return fileoverviews.get(file) ?? null;
     }
   }
@@ -82,8 +77,7 @@ export interface ProjectionContext {
 function roleFromTree(id: string, node: Node, ctx: ProjectionContext): NodeRole {
   const base = baseRoleOf(node);
   if (base !== 'plain-file' && base !== 'entity-file') return base;
-  const dir = id.slice(0, id.lastIndexOf('/'));
-  if (isRoleFolder(basename(dir), ctx.config.conventions)) return 'role-folder';
+  if (isRoleFolder(baseNameOf(dirOf(id)), ctx.config.conventions)) return 'role-folder';
   return base;
 }
 
@@ -91,7 +85,7 @@ function roleFromTree(id: string, node: Node, ctx: ProjectionContext): NodeRole 
 export function makeRenderNode(id: string, mint: IdMint, ctx: ProjectionContext): RenderNode {
   const node = ctx.graph.nodes.get(id);
   return {
-    ...baseNode(mint.next(), id, basename(id)),
+    ...baseNode(mint.next(), id, baseNameOf(id)),
     role: node !== undefined ? roleFromTree(id, node, ctx) : 'plain-file',
     layer: layerOf(id, ctx.config.layers),
     placement: node?.placementMode ?? 'reactive',
