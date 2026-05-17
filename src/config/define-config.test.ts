@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Config } from './config/types.js';
+import type { Config } from './types.js';
 import { defineConfig } from './define-config.js';
 
 describe('defineConfig', () => {

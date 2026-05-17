@@ -1,2 +1,2 @@
-import { defineConfig } from '../../../../define-config.js';
+import { defineConfig } from '../../../define-config.js';
 export default defineConfig({ project: { tsconfig: './tsconfig.json' } });

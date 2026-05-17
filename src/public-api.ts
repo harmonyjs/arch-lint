@@ -33,7 +33,7 @@ export type {
   WatchRunMode,
 } from './config/types.js';
 // Function — config helper
-export { defineConfig } from './define-config.js';
+export { defineConfig } from './config/define-config.js';
 // Function — graph builder
 export { buildGraph } from './graph/index.js';
 // Types — graph module (Resolution excluded — internal resolver helper)
