@@ -44,8 +44,8 @@ vi.mock('../report/cli.js', () => ({
 
 const checkMock = vi.fn();
 const resolveBaselineMock = vi.fn();
-vi.mock('./index.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./index.js')>();
+vi.mock('./check.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./check.js')>();
   return {
     ...actual,
     check: (...args: unknown[]): unknown => checkMock(...args),

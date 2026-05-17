@@ -15,7 +15,7 @@ import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { formatReport } from '../report/cli.js';
 import { buildSuppressIndex } from '../suppress/suppress-index.js';
-import { check, deriveSuppressEntities, resolveBaseline } from './index.js';
+import { check, deriveSuppressEntities, resolveBaseline } from './check.js';
 
 /** Accumulates events and flushes them once after a quiet period. */
 export interface Debouncer<T> {

@@ -14,7 +14,7 @@ vi.mock('../rules/engine.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 
-const { check } = await import('./index.js');
+const { check } = await import('./check.js');
 
 /** A sentinel CheckResult the mocked engine returns. */
 const engineResult: CheckResult = {

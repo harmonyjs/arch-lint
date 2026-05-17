@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { BaselineFile } from '../baseline/types.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { ConfigError } from '../errors.js';
-import { resolveBaseline } from './index.js';
+import { resolveBaseline } from './check.js';
 
 let dir: string;
 
