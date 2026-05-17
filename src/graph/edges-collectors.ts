@@ -4,9 +4,13 @@
  */
 import type { ImportDeclaration, Node } from 'ts-morph';
 import type { Location } from '../types.js';
+import {
+  fileIdOf,
+  moduleResolutionContextOf,
+  type SourceFileSet,
+} from './discover-source-files.js';
 import { resolveSpecifier } from './module-resolution.js';
 import type { Resolver } from './resolve.js';
-import { fileIdOf, moduleResolutionContextOf, type SourceFileSet } from './discover-source-files.js';
 import type { Edge, Resolution, UnresolvedImport } from './types.js';
 
 /** Mutable accumulators threaded through the per-file edge collectors. */

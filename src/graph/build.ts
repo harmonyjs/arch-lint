@@ -4,11 +4,15 @@
  */
 import type { ResolvedConfig } from '../config/types.js';
 import { freezeGraph } from './consumer-graph.js';
+import {
+  loadSourceFiles,
+  moduleResolutionContextOf,
+  type SourceFileSet,
+} from './discover-source-files.js';
 import { buildEdges } from './edges.js';
 import type { EntityContext } from './entities.js';
 import { buildNodes } from './nodes.js';
 import { createResolver } from './resolve.js';
-import { loadSourceFiles, moduleResolutionContextOf, type SourceFileSet } from './discover-source-files.js';
 import type { ConsumerGraph } from './types.js';
 
 /**

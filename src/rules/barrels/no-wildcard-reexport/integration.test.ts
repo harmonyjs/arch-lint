@@ -5,8 +5,8 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { resolveConfig } from '../../../config/index.js';
-import { buildGraph } from '../../../graph/index.js';
 import { loadSourceFiles } from '../../../graph/discover-source-files.js';
+import { buildGraph } from '../../../graph/index.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { noWildcardReexport } from './index.js';
 

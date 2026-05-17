@@ -6,8 +6,8 @@
 import picomatch from 'picomatch';
 import { type SourceFile, Node as TsNode } from 'ts-morph';
 import type { ConventionsConfig, ExplicitPlacementRule } from '../config/types.js';
-import { type EntityContext, isComponentFolder } from './entities.js';
 import type { SourceFileSet } from './discover-source-files.js';
+import { type EntityContext, isComponentFolder } from './entities.js';
 import type { Node } from './types.js';
 
 /** True if a source file consists solely of re-export declarations (a pure barrel). */

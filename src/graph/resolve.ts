@@ -3,10 +3,10 @@
  * native declaration without invoking the TypeScript type-checker.
  */
 
+import type { SourceFileSet } from './discover-source-files.js';
 import type { ModuleResolutionContext } from './module-resolution.js';
 import { findNativeDeclaration } from './resolve-declarations.js';
 import { type ReExportContext, resolveReExport } from './resolve-reexports.js';
-import type { SourceFileSet } from './discover-source-files.js';
 import type { Resolution } from './types.js';
 
 export interface ResolverContext {

@@ -133,7 +133,9 @@ describe('ui-cluster-membership', () => {
   });
 
   it('applies its option defaults when the context carries no options', () => {
-    const graph = graphFor({ 'src/App/App.tsx': `import { useButton } from '@react-aria/button';` });
+    const graph = graphFor({
+      'src/App/App.tsx': `import { useButton } from '@react-aria/button';`,
+    });
     const emptyCtx = makeContext<UiClusterMembershipOptions>('ui-cluster-membership', {
       severity: 'error',
       project: graph.project,
