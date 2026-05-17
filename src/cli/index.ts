@@ -112,9 +112,12 @@ export function buildProgram(): Command {
     .description('watch the project and re-run the check on every change')
     .action(async (_local: unknown, cmd: Command) => {
       const globals = cmd.optsWithGlobals() as GlobalOptions;
-      await runWatchCommand({
+      const session = await runWatchCommand({
         cwd: process.cwd(),
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
+      });
+      process.once('SIGINT', () => {
+        void session.close().then(() => process.exit(0));
       });
     });
 

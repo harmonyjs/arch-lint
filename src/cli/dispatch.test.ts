@@ -98,4 +98,34 @@ describe('runCli', () => {
     expect(runBaselinePruneMock).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(2);
   });
+
+  it('closes the watch session when SIGINT is received', async () => {
+    let resolveClose: (() => void) | undefined;
+    const close = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveClose = resolve;
+        }),
+    );
+    runWatchCommandMock.mockResolvedValue({ close });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    try {
+      await runCli(argv('watch'));
+
+      expect(runWatchCommandMock).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+
+      process.emit('SIGINT');
+
+      expect(close).toHaveBeenCalledTimes(1);
+
+      resolveClose?.();
+      await Promise.resolve();
+
+      expect(exitSpy).toHaveBeenCalledWith(0);
+    } finally {
+      exitSpy.mockRestore();
+    }
+  });
 });
