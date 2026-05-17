@@ -13,7 +13,7 @@ import type { ResolvedConfig } from '../config/types.js';
 import { buildGraphFromSources } from '../graph/build.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
-import { formatReport } from '../report/cli.js';
+import { formatReport } from '../report/format.js';
 import { buildSuppressIndex } from '../suppress/suppress-index.js';
 import { check, deriveSuppressEntities, resolveBaseline } from './check.js';
 

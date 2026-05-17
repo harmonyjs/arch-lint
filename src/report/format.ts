@@ -1,5 +1,5 @@
 /**
- * @fileoverview CLI reporter — the single arch-lint output format. Renders
+ * @fileoverview Report formatter — the single arch-lint output format. Renders
  * diagnostics grouped by ruleId, with colour, OSC8 hyperlinks and long
  * consumer lists folded. Pure: takes a CheckResult and config, returns a string.
  */

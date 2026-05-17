@@ -16,7 +16,7 @@ import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors.
 import { buildGraphFromSources } from '../graph/build.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
-import { formatReport } from '../report/cli.js';
+import { formatReport } from '../report/format.js';
 import { runEngine } from '../rules/engine.js';
 import type { CheckResult } from '../rules/types.js';
 import { buildSuppressIndex, type SuppressEntity } from '../suppress/suppress-index.js';

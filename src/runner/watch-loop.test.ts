@@ -38,7 +38,7 @@ vi.mock('../suppress/suppress-index.js', () => ({
 }));
 
 const formatReportMock = vi.fn();
-vi.mock('../report/cli.js', () => ({
+vi.mock('../report/format.js', () => ({
   formatReport: (...args: unknown[]): unknown => formatReportMock(...args),
 }));
 

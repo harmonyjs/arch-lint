@@ -2,7 +2,7 @@
  * @fileoverview Tests for long consumer-list folding.
  */
 import { describe, expect, it } from 'vitest';
-import { foldConsumers } from './cli.js';
+import { foldConsumers } from './format.js';
 
 describe('foldConsumers', () => {
   it('keeps lists of 5 or fewer entries intact', () => {
