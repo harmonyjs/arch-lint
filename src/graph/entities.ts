@@ -3,6 +3,7 @@
  * folders and component folders, and projects file edges onto the entity tree.
  */
 import type { ConventionsConfig } from '#config/types.js';
+import { baseNameOf, dirOf, firstSegment } from '#entity-id/index.js';
 import type { SourceFileSet } from './discover-source-files.js';
 import type { Edge } from './types.js';
 
@@ -25,7 +26,7 @@ export function isRoleFolder(folderName: string, conventions: ConventionsConfig)
 
 /** True if `folderId` is a component folder — a folder with a same-name entry file. */
 export function isComponentFolder(folderId: string, ctx: EntityContext): boolean {
-  const folderName = folderId.slice(folderId.lastIndexOf('/') + 1);
+  const folderName = baseNameOf(folderId);
   return (
     ctx.sources.files.has(`${folderId}/${folderName}.ts`) ||
     ctx.sources.files.has(`${folderId}/${folderName}.tsx`)
@@ -38,28 +39,14 @@ export function isComponentFolder(folderId: string, ctx: EntityContext): boolean
  * is a standalone entity.
  */
 export function entityOf(fileId: string, ctx: EntityContext): string {
-  const lastSlash = fileId.lastIndexOf('/');
-  if (lastSlash < 0) {
-    return fileId;
-  }
-  let folder = fileId.slice(0, lastSlash);
+  let folder = dirOf(fileId);
   while (folder.length > 0) {
     if (isComponentFolder(folder, ctx)) {
       return folder;
     }
-    const parentSlash = folder.lastIndexOf('/');
-    if (parentSlash < 0) {
-      break;
-    }
-    folder = folder.slice(0, parentSlash);
+    folder = dirOf(folder);
   }
   return fileId;
-}
-
-/** Returns the first path segment of `id` — used as the layer-root fallback. */
-function firstSegment(id: string): string {
-  const slash = id.indexOf('/');
-  return slash < 0 ? id : id.slice(0, slash);
 }
 
 /**
@@ -69,9 +56,9 @@ function firstSegment(id: string): string {
  */
 export function componentParent(entityId: string, ctx: EntityContext): string {
   const isFile = entityId.includes('.') && ctx.sources.files.has(entityId);
-  let folder = isFile ? entityId.slice(0, entityId.lastIndexOf('/')) : entityId;
+  let folder = isFile ? dirOf(entityId) : entityId;
   while (folder.includes('/')) {
-    folder = folder.slice(0, folder.lastIndexOf('/'));
+    folder = dirOf(folder);
     if (folder.length === 0) {
       break;
     }
