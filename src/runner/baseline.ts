@@ -9,12 +9,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
-import {
-  diffBaseline,
-  pruneBaseline,
-  snapshotBaseline,
-  writeBaseline,
-} from '../baseline/index.js';
+import { diffBaseline, pruneBaseline, snapshotBaseline, writeBaseline } from '../baseline/index.js';
 import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
