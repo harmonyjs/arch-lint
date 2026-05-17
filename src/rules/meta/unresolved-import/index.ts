@@ -1,8 +1,8 @@
 /**
  * @fileoverview unresolved-import rule — reports internal imports the resolver could not unwind.
  */
-import type { Diagnostic, Rule } from '../../../types.js';
-
+import type { Rule } from '../../types.js';
+import type { Diagnostic } from '../../../types.js';
 /** Rule: every entry in graph.unresolved is a lost consumer edge worth reporting. */
 export const unresolvedImportRule: Rule = {
   id: 'unresolved-import',

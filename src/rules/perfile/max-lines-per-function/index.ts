@@ -2,7 +2,8 @@
  * @fileoverview max-lines-per-function rule — caps the line count of a single function.
  * Reads file AST from the RuleContext project (decision D9).
  */
-import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
+import type { Rule, RuleContext } from '../../types.js';
+import type { Diagnostic } from '../../../types.js';
 import { functionLocation, scanFunctions } from '../support/scan-functions.js';
 
 /** Options of max-lines-per-function. */

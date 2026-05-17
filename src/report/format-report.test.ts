@@ -3,7 +3,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
-import type { CheckResult, Diagnostic } from '../types.js';
+import type { CheckResult } from '../rules/types.js';
+import type { Diagnostic } from '../types.js';
 import { formatReport } from './cli.js';
 
 function cfg(): ResolvedConfig {

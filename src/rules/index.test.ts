@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
-import type { Rule } from '../types.js';
+import type { Rule } from './types.js';
 import { allRules, getActiveRules } from './index.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {

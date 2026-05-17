@@ -6,7 +6,8 @@
 import picomatch from 'picomatch';
 import type { SourceFile } from 'ts-morph';
 import { Node } from 'ts-morph';
-import type { Diagnostic, Location, Rule, RuleContext } from '../../../types.js';
+import type { Rule, RuleContext } from '../../types.js';
+import type { Diagnostic, Location } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
 
 /** Options of no-default-export. */

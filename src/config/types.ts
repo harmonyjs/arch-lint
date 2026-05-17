@@ -3,7 +3,7 @@
  * fully-defaulted ResolvedConfig, plus every per-section shape. ResolvedConfig
  * is consumed cross-subsystem; the rest is config-internal lexicon.
  */
-import type { Rule } from '../types.js';
+import type { Rule } from '../rules/types.js';
 import type { Severity } from '../types.js';
 
 export type Pack = 'layers' | 'barrels' | 'placement' | 'perfile' | 'hygiene' | 'view' | 'meta';

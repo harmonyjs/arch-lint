@@ -46,24 +46,25 @@ export type {
 // ── Types: baseline ──────────────────────────────────────────────────────────
 export type { BaselineFile, BaselineRecord } from './baseline/types.js';
 
+// ── Types: rules ─────────────────────────────────────────────────────────────
+export type {
+  CheckResult,
+  ConsumerInfo,
+  Rule,
+  RuleContext,
+  RuleEngine,
+  Suggestion,
+} from './rules/types.js';
+
 // ── Types: core ──────────────────────────────────────────────────────────────
 export type {
   ActiveSeverity,
-  // Runner
-  CheckResult,
-  // Diagnostics
-  ConsumerInfo,
   Diagnostic,
   // Graph
   Location,
   // Suppress
   ParsedSuppress,
-  // Rules
-  Rule,
-  RuleContext,
-  RuleEngine,
   // Primitives
   Severity,
-  Suggestion,
   SuppressIndex,
 } from './types.js';

@@ -3,7 +3,8 @@
  * the folder's own entity (decision D7). Reads AST from the RuleContext project (D9).
  */
 import type { ConsumerGraph } from '../../../graph/types.js';
-import type { Diagnostic, Location, Rule } from '../../../types.js';
+import type { Rule } from '../../types.js';
+import type { Diagnostic, Location } from '../../../types.js';
 import { importsOf } from '../../syntactic-support/import-info.js';
 import { isBarrelFile } from '../../syntactic-support/node-helpers.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';

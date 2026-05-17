@@ -10,7 +10,8 @@ import { GraphBuildError } from '../errors.js';
 import { makeGraph } from '../rules/test-support/make-graph.js';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
-import type { CheckResult, Diagnostic } from '../types.js';
+import type { CheckResult } from '../rules/types.js';
+import type { Diagnostic } from '../types.js';
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 
 const loadConfigMock = vi.fn();

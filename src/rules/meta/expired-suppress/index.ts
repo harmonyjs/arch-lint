@@ -1,8 +1,8 @@
 /**
  * @fileoverview expired-suppress rule — reports expired or malformed @arch-decision comments.
  */
-import type { Diagnostic, ParsedSuppress, Rule } from '../../../types.js';
-
+import type { Rule } from '../../types.js';
+import type { Diagnostic, ParsedSuppress } from '../../../types.js';
 /** Deterministic djb2 hash of a string, rendered as a hex digest. */
 function hashReason(reason: string): string {
   let hash = 5381;

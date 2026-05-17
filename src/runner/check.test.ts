@@ -6,7 +6,8 @@ import { describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import type { BaselineFile } from '../baseline/types.js';
-import type { CheckResult, SuppressIndex } from '../types.js';
+import type { CheckResult } from '../rules/types.js';
+import type { SuppressIndex } from '../types.js';
 const runEngineMock = vi.fn();
 vi.mock('../rules/engine.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),

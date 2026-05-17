@@ -4,8 +4,8 @@
  * onto a process-pure shape. `runCheck` is mocked at its module seam.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { CheckResult, Diagnostic } from '../../types.js';
-
+import type { CheckResult } from '../../rules/types.js';
+import type { Diagnostic } from '../../types.js';
 const runCheckMock = vi.fn();
 vi.mock('../../runner/index.js', () => ({
   runCheck: (...args: unknown[]): unknown => runCheckMock(...args),
