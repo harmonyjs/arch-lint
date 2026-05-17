@@ -35,7 +35,7 @@ export type {
 // Function — config helper
 export { defineConfig } from './define-config.js';
 // Function — graph builder
-export { buildGraph } from './graph/build.js';
+export { buildGraph } from './graph/index.js';
 // Types — graph module (Resolution excluded — internal resolver helper)
 export type {
   ConsumerGraph,
