@@ -71,23 +71,8 @@ function writeStderr(lines: readonly string[]): void {
 /** ANSI escape sequence that clears the screen, its scrollback, and homes the cursor. */
 const CLEAR_SCREEN = '\x1B[2J\x1B[3J\x1B[H';
 
-/**
- * Builds the arch-lint commander program: the named root with its five global
- * options and the four commands. Each command's `.action` reads the merged
- * global+local options via `optsWithGlobals()`, delegates to its adapter, and
- * applies the resulting stdout/stderr/exit code.
- */
-export function buildProgram(): Command {
-  const program = new Command();
-  program
-    .name('arch-lint')
-    .description('Static architecture linter for TypeScript projects')
-    .option('--config <path>', 'path to the arch-lint config file')
-    .option('--rules <ids>', 'comma-separated rule ids to run')
-    .option('--base <ref>', 'git base ref for changed-only runs')
-    .option('--no-baseline', 'ignore the baseline file — treat every violation as new')
-    .option('--debug', 'enable verbose diagnostic output');
-
+/** Registers the `check` command — the architecture run, optionally changed-only. */
+function registerCheckCommand(program: Command): void {
   program
     .command('check')
     .description('run the architecture check')
@@ -107,7 +92,10 @@ export function buildProgram(): Command {
       writeStderr(outcome.stderr);
       process.exitCode = outcome.exitCode;
     });
+}
 
+/** Registers the `watch` command — re-runs the check on every file change. */
+function registerWatchCommand(program: Command): void {
   program
     .command('watch')
     .description('watch the project and re-run the check on every change')
@@ -128,7 +116,10 @@ export function buildProgram(): Command {
         void session.close().then(() => process.exit(0));
       });
     });
+}
 
+/** Registers the `baseline` command and its `init`/`diff`/`prune` subcommands. */
+function registerBaselineCommand(program: Command): void {
   const baseline = program
     .command('baseline')
     .description('manage the baseline file of pre-existing violations');
@@ -177,7 +168,10 @@ export function buildProgram(): Command {
       process.stdout.write(`${outcome.stdout}\n`);
       process.exitCode = outcome.exitCode;
     });
+}
 
+/** Registers the `explain` command — prints a single rule's documentation. */
+function registerExplainCommand(program: Command): void {
   program
     .command('explain')
     .description("print a rule's documentation")
@@ -187,6 +181,29 @@ export function buildProgram(): Command {
       process.stdout.write(`${outcome.stdout}\n`);
       process.exitCode = outcome.exitCode;
     });
+}
+
+/**
+ * Builds the arch-lint commander program: the named root with its five global
+ * options and the four commands. Each command's `.action` reads the merged
+ * global+local options via `optsWithGlobals()`, delegates to its adapter, and
+ * applies the resulting stdout/stderr/exit code.
+ */
+export function buildProgram(): Command {
+  const program = new Command();
+  program
+    .name('arch-lint')
+    .description('Static architecture linter for TypeScript projects')
+    .option('--config <path>', 'path to the arch-lint config file')
+    .option('--rules <ids>', 'comma-separated rule ids to run')
+    .option('--base <ref>', 'git base ref for changed-only runs')
+    .option('--no-baseline', 'ignore the baseline file — treat every violation as new')
+    .option('--debug', 'enable verbose diagnostic output');
+
+  registerCheckCommand(program);
+  registerWatchCommand(program);
+  registerBaselineCommand(program);
+  registerExplainCommand(program);
 
   return program;
 }
