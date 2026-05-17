@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
 import { makeGraph } from '../rules/test-support/make-graph.js';
 import { buildGraphDoc } from './model.js';
+import { slugOf } from './model-tree.js';
 
 function cfg(): ResolvedConfig {
   return {
@@ -373,5 +374,19 @@ describe('buildGraphDoc', () => {
     const doc = buildGraphDoc(graph, new Map(), cfg(), { subsystem: 'a' });
     const section = doc.sections.find((s) => s.slug === 'a');
     expect(section?.diagram.nodes.some((n) => n.role === 'unresolved')).toBe(false);
+  });
+});
+
+describe('slugOf', () => {
+  it('maps the source root to overview', () => {
+    expect(slugOf('src', 'src')).toBe('overview');
+  });
+
+  it('joins nested path segments with a hyphen', () => {
+    expect(slugOf('src/a/b', 'src')).toBe('a-b');
+  });
+
+  it('does not collide a hyphenated folder name with a nested path', () => {
+    expect(slugOf('src/a-b', 'src')).not.toBe(slugOf('src/a/b', 'src'));
   });
 });

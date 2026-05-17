@@ -84,10 +84,18 @@ export function buildFolderTree(graph: ConsumerGraph, root: string): FolderTree 
   return tree;
 }
 
-/** Slug of a folder path: `/` → `-`; the source root maps to `overview`. */
+/**
+ * Slug of a folder path: each segment's `-` is escaped to `_`, then segments are
+ * joined with `-`, so a folder named `a-b` cannot collide with the path `a/b`.
+ * The source root maps to `overview`.
+ */
 export function slugOf(folderPath: string, root: string): string {
   if (folderPath === root) return 'overview';
-  return folderPath.slice(root.length + 1).replace(/\//g, '-');
+  return folderPath
+    .slice(root.length + 1)
+    .split('/')
+    .map((segment) => segment.replace(/-/g, '_'))
+    .join('-');
 }
 
 /** Heading title of a folder: `root` → "Overview", else slash-separated. */
