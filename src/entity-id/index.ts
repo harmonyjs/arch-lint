@@ -16,3 +16,9 @@ export function baseNameOf(id: string): string {
   const slash = id.lastIndexOf('/');
   return slash === -1 ? id : id.slice(slash + 1);
 }
+
+/** Strip the last extension only: `a.test.ts` -> `a.test`. A leading dot is kept. */
+export function dropExtension(baseName: string): string {
+  const dot = baseName.lastIndexOf('.');
+  return dot > 0 ? baseName.slice(0, dot) : baseName;
+}

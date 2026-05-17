@@ -33,3 +33,21 @@ describe('baseNameOf', () => {
     expect(baseNameOf('index.ts')).toBe('index.ts');
   });
 });
+
+describe('dropExtension', () => {
+  it('strips only the last extension', () => {
+    expect(dropExtension('App.test.tsx')).toBe('App.test');
+  });
+
+  it('strips a single extension', () => {
+    expect(dropExtension('login.ts')).toBe('login');
+  });
+
+  it('returns the name unchanged when there is no extension', () => {
+    expect(dropExtension('Makefile')).toBe('Makefile');
+  });
+
+  it('does not strip a leading dot (dotfile)', () => {
+    expect(dropExtension('.gitignore')).toBe('.gitignore');
+  });
+});
