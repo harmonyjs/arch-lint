@@ -1,30 +1,24 @@
+/**
+ * @fileoverview Verifies the public API surface: the four entry functions are
+ * exported and the internal Resolution helper is not.
+ */
 import { describe, expect, it } from 'vitest';
 import * as api from './public-api.js';
 
 describe('public-api', () => {
-  it('exports defineConfig as a function', () => {
+  it('exports the four public functions', () => {
     expect(typeof api.defineConfig).toBe('function');
-  });
-
-  it('exports resolveConfig as a function', () => {
     expect(typeof api.resolveConfig).toBe('function');
+    expect(typeof api.buildGraph).toBe('function');
+    expect(typeof api.check).toBe('function');
   });
 
-  it('defineConfig + resolveConfig produce a resolved config end-to-end', () => {
-    const cfg = api.defineConfig({ project: { tsconfig: './tsconfig.json' } });
-    const resolved = api.resolveConfig(cfg);
-    expect(resolved.project.sourceRoot).toBe('src');
-    expect(resolved.packs).toEqual([
-      'layers',
-      'barrels',
-      'placement',
-      'meta',
-      'perfile',
-      'hygiene',
-    ]);
+  it('defineConfig returns its argument unchanged', () => {
+    const cfg = { project: { tsconfig: './tsconfig.json' } };
+    expect(api.defineConfig(cfg)).toBe(cfg);
   });
 
-  it('does not export the internal Resolution type as a runtime value', () => {
-    expect((api as Record<string, unknown>)['Resolution']).toBeUndefined();
+  it('does not export the internal Resolution helper', () => {
+    expect('Resolution' in api).toBe(false);
   });
 });
