@@ -10,6 +10,7 @@
  *    for entities physically inside one of those folders.
  */
 import type { ResolvedConfig } from '#config/types.js';
+import { isUnderSegment } from '#entity-id/index.js';
 import { layerOf } from '#graph/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import { componentParentOf, lca } from './tree.js';
@@ -51,11 +52,6 @@ function nameOf(id: string): string {
   const segs = id.split('/');
   // `String.prototype.split` always yields at least one element.
   return segs[segs.length - 1] ?? id;
-}
-
-/** True when any path segment of `id` equals `segment`. */
-function isUnderSegment(id: string, segment: string): boolean {
-  return id.split('/').includes(segment);
 }
 
 /** True when `entity` sits within the subtree rooted at directory `root`. */
