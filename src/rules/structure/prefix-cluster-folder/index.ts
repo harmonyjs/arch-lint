@@ -2,7 +2,7 @@
  * @fileoverview prefix-cluster-folder rule — flags a directory where three or more
  * sibling files share a `<prefix>-` name, a hidden subsystem that wants its own folder.
  */
-import { baseNameOf, dirOf, stemOf } from '#entity-id/index.js';
+import { baseNameOf, dirOf, stemOf } from '#entity-id.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import { isTestFile } from '#rules/structure/support/test-file.js';
 import { fileNodeIds } from '#rules/syntactic-support/find-source-file.js';

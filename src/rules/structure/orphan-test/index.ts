@@ -3,7 +3,7 @@
  * `<name>` source sibling, a test co-located with nothing it tests.
  */
 
-import { baseNameOf, dirOf, stemOf } from '#entity-id/index.js';
+import { baseNameOf, dirOf, stemOf } from '#entity-id.js';
 import { isTestFile } from '#rules/structure/support/test-file.js';
 import { fileNodeIds } from '#rules/syntactic-support/find-source-file.js';
 import type { GraphRule, GraphRuleContext } from '#rules/types.js';

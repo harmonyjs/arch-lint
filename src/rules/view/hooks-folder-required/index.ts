@@ -3,7 +3,7 @@
  * (decision D7). The view pack is parametrized by config — no hardcoded React naming.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { baseNameOf, folderOf } from '#entity-id/index.js';
+import { baseNameOf, folderOf } from '#entity-id.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
 import { isUnderSegment } from '#rules/syntactic-support/segments.js';

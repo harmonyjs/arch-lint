@@ -3,7 +3,7 @@
  * the under-segment test now live in `src/entity-id/`; they are re-exported here
  * so the barrels and view packs keep importing them from one place.
  */
-import { isUnderSegment, segmentsOf } from '#entity-id/index.js';
+import { isUnderSegment, segmentsOf } from '#entity-id.js';
 
 export { isUnderSegment, segmentsOf };
 

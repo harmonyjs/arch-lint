@@ -5,7 +5,7 @@
  */
 
 import type { ResolvedConfig } from '#config/types.js';
-import { baseNameOf, dirOf } from '#entity-id/index.js';
+import { baseNameOf, dirOf } from '#entity-id.js';
 import { isRoleFolder, layerOf } from '#graph/index.js';
 import type { ConsumerGraph, Node } from '#graph/types.js';
 import type { NodeRole, RenderCluster, RenderNode } from '#graphdoc/types.js';

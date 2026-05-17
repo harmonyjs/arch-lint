@@ -3,7 +3,7 @@
  * must own a barrel (decision D6). A structural check over the graph node set.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { folderOf } from '#entity-id/index.js';
+import { folderOf } from '#entity-id.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import {
   isComponentFolderEntry,

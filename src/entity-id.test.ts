@@ -12,7 +12,7 @@ import {
   isUnderSegment,
   segmentsOf,
   stemOf,
-} from './index.js';
+} from './entity-id.js';
 
 describe('dirOf', () => {
   it('returns the directory portion of a nested file id', () => {

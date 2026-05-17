@@ -21,7 +21,7 @@ export default defineConfig({
     'cross-cutting-concern': {
       severity: 'info',
       maxSubsystems: 5,
-      allow: ['src/types.ts', 'src/config/types.ts', 'src/entity-id/index.ts'],
+      allow: ['src/types.ts', 'src/config/types.ts', 'src/entity-id.ts'],
     },
   },
 });

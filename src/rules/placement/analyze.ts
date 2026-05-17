@@ -10,7 +10,7 @@
  *    for entities physically inside one of those folders.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { isUnderSegment } from '#entity-id/index.js';
+import { isUnderSegment } from '#entity-id.js';
 import { layerOf } from '#graph/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import { componentParentOf, lca } from './tree.js';
