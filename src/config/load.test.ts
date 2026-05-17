@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { ConfigError } from '../errors.js';
 import { loadConfig } from './load.js';
 
-const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '__tests__', 'fixtures');
+const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 
 describe('loadConfig — file loaders', () => {
   it('loads a .ts config via jiti', async () => {
