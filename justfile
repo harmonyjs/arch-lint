@@ -29,5 +29,13 @@ fmt:
     npx biome format --write .
 
 # Lint + format check with Biome (no writes)
-check:
+check-biome:
     npx biome check .
+
+# Lint arch-lint with itself (requires a built dist/)
+lint:
+    npm run build
+    node bin/arch-lint.js check
+
+# Build, type-check and test in one shot
+check: typecheck test
