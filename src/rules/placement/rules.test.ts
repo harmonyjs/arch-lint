@@ -11,6 +11,7 @@ import { placementRuleDescriptors } from './rules.js';
 
 function cfg(): ResolvedConfig {
   return {
+    project: { sourceRoot: 'src' },
     conventions: {
       privateSegment: 'slots',
       sharedSegment: 'items',

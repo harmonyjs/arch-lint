@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for analyzePlacement — the §7.3 decision tree (D3).
+ * @fileoverview Tests for analyzePlacement — the placement decision tree.
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../config/types.js';
@@ -9,6 +9,7 @@ import { componentParentOf } from './tree.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   return {
+    project: { sourceRoot: 'src' },
     conventions: {
       privateSegment: 'slots',
       sharedSegment: 'items',
@@ -24,7 +25,7 @@ function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   } as ResolvedConfig;
 }
 
-describe('analyzePlacement gate (§7.2)', () => {
+describe('analyzePlacement gate', () => {
   it('abstains for explicit-placement entities', () => {
     const g = makeGraph({
       nodes: { 'src/App/X': { kind: 'folder', isEntity: true, placementMode: 'explicit' } },
@@ -65,24 +66,76 @@ describe('analyzePlacement gate (§7.2)', () => {
   });
 });
 
-describe('analyzePlacement shared branch (n >= promotionThreshold)', () => {
-  it('expects items/ under the LCA when two consumers share an ancestor', () => {
+describe('analyzePlacement lca-placement — universal locality invariant', () => {
+  it('abstains when the entity sits within the LCA subtree of its consumers', () => {
     const g = makeGraph({
       nodes: {
         'src/App': { kind: 'folder', isEntity: true },
-        'src/App/Header': { kind: 'folder', isEntity: true },
-        'src/App/Footer': { kind: 'folder', isEntity: true },
-        'src/App/Misplaced': { kind: 'folder', isEntity: true },
+        'src/App/Deep': { kind: 'folder', isEntity: true },
+        'src/App/Deep/A': { kind: 'folder', isEntity: true },
+        'src/App/Deep/A/X': { kind: 'folder', isEntity: true },
+        'src/App/Deep/B': { kind: 'folder', isEntity: true },
+        'src/App/Deep/B/Y': { kind: 'folder', isEntity: true },
+        'src/App/Deep/Within': { kind: 'folder', isEntity: true },
       },
-      entityConsumers: { 'src/App/Misplaced': ['src/App/Header', 'src/App/Footer'] },
+      entityConsumers: { 'src/App/Deep/Within': ['src/App/Deep/A/X', 'src/App/Deep/B/Y'] },
     });
-    const v = analyzePlacement(g, cfg()).get('src/App/Misplaced');
-    expect(v?.expected).toBe('src/App/items/Misplaced');
-    expect(v?.actual).toBe('src/App/Misplaced');
-    expect(v?.consumers).toEqual(['src/App/Header', 'src/App/Footer']);
+    // LCA(A/X, B/Y) = src/App/Deep; Within is `src/App/Deep/Within`, inside that subtree.
+    // Within's component parent is src/App/Deep, the consumers' is A/B — not siblings.
+    expect(analyzePlacement(g, cfg()).has('src/App/Deep/Within')).toBe(false);
   });
 
-  it('expects items/ at the layer root when consumers have no common entity ancestor', () => {
+  it('abstains when the entity IS the LCA of its consumers', () => {
+    const g = makeGraph({
+      nodes: {
+        'src/App': { kind: 'folder', isEntity: true },
+        'src/App/Panel': { kind: 'folder', isEntity: true },
+        'src/App/Panel/A': { kind: 'folder', isEntity: true },
+        'src/App/Panel/B': { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { 'src/App/Panel': ['src/App/Panel/A', 'src/App/Panel/B'] },
+    });
+    // Consumers minus self-descendants is empty -> abstains regardless.
+    expect(analyzePlacement(g, cfg()).has('src/App/Panel')).toBe(false);
+  });
+
+  it('flags the entity when it sits ABOVE the LCA of its consumers', () => {
+    const g = makeGraph({
+      nodes: {
+        'src/App': { kind: 'folder', isEntity: true },
+        'src/App/Deep': { kind: 'folder', isEntity: true },
+        'src/App/Deep/A': { kind: 'folder', isEntity: true },
+        'src/App/Deep/B': { kind: 'folder', isEntity: true },
+        'src/App/Stray': { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { 'src/App/Stray': ['src/App/Deep/A', 'src/App/Deep/B'] },
+    });
+    const v = analyzePlacement(g, cfg()).get('src/App/Stray');
+    expect(v?.ruleId).toBe('lca-placement');
+    expect(v?.expected).toBe('src/App/Deep');
+    expect(v?.actual).toBe('src/App/Stray');
+    expect(v?.consumers).toEqual(['src/App/Deep/A', 'src/App/Deep/B']);
+  });
+
+  it('flags the entity when it sits in a cousin branch of the LCA', () => {
+    const g = makeGraph({
+      nodes: {
+        'src/App': { kind: 'folder', isEntity: true },
+        'src/App/Left': { kind: 'folder', isEntity: true },
+        'src/App/Left/A': { kind: 'folder', isEntity: true },
+        'src/App/Left/B': { kind: 'folder', isEntity: true },
+        'src/App/Right': { kind: 'folder', isEntity: true },
+        'src/App/Right/Cousin': { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { 'src/App/Right/Cousin': ['src/App/Left/A', 'src/App/Left/B'] },
+    });
+    const v = analyzePlacement(g, cfg()).get('src/App/Right/Cousin');
+    expect(v?.ruleId).toBe('lca-placement');
+    // LCA(Left/A, Left/B) = src/App/Left; Cousin lives under src/App/Right.
+    expect(v?.expected).toBe('src/App/Left');
+  });
+
+  it('never emits lca-placement on a flat entity tree — every LCA is the layer root', () => {
     const g = makeGraph({
       nodes: {
         'src/App': { kind: 'folder', isEntity: true },
@@ -92,40 +145,73 @@ describe('analyzePlacement shared branch (n >= promotionThreshold)', () => {
       },
       entityConsumers: { 'src/App/Shared': ['src/App/A', 'src/App/B'] },
     });
-    const config = cfg({ layers: { 'src/App': { canImport: [] } } });
-    const v = analyzePlacement(g, config).get('src/App/Shared');
-    expect(v?.expected).toBe('src/App/items/Shared');
+    // LCA(A, B) = src/App; Shared is `src/App/Shared`, inside src/App's subtree.
+    // Any cross-import in a flat tree routes to siblings-forbidden, never lca-placement.
+    const v = analyzePlacement(g, cfg()).get('src/App/Shared');
+    expect(v?.ruleId).not.toBe('lca-placement');
   });
-});
 
-describe('analyzePlacement single-consumer branch (n == 1)', () => {
-  it('expects slots/ under the owner when there is exactly one consumer', () => {
+  it('uses the source root as the LCA when consumers share no entity ancestor', () => {
+    const g = makeGraph({
+      nodes: {
+        'src/A': { kind: 'folder', isEntity: true },
+        'src/B': { kind: 'folder', isEntity: true },
+        'src/Stray/Deep': { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { 'src/Stray/Deep': ['src/A', 'src/B'] },
+    });
+    // LCA(A, B) = null -> source root `src`; Deep is inside `src`, so it abstains.
+    expect(analyzePlacement(g, cfg()).has('src/Stray/Deep')).toBe(false);
+  });
+
+  it('uses the explicit layer root as the LCA when consumers share no entity ancestor', () => {
+    const g = makeGraph({
+      nodes: {
+        'src/App/A': { kind: 'folder', isEntity: true },
+        'src/App/B': { kind: 'folder', isEntity: true },
+        'src/App/Stray': { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { 'src/App/Stray': ['src/App/A', 'src/App/B'] },
+    });
+    const config = cfg({ layers: { 'src/App': { canImport: [] } } });
+    // LCA(A, B) = null -> layer root `src/App`; Stray is inside it, so it abstains.
+    expect(analyzePlacement(g, config).has('src/App/Stray')).toBe(false);
+  });
+
+  it('abstains for a single-consumer entity within the consumer parent subtree', () => {
     const g = makeGraph({
       nodes: {
         'src/App': { kind: 'folder', isEntity: true },
         'src/App/Header': { kind: 'folder', isEntity: true },
-        'src/App/Lonely': { kind: 'folder', isEntity: true },
+        'src/App/Header/Deep': { kind: 'folder', isEntity: true },
+        'src/App/Header/Sub': { kind: 'folder', isEntity: true },
+        'src/App/Header/Sub/Within': { kind: 'folder', isEntity: true },
       },
-      entityConsumers: { 'src/App/Lonely': ['src/App/Header'] },
+      entityConsumers: { 'src/App/Header/Sub/Within': ['src/App/Header/Deep'] },
     });
-    const v = analyzePlacement(g, cfg()).get('src/App/Lonely');
-    expect(v?.expected).toBe('src/App/Header/slots/Lonely');
-    expect(v?.actual).toBe('src/App/Lonely');
+    // LCA([Deep]) = componentParentOf(Deep) = src/App/Header; Within lives inside it.
+    // Within's component parent is Sub, Deep's is Header — not siblings.
+    expect(analyzePlacement(g, cfg()).has('src/App/Header/Sub/Within')).toBe(false);
   });
 
-  it('abstains when the single consumer is a standalone file', () => {
+  it('flags a single-consumer entity that is not inside the consumer parent subtree', () => {
     const g = makeGraph({
       nodes: {
-        'src/App/util.ts': { kind: 'file', isEntity: true },
-        'src/App/dep.ts': { kind: 'file', isEntity: true },
+        'src/App': { kind: 'folder', isEntity: true },
+        'src/App/Header': { kind: 'folder', isEntity: true },
+        'src/App/Header/Deep': { kind: 'folder', isEntity: true },
+        'src/Other/Far': { kind: 'folder', isEntity: true },
       },
-      entityConsumers: { 'src/App/dep.ts': ['src/App/util.ts'] },
+      entityConsumers: { 'src/Other/Far': ['src/App/Header/Deep'] },
     });
-    expect(analyzePlacement(g, cfg()).has('src/App/dep.ts')).toBe(false);
+    const v = analyzePlacement(g, cfg()).get('src/Other/Far');
+    expect(v?.ruleId).toBe('lca-placement');
+    // LCA([Header/Deep]) = componentParentOf = src/App/Header; Far lives under src/Other.
+    expect(v?.expected).toBe('src/App/Header');
   });
 });
 
-describe('analyzePlacement decision tree §7.3 branches 1-2', () => {
+describe('analyzePlacement role-folder verdicts — branches 1-3', () => {
   it('branch 1: actual inside slots/ -> slots-privacy (n-independent)', () => {
     const g = makeGraph({
       nodes: {
@@ -138,6 +224,20 @@ describe('analyzePlacement decision tree §7.3 branches 1-2', () => {
     });
     const v = analyzePlacement(g, cfg()).get('src/App/Header/slots/Leaked');
     expect(v?.ruleId).toBe('slots-privacy');
+    expect(v?.expected).toBe('src/App/items/Leaked');
+  });
+
+  it('branch 1: a slots/ entity at its role-folder path emits no verdict', () => {
+    const g = makeGraph({
+      nodes: {
+        'src/App': { kind: 'folder', isEntity: true },
+        'src/App/Header': { kind: 'folder', isEntity: true },
+        'src/App/Header/slots/Owned': { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { 'src/App/Header/slots/Owned': ['src/App/Header'] },
+    });
+    // n == 1, lone owner is Header -> roleFolderExpected = src/App/Header/slots/Owned == actual.
+    expect(analyzePlacement(g, cfg()).has('src/App/Header/slots/Owned')).toBe(false);
   });
 
   it('branch 2: actual inside items/ and n == 1 -> empty-items-folder', () => {
@@ -152,9 +252,21 @@ describe('analyzePlacement decision tree §7.3 branches 1-2', () => {
     const v = analyzePlacement(g, cfg()).get('src/App/items/Underused');
     expect(v?.ruleId).toBe('empty-items-folder');
   });
-});
 
-describe('analyzePlacement decision tree §7.3 branches 3-4', () => {
+  it('branch 2: an items/ entity with enough consumers emits no verdict', () => {
+    const g = makeGraph({
+      nodes: {
+        'src/App': { kind: 'folder', isEntity: true },
+        'src/App/Header': { kind: 'folder', isEntity: true },
+        'src/App/Footer': { kind: 'folder', isEntity: true },
+        'src/App/items/Card': { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { 'src/App/items/Card': ['src/App/Header', 'src/App/Footer'] },
+    });
+    // n >= promotionThreshold, roleFolderExpected = src/App/items/Card == actual.
+    expect(analyzePlacement(g, cfg()).has('src/App/items/Card')).toBe(false);
+  });
+
   it('branch 3: a consumer is a sibling under the same component parent -> siblings-forbidden', () => {
     const g = makeGraph({
       nodes: {
@@ -168,25 +280,9 @@ describe('analyzePlacement decision tree §7.3 branches 3-4', () => {
     const v = analyzePlacement(g, cfg()).get('src/App/Header');
     expect(v?.ruleId).toBe('siblings-forbidden');
   });
-
-  it('branch 4: plain LCA mismatch with no sibling consumer -> lca-placement', () => {
-    const g = makeGraph({
-      nodes: {
-        'src/App': { kind: 'folder', isEntity: true },
-        'src/App/Deep': { kind: 'folder', isEntity: true },
-        'src/App/Deep/A': { kind: 'folder', isEntity: true },
-        'src/App/Deep/B': { kind: 'folder', isEntity: true },
-        'src/App/Stray': { kind: 'folder', isEntity: true },
-      },
-      entityConsumers: { 'src/App/Stray': ['src/App/Deep/A', 'src/App/Deep/B'] },
-    });
-    const v = analyzePlacement(g, cfg()).get('src/App/Stray');
-    expect(v?.ruleId).toBe('lca-placement');
-    expect(v?.expected).toBe('src/App/Deep/items/Stray');
-  });
 });
 
-describe('analyzePlacement memoization (D3)', () => {
+describe('analyzePlacement memoization', () => {
   it('returns the identical Map instance for the same graph', () => {
     const g = makeGraph({
       nodes: { 'src/App/X': { kind: 'folder', isEntity: true } },

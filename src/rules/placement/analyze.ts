@@ -1,5 +1,13 @@
 /**
- * @fileoverview analyzePlacement — sole owner of the §7.3 placement decision tree (D3).
+ * @fileoverview analyzePlacement — sole owner of the placement decision tree.
+ *
+ * Two concerns, deliberately split:
+ *  - `lca-placement` is the universal locality invariant: an entity must reside
+ *    within the subtree rooted at the LCA of its consumers. It has no notion of
+ *    role folders, so it is trivially satisfied on a flat entity tree.
+ *  - `slots-privacy` / `empty-items-folder` / `siblings-forbidden` carry the
+ *    role-folder convention (`slots/` private, `items/` shared) and fire only
+ *    for entities physically inside one of those folders.
  */
 import type { ResolvedConfig } from '../../config/types.js';
 import type { ConsumerGraph } from '../../graph/types.js';
@@ -14,14 +22,24 @@ export interface PlacementVerdict {
   readonly reason: string;
 }
 
-type Conventions = ResolvedConfig['conventions'];
+/**
+ * The fixed inputs of a single entity's analysis — the graph, the resolved
+ * config and the entity's layer root. Bundled so verdict functions stay within
+ * the four-parameter budget.
+ */
+interface PlacementContext {
+  readonly graph: ConsumerGraph;
+  readonly config: ResolvedConfig;
+  /** The entity's layer root — an explicit layer key, or the source root. */
+  readonly layerRoot: string;
+}
 
 /** True when `id` is a strict descendant of `entity` in the path tree. */
 function isDescendant(id: string, entity: string): boolean {
   return id.startsWith(`${entity}/`);
 }
 
-/** Consumers of `entity` with self-descendants removed (§7.2). */
+/** Consumers of `entity` with self-descendants removed. */
 function realConsumers(entity: string, graph: ConsumerGraph): readonly string[] {
   const raw = graph.entityConsumersOf.get(entity) ?? [];
   return raw.filter((c) => c !== entity && !isDescendant(c, entity));
@@ -37,27 +55,34 @@ function isUnderSegment(id: string, segment: string): boolean {
   return id.split('/').includes(segment);
 }
 
+/** True when `entity` sits within the subtree rooted at directory `root`. */
+function isWithinSubtree(entity: string, root: string): boolean {
+  return entity === root || isDescendant(entity, root);
+}
+
 /** Promotion threshold from the lca-placement rule options (default 2). */
 function promotionThreshold(config: ResolvedConfig): number {
   const raw = config.rules['lca-placement']?.['promotionThreshold'];
   return typeof raw === 'number' ? raw : 2;
 }
 
-/** Expected path for `entity` given its consumers; null when the rule abstains (§7.2). */
-function expectedPlacement(
+/**
+ * The role-folder convention path for `entity` given its consumers: the shared
+ * `items/` slot under the LCA when promoted, otherwise the owner's private
+ * `slots/`. Null when the lone owner is a standalone file (a file has no slots/).
+ */
+function roleFolderExpected(
   entity: string,
   consumers: readonly string[],
-  layerRoot: string,
-  graph: ConsumerGraph,
-  config: ResolvedConfig,
+  ctx: PlacementContext,
 ): string | null {
-  const conv = config.conventions;
-  if (consumers.length >= promotionThreshold(config)) {
-    const host = lca(consumers, graph, conv) ?? layerRoot;
+  const conv = ctx.config.conventions;
+  if (consumers.length >= promotionThreshold(ctx.config)) {
+    const host = lca(consumers, ctx.graph, conv) ?? ctx.layerRoot;
     return `${host}/${conv.sharedSegment}/${nameOf(entity)}`;
   }
   const owner = consumers[0]!;
-  if (graph.nodes.get(owner)?.kind === 'file') return null; // a file has no slots/
+  if (ctx.graph.nodes.get(owner)?.kind === 'file') return null;
   return `${owner}/${conv.privateSegment}/${nameOf(entity)}`;
 }
 
@@ -65,34 +90,39 @@ function expectedPlacement(
 function hasSiblingConsumer(
   entity: string,
   consumers: readonly string[],
-  graph: ConsumerGraph,
-  conv: Conventions,
+  ctx: PlacementContext,
 ): boolean {
+  const conv = ctx.config.conventions;
   if (isUnderSegment(entity, conv.privateSegment) || isUnderSegment(entity, conv.sharedSegment)) {
     return false;
   }
-  const parent = componentParentOf(entity, graph, conv);
+  const parent = componentParentOf(entity, ctx.graph, conv);
   if (parent === null) return false;
-  return consumers.some((c) => componentParentOf(c, graph, conv) === parent);
+  return consumers.some((c) => componentParentOf(c, ctx.graph, conv) === parent);
 }
 
-/** Pick the §7.3 verdict ruleId for a misplaced entity — ordered branches 1-4. */
+/**
+ * Pick the verdict ruleId for an entity — ordered branches 1-4. Branches 1-3
+ * route role-folder / sibling cases; branch 4 is the universal locality rule.
+ */
 function classifyVerdict(
   entity: string,
   consumers: readonly string[],
-  graph: ConsumerGraph,
-  config: ResolvedConfig,
+  ctx: PlacementContext,
 ): PlacementVerdict['ruleId'] {
-  const conv = config.conventions;
+  const conv = ctx.config.conventions;
   if (isUnderSegment(entity, conv.privateSegment)) return 'slots-privacy';
-  if (isUnderSegment(entity, conv.sharedSegment) && consumers.length < promotionThreshold(config)) {
+  if (
+    isUnderSegment(entity, conv.sharedSegment) &&
+    consumers.length < promotionThreshold(ctx.config)
+  ) {
     return 'empty-items-folder';
   }
-  if (hasSiblingConsumer(entity, consumers, graph, conv)) return 'siblings-forbidden';
+  if (hasSiblingConsumer(entity, consumers, ctx)) return 'siblings-forbidden';
   return 'lca-placement';
 }
 
-/** Human-readable reason text per §7.3 branch. */
+/** Human-readable reason text per branch. */
 function reasonFor(
   ruleId: PlacementVerdict['ruleId'],
   consumers: readonly string[],
@@ -106,35 +136,71 @@ function reasonFor(
     case 'siblings-forbidden':
       return 'sideways import between sibling branches';
     default:
-      return `${consumers.length} consumer(s), entity outside its LCA`;
+      return `${consumers.length} consumer(s), entity outside its LCA subtree`;
   }
 }
 
-/** Build the verdict for one in-layer entity; null when correctly placed (§7.2/§7.3). */
-function computeVerdict(
+/**
+ * The directory the entity's consumers root their LCA at: the LCA entity, or
+ * the layer root when the consumers share no common entity ancestor.
+ */
+function lcaRoot(consumers: readonly string[], ctx: PlacementContext): string {
+  return lca(consumers, ctx.graph, ctx.config.conventions) ?? ctx.layerRoot;
+}
+
+/** Build the lca-placement verdict; null when the entity is within its LCA subtree. */
+function lcaVerdict(
   entity: string,
   consumers: readonly string[],
-  layerRoot: string,
-  graph: ConsumerGraph,
-  config: ResolvedConfig,
+  ctx: PlacementContext,
 ): PlacementVerdict | null {
-  const expected = expectedPlacement(entity, consumers, layerRoot, graph, config);
+  const root = lcaRoot(consumers, ctx);
+  if (isWithinSubtree(entity, root)) return null;
+  return {
+    entity,
+    ruleId: 'lca-placement',
+    expected: root,
+    actual: entity,
+    consumers,
+    reason: reasonFor('lca-placement', consumers, ctx.config.conventions.sharedSegment),
+  };
+}
+
+/** Build a role-folder verdict; null when the entity already sits at its role path. */
+function roleVerdict(
+  ruleId: 'slots-privacy' | 'siblings-forbidden' | 'empty-items-folder',
+  entity: string,
+  consumers: readonly string[],
+  ctx: PlacementContext,
+): PlacementVerdict | null {
+  const expected = roleFolderExpected(entity, consumers, ctx);
   if (expected === null || entity === expected) return null;
-  const ruleId = classifyVerdict(entity, consumers, graph, config);
   return {
     entity,
     ruleId,
     expected,
     actual: entity,
     consumers,
-    reason: reasonFor(ruleId, consumers, config.conventions.sharedSegment),
+    reason: reasonFor(ruleId, consumers, ctx.config.conventions.sharedSegment),
   };
 }
 
+/** Build the verdict for one in-layer entity; null when correctly placed. */
+function computeVerdict(
+  entity: string,
+  consumers: readonly string[],
+  ctx: PlacementContext,
+): PlacementVerdict | null {
+  const ruleId = classifyVerdict(entity, consumers, ctx);
+  if (ruleId === 'lca-placement') return lcaVerdict(entity, consumers, ctx);
+  return roleVerdict(ruleId, entity, consumers, ctx);
+}
+
 /**
- * Apply the §7.2 cross-layer/no-consumer gate, returning the in-layer consumers and the
- * layer root, or null. An empty `layers` map is one implicit layer (the source root), so
- * no edge crosses a boundary; with explicit layers, all consumers must share the entity's.
+ * Apply the cross-layer / no-consumer gate, returning the in-layer consumers and
+ * the layer root, or null. An empty `layers` map is one implicit layer (the
+ * source root), so no edge crosses a boundary; with explicit layers, all
+ * consumers must share the entity's.
  */
 function gatedConsumers(
   entity: string,
@@ -145,7 +211,7 @@ function gatedConsumers(
   if (consumers.length === 0) return null;
   const hasExplicitLayers = Object.keys(config.layers).length > 0;
   if (!hasExplicitLayers) {
-    return { consumers, layerRoot: graph.rootDir };
+    return { consumers, layerRoot: config.project.sourceRoot };
   }
   const layer = layerOf(entity, config.layers);
   if (layer === null) return null;
@@ -155,7 +221,7 @@ function gatedConsumers(
 
 const cache = new WeakMap<ConsumerGraph, ReadonlyMap<string, PlacementVerdict>>();
 
-/** Memoized §7.3 analysis over a frozen graph → entity → at most one PlacementVerdict (D3). */
+/** Memoized placement analysis over a frozen graph → entity → at most one verdict. */
 export function analyzePlacement(
   graph: ConsumerGraph,
   config: ResolvedConfig,
@@ -167,7 +233,8 @@ export function analyzePlacement(
     if (!node.isEntity || node.placementMode === 'explicit') continue;
     const gate = gatedConsumers(id, graph, config);
     if (gate === null) continue;
-    const verdict = computeVerdict(id, gate.consumers, gate.layerRoot, graph, config);
+    const ctx: PlacementContext = { graph, config, layerRoot: gate.layerRoot };
+    const verdict = computeVerdict(id, gate.consumers, ctx);
     if (verdict !== null) verdicts.set(id, verdict);
   }
   cache.set(graph, verdicts);
