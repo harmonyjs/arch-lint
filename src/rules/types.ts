@@ -1,6 +1,7 @@
 /**
  * @fileoverview Rules type vocabulary — the Rule contract every rule implements,
- * the RuleContext the engine threads through, and CheckResult, the engine's output.
+ * the RuleContext the engine threads through, and CheckResult, the classified
+ * outcome of a check run that the runner assembles from the engine's diagnostics.
  */
 import type { Project } from 'ts-morph';
 import type { Pack, ResolvedConfig } from '../config/types.js';

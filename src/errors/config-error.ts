@@ -1,6 +1,6 @@
 /**
- * @fileoverview Raised on any configuration or invalid-invocation failure.
- * Maps to process exit code 2.
+ * @fileoverview ConfigError and its options — the typed error for configuration
+ * and invalid-invocation failures.
  */
 
 import { ArchLintError } from './arch-lint-error.js';
