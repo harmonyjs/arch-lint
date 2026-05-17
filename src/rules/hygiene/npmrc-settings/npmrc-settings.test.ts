@@ -2,28 +2,21 @@
  * @fileoverview Tests for the npmrc-settings rule of the hygiene pack.
  */
 
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
+import { makeManifestContext } from '../../test-support/make-context.js';
+import type { ManifestBundle } from '../../types.js';
+import { parseNpmrc } from '../support/npmrc.js';
+
 import { npmrcSettings } from './index.js';
 
 function run(npmrc: string | null, options: Record<string, unknown>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arch-lint-npmrc-'));
-  if (npmrc !== null) writeFileSync(join(dir, '.npmrc'), npmrc);
-  const config = {
-    project: { tsconfig: 't', sourceRoot: 'src', cwd: dir, includeOutOfRoot: false },
-  } as ResolvedConfig;
-  const graph = makeGraph({});
-  const ctx = makeContext('npmrc-settings', {
-    severity: 'error',
-    project: graph.project,
-    options,
-  });
-  return npmrcSettings.check(graph, config, ctx);
+  const manifests: ManifestBundle = {
+    packageJson: null,
+    npmrc: npmrc === null ? null : parseNpmrc(npmrc),
+    tsconfig: null,
+  };
+  const ctx = makeManifestContext('npmrc-settings', { severity: 'error', options, manifests });
+  return npmrcSettings.check(ctx);
 }
 
 describe('npmrc-settings', () => {
@@ -41,6 +34,7 @@ describe('npmrc-settings', () => {
     expect(ds).toHaveLength(1);
     expect(ds[0]!.fingerprint).toBe('save-exact');
     expect(ds[0]!.entity).toBe('.npmrc');
+    expect(ds[0]!.location.file).toBe('.npmrc');
   });
 
   it('flags a key with the wrong value', () => {
@@ -52,9 +46,8 @@ describe('npmrc-settings', () => {
     expect(ds[0]!.actual).toContain('false');
   });
 
-  it('flags every required key when .npmrc is absent', () => {
-    const ds = run(null, { required: { 'engine-strict': true, 'save-exact': true } });
-    expect(ds.map((d) => d.fingerprint).sort()).toEqual(['engine-strict', 'save-exact']);
+  it('returns nothing when .npmrc is absent', () => {
+    expect(run(null, { required: { 'engine-strict': true, 'save-exact': true } })).toEqual([]);
   });
 
   it('reports the line of the offending key', () => {

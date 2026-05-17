@@ -2,28 +2,25 @@
  * @fileoverview Tests for the exact-dependency-versions rule of the hygiene pack.
  */
 
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
+import { makeManifestContext } from '../../test-support/make-context.js';
+import type { ManifestBundle } from '../../types.js';
+import { parsePackageJson } from '../support/package-json.js';
+
 import { exactDependencyVersions } from './index.js';
 
 function run(packageJson: string, options: Record<string, unknown>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arch-lint-exact-'));
-  writeFileSync(join(dir, 'package.json'), packageJson);
-  const config = {
-    project: { tsconfig: 't', sourceRoot: 'src', cwd: dir, includeOutOfRoot: false },
-  } as ResolvedConfig;
-  const graph = makeGraph({});
-  const ctx = makeContext('exact-dependency-versions', {
+  const manifests: ManifestBundle = {
+    packageJson: parsePackageJson(packageJson),
+    npmrc: null,
+    tsconfig: null,
+  };
+  const ctx = makeManifestContext('exact-dependency-versions', {
     severity: 'error',
-    project: graph.project,
     options,
+    manifests,
   });
-  return exactDependencyVersions.check(graph, config, ctx);
+  return exactDependencyVersions.check(ctx);
 }
 
 describe('exact-dependency-versions', () => {
@@ -37,6 +34,7 @@ describe('exact-dependency-versions', () => {
     expect(ds).toHaveLength(1);
     expect(ds[0]!.fingerprint).toBe('dependencies#zod');
     expect(ds[0]!.entity).toBe('package.json');
+    expect(ds[0]!.location.file).toBe('package.json');
   });
 
   it('flags a tilde range and a dist-tag', () => {

@@ -1,12 +1,9 @@
 /**
  * @fileoverview npmrc-settings rule — requires declared key-value pairs in .npmrc.
- * Reads .npmrc from disk; the graph is unused (manifest engine).
+ * Reads the parsed .npmrc from the manifest bundle; the graph is unused.
  */
-import { existsSync, readFileSync } from 'node:fs';
 import type { Diagnostic } from '../../../types.js';
-import type { Rule, RuleContext } from '../../types.js';
-import { manifestPath } from '../support/manifest-path.js';
-import { parseNpmrc } from '../support/npmrc.js';
+import type { ManifestRule, ManifestRuleContext } from '../../types.js';
 
 /** Options of npmrc-settings. */
 interface Options {
@@ -16,15 +13,15 @@ interface Options {
 const DEFAULTS: Options = { required: { 'engine-strict': true, 'save-exact': true } };
 
 /** Rule: .npmrc must declare every required key with the expected value (§13.3). */
-export const npmrcSettings: Rule = {
+export const npmrcSettings: ManifestRule = {
   id: 'npmrc-settings',
   pack: 'hygiene',
   engine: 'manifest',
   defaultSeverity: 'error',
-  check: (_graph, config, context: RuleContext): Diagnostic[] => {
+  check: (context: ManifestRuleContext): Diagnostic[] => {
     const opts: Options = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    const path = manifestPath(config, '.npmrc');
-    const doc = parseNpmrc(existsSync(path) ? readFileSync(path, 'utf8') : '');
+    const doc = context.manifests.npmrc;
+    if (doc === null) return [];
     const seen = new Set<string>();
     const out: Diagnostic[] = [];
     for (const [key, want] of Object.entries(opts.required)) {
@@ -44,7 +41,7 @@ export const npmrcSettings: Rule = {
         actual: actual === null ? `${key} is not set` : `${key}=${actual}`,
         reason: 'a non-strict .npmrc allows a non-reproducible install',
         suggestions: [{ action: 'custom', rationale: `add "${key}=${expected}" to .npmrc` }],
-        location: { ...loc, file: path },
+        location: { ...loc, file: '.npmrc' },
       });
     }
     return out;

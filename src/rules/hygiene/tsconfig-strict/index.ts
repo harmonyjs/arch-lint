@@ -1,12 +1,9 @@
 /**
  * @fileoverview tsconfig-strict rule — requires a strict effective compilerOptions
- * (D7 presets). Reads tsconfig.json from disk; the graph is unused (manifest engine).
+ * (D7 presets). Reads the parsed tsconfig from the manifest bundle; the graph is unused.
  */
-import { existsSync } from 'node:fs';
 import type { Diagnostic } from '../../../types.js';
-import type { Rule, RuleContext } from '../../types.js';
-import { manifestPath } from '../support/manifest-path.js';
-import { effectiveCompilerOptions } from '../support/tsconfig-effective.js';
+import type { ManifestRule, ManifestRuleContext } from '../../types.js';
 
 /** Options of tsconfig-strict (D7). */
 interface Options {
@@ -33,21 +30,20 @@ function presetFlags(preset: Options['preset']): readonly string[] {
 }
 
 /** Rule: the effective compilerOptions must carry no strictness relaxation (§13.3, D7). */
-export const tsconfigStrict: Rule = {
+export const tsconfigStrict: ManifestRule = {
   id: 'tsconfig-strict',
   pack: 'hygiene',
   engine: 'manifest',
   defaultSeverity: 'error',
-  check: (_graph, config, context: RuleContext): Diagnostic[] => {
+  check: (context: ManifestRuleContext): Diagnostic[] => {
     const opts: Options = {
       preset: 'strictest',
       additionalFlags: [],
       ignoreFlags: [],
       ...(context.options as Partial<Options>),
     };
-    const path = manifestPath(config, 'tsconfig.json');
-    if (!existsSync(path)) return [];
-    const eff = effectiveCompilerOptions(path);
+    const eff = context.manifests.tsconfig;
+    if (eff === null) return [];
     const ignore = new Set(opts.ignoreFlags);
     const required = [...new Set([...presetFlags(opts.preset), ...opts.additionalFlags])].filter(
       (flag) => !ignore.has(flag),
@@ -65,7 +61,7 @@ export const tsconfigStrict: Rule = {
         actual: eff.getOption(flag) === false ? `${flag}: false` : `${flag} is not set`,
         reason: 'relaxing type strictness undermines the architectural guarantees',
         suggestions: [{ action: 'custom', rationale: `enable "${flag}": true in tsconfig.json` }],
-        location: eff.keyLocation(flag),
+        location: { ...eff.keyLocation(flag), file: 'tsconfig.json' },
       });
     }
     return out;
