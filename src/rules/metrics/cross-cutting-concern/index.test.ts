@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import type { Edge } from '../../../graph/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { crossCuttingConcern } from './index.js';
 
 function edge(consumer: string, producer: string): Edge {
@@ -52,14 +53,13 @@ describe('crossCuttingConcern — check', () => {
       severity: 'info',
       options: { maxSubsystems: 3 },
     });
-    const out = crossCuttingConcern.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('cross-cutting-concern');
-    expect(out[0]!.entity).toBe('src/types.ts');
-    expect(out[0]!.fingerprint).toBe('cross-cutting-concern#src/types.ts');
-    expect(out[0]!.message).toBe('src/types.ts is imported across many subsystems');
-    expect(out[0]!.actual).toBe('3 subsystems (a, b, c)');
-    expect(out[0]!.location).toEqual({ file: 'src/types.ts', line: 1, column: 1 });
+    const d = only(crossCuttingConcern.check(graph, cfg(), ctx));
+    expect(d.ruleId).toBe('cross-cutting-concern');
+    expect(d.entity).toBe('src/types.ts');
+    expect(d.fingerprint).toBe('cross-cutting-concern#src/types.ts');
+    expect(d.message).toBe('src/types.ts is imported across many subsystems');
+    expect(d.actual).toBe('3 subsystems (a, b, c)');
+    expect(d.location).toEqual({ file: 'src/types.ts', line: 1, column: 1 });
   });
 
   it('skips a file listed in allow', () => {
@@ -91,9 +91,8 @@ describe('crossCuttingConcern — check', () => {
       severity: 'info',
       options: { maxSubsystems: 3 },
     });
-    const out = crossCuttingConcern.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.actual).toBe('3 subsystems (a, b, c)');
+    const d = only(crossCuttingConcern.check(graph, cfg(), ctx));
+    expect(d.actual).toBe('3 subsystems (a, b, c)');
   });
 
   it('still measures a root-level file imported across many subsystems', () => {
@@ -114,17 +113,15 @@ describe('crossCuttingConcern — check', () => {
       severity: 'info',
       options: { maxSubsystems: 3 },
     });
-    const out = crossCuttingConcern.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.entity).toBe('src/errors.ts');
-    expect(out[0]!.actual).toBe('3 subsystems (a, b, c)');
+    const d = only(crossCuttingConcern.check(graph, cfg(), ctx));
+    expect(d.entity).toBe('src/errors.ts');
+    expect(d.actual).toBe('3 subsystems (a, b, c)');
   });
 
   it('defaults maxSubsystems to 5', () => {
     const ctx = makeContext('cross-cutting-concern', { severity: 'info' });
     expect(crossCuttingConcern.check(fanInGraph(['a', 'b', 'c', 'd']), cfg(), ctx)).toEqual([]);
-    const out = crossCuttingConcern.check(fanInGraph(['a', 'b', 'c', 'd', 'e']), cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.actual).toBe('5 subsystems (a, b, c, d, e)');
+    const d = only(crossCuttingConcern.check(fanInGraph(['a', 'b', 'c', 'd', 'e']), cfg(), ctx));
+    expect(d.actual).toBe('5 subsystems (a, b, c, d, e)');
   });
 });

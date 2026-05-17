@@ -3,6 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { ConsumerGraph, Edge } from '../graph/types.js';
+import { only } from '../rules/test-support/only.js';
 import type { Diagnostic } from '../types.js';
 import { affectedEntities, filterToAffected } from './changed-files.js';
 
@@ -55,8 +56,7 @@ describe('filterToAffected', () => {
   it('keeps only diagnostics whose entity is in the affected set', () => {
     const diags = [diag('src/App/App.tsx'), diag('src/model/m.ts')];
     const kept = filterToAffected(diags, new Set(['src/App/App.tsx']));
-    expect(kept).toHaveLength(1);
-    expect(kept[0]!.entity).toBe('src/App/App.tsx');
+    expect(only(kept).entity).toBe('src/App/App.tsx');
   });
 
   it('returns all diagnostics unchanged when the filter is null', () => {

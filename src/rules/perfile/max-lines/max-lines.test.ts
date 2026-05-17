@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
+import { only } from '../../test-support/only.js';
 import { maxLines } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
@@ -24,9 +25,9 @@ describe('max-lines', () => {
   it('flags a file with more code lines than max', () => {
     const body = `${Array.from({ length: 6 }, (_, i) => `const v${i} = ${i};`).join('\n')}\n`;
     const ds = run({ 'src/a.ts': body }, { max: 5, skipComments: true, skipBlankLines: true });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('src/a.ts');
-    expect(ds[0]!.actual).toContain('6');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('src/a.ts');
+    expect(d.actual).toContain('6');
   });
 
   it('skips blank lines when skipBlankLines is true', () => {

@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import type { Edge } from '../../../graph/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { instability } from './index.js';
 
 function edge(consumer: string, producer: string): Edge {
@@ -56,13 +57,12 @@ describe('instability — check', () => {
       severity: 'info',
       options: { maxForLeafSubsystems: 0.4, leafSubsystems: ['graph'] },
     });
-    const out = instability.check(balancedGraph(), cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('instability');
-    expect(out[0]!.entity).toBe('src/graph');
-    expect(out[0]!.fingerprint).toBe('instability#graph');
-    expect(out[0]!.message).toBe('subsystem graph is declared a leaf but is unstable');
-    expect(out[0]!.expected).toBe('instability I ≤ 0.4');
-    expect(out[0]!.actual).toBe('I = 0.50 (Ca=1, Ce=1)');
+    const d = only(instability.check(balancedGraph(), cfg(), ctx));
+    expect(d.ruleId).toBe('instability');
+    expect(d.entity).toBe('src/graph');
+    expect(d.fingerprint).toBe('instability#graph');
+    expect(d.message).toBe('subsystem graph is declared a leaf but is unstable');
+    expect(d.expected).toBe('instability I ≤ 0.4');
+    expect(d.actual).toBe('I = 0.50 (Ca=1, Ce=1)');
   });
 });

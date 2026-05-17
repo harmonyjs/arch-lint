@@ -55,13 +55,14 @@ export function lca(
   graph: ConsumerGraph,
   conv: RoleConv,
 ): string | null {
-  if (entityIds.length === 0) return null;
-  if (entityIds.length === 1) return componentParentOf(entityIds[0]!, graph, conv);
+  const [first, ...rest] = entityIds;
+  if (first === undefined) return null;
+  if (rest.length === 0) return componentParentOf(first, graph, conv);
   let common: readonly string[] | null = null;
   for (const id of entityIds) {
     const chain = entityChain(id, graph);
     common = common === null ? chain : common.filter((c) => chain.includes(c));
   }
   // `common` is ordered deepest-first by construction of entityChain.
-  return common !== null && common.length > 0 ? common[0]! : null;
+  return common?.[0] ?? null;
 }

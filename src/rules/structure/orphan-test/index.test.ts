@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { orphanTest } from './index.js';
 
 const cfg = {} as ResolvedConfig;
@@ -20,11 +21,11 @@ describe('orphanTest', () => {
   it('flags a test file with no source sibling', () => {
     const g = makeGraph({ nodes: { 'src/a/widget.test.ts': {} } });
     const out = orphanTest.check(g, cfg, makeContext('orphan-test'));
-    expect(out).toHaveLength(1);
-    expect(out[0]!.entity).toBe('src/a/widget.test.ts');
-    expect(out[0]!.fingerprint).toBe('orphan-test#src/a/widget.test.ts');
-    expect(out[0]!.message).toBe('test file src/a/widget.test.ts has no local subject');
-    expect(out[0]!.location).toEqual({ file: 'src/a/widget.test.ts', line: 1, column: 1 });
+    const d = only(out);
+    expect(d.entity).toBe('src/a/widget.test.ts');
+    expect(d.fingerprint).toBe('orphan-test#src/a/widget.test.ts');
+    expect(d.message).toBe('test file src/a/widget.test.ts has no local subject');
+    expect(d.location).toEqual({ file: 'src/a/widget.test.ts', line: 1, column: 1 });
   });
 
   it('does not flag a test with a same-name .ts source sibling', () => {
@@ -64,8 +65,7 @@ describe('orphanTest', () => {
       nodes: { 'src/a/widget.ts': {}, 'src/b/widget.test.ts': {} },
     });
     const out = orphanTest.check(g, cfg, makeContext('orphan-test'));
-    expect(out).toHaveLength(1);
-    expect(out[0]!.entity).toBe('src/b/widget.test.ts');
+    expect(only(out).entity).toBe('src/b/widget.test.ts');
   });
 
   it('emits nothing for an empty graph', () => {

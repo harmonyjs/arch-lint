@@ -36,7 +36,9 @@ function classifyEdge(edge: Edge, layers: LayersConfig): Crossing | null {
   const producerLayer = layerOf(edge.producer, layers);
   if (consumerLayer === null || producerLayer === null) return null;
   if (consumerLayer === producerLayer) return null;
-  const consumerConf = layers[consumerLayer]!;
+  // `layerOf` only ever returns a key present in `layers`.
+  const consumerConf = layers[consumerLayer];
+  if (consumerConf === undefined) return null;
   const canImport = consumerConf.canImport.includes(producerLayer);
   const sideEffect = (consumerConf.sideEffectOnly ?? []).includes(producerLayer);
   const boundFromSideEffect = sideEffect && edge.symbol !== '';

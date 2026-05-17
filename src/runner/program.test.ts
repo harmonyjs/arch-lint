@@ -43,6 +43,15 @@ function optionNames(program: Command): string[] {
   return program.options.map((opt) => opt.long ?? opt.short ?? '');
 }
 
+/** Finds a direct subcommand by name, throwing when it is not registered. */
+function subcommand(program: Command, name: string): Command {
+  const found = program.commands.find((cmd) => cmd.name() === name);
+  if (found === undefined) {
+    throw new Error(`expected a subcommand named ${name}`);
+  }
+  return found;
+}
+
 describe('buildProgram', () => {
   it('is named arch-lint', () => {
     expect(buildProgram().name()).toBe('arch-lint');
@@ -68,19 +77,17 @@ describe('buildProgram', () => {
   });
 
   it('registers the baseline subcommands init, diff, and prune', () => {
-    const baseline = buildProgram().commands.find((cmd) => cmd.name() === 'baseline');
-    expect(baseline).toBeDefined();
-    expect(commandNames(baseline!)).toEqual(['diff', 'init', 'prune']);
+    const baseline = subcommand(buildProgram(), 'baseline');
+    expect(commandNames(baseline)).toEqual(['diff', 'init', 'prune']);
   });
 
   it('gives check a local --changed-only flag', () => {
-    const check = buildProgram().commands.find((cmd) => cmd.name() === 'check');
-    expect(optionNames(check!)).toContain('--changed-only');
+    const check = subcommand(buildProgram(), 'check');
+    expect(optionNames(check)).toContain('--changed-only');
   });
 
   it('gives baseline prune a local --yes flag', () => {
-    const baseline = buildProgram().commands.find((cmd) => cmd.name() === 'baseline');
-    const prune = baseline!.commands.find((cmd) => cmd.name() === 'prune');
-    expect(optionNames(prune!)).toContain('--yes');
+    const prune = subcommand(subcommand(buildProgram(), 'baseline'), 'prune');
+    expect(optionNames(prune)).toContain('--yes');
   });
 });

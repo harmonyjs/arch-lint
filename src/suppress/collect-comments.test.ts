@@ -18,7 +18,12 @@ const cfg: SuppressConfig = {
 function firstExport(code: string) {
   const project = new Project({ useInMemoryFileSystem: true });
   const sf = project.createSourceFile('src/a.ts', code);
-  return sf.getExportedDeclarations().values().next().value![0]!;
+  const [firstGroup] = [...sf.getExportedDeclarations().values()];
+  const [decl] = firstGroup ?? [];
+  if (decl === undefined) {
+    throw new Error('expected the source file to have at least one exported declaration');
+  }
+  return decl;
 }
 
 describe('collectSuppressComments', () => {

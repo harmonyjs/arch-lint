@@ -8,7 +8,8 @@ export function segmentsOf(id: string): string[] {
   if (trimmed === '') return [];
   const parts = trimmed.split('/');
   const last = parts.length - 1;
-  parts[last] = parts[last]!.replace(/\.[^./]+$/, '');
+  const lastPart = parts[last];
+  if (lastPart !== undefined) parts[last] = lastPart.replace(/\.[^./]+$/, '');
   return parts;
 }
 

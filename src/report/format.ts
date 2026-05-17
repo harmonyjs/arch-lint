@@ -127,10 +127,12 @@ export function formatReport(result: CheckResult, config: ResolvedConfig): strin
 
   const blocks: string[] = [];
   for (const ruleId of [...byRule.keys()].sort()) {
-    const diags = [...byRule.get(ruleId)!].sort(
+    const bucket = byRule.get(ruleId) ?? [];
+    const diags = [...bucket].sort(
       (a, b) => SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity),
     );
-    const groupSeverity = diags[0]!.severity;
+    const groupSeverity = diags[0]?.severity;
+    if (groupSeverity === undefined) continue;
     const header = groupHeader(ruleId, groupSeverity);
     blocks.push(useColor ? pc.bold(header) : header);
     for (const d of diags) blocks.push(renderDiagnostic(d, opts));
