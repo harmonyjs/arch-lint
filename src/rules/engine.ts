@@ -2,12 +2,10 @@
  * @fileoverview runEngine — executes the rule pipeline over a frozen graph.
  */
 import type { Project } from 'ts-morph';
-import { classifyDiagnostics } from '../baseline/classify.js';
-import type { BaselineFile } from '../baseline/types.js';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import type { SuppressIndex } from '../suppress/types.js';
-import type { ActiveSeverity, Diagnostic } from '../types.js';
+import type { Diagnostic } from '../types.js';
 import {
   buildGraphContext,
   buildManifestBundle,
@@ -18,29 +16,7 @@ import {
 } from './engine/index.js';
 import { getActiveRules } from './index.js';
 import { assertGraphProjectConsistent } from './syntactic-support/index.js';
-import type { CheckResult, ManifestBundle, Rule } from './types.js';
-
-/** Tally classified diagnostics into the CheckResult summary and exit code (§10.3). */
-function buildResult(diagnostics: readonly Diagnostic[]): CheckResult {
-  const bySeverity: Record<ActiveSeverity, number> = { info: 0, warning: 0, error: 0 };
-  let newCount = 0;
-  let inBaseline = 0;
-  let blockingNew = false;
-  for (const d of diagnostics) {
-    bySeverity[d.severity] += 1;
-    if (d.status === 'inBaseline') {
-      inBaseline += 1;
-    } else {
-      newCount += 1;
-      if (d.severity !== 'info') blockingNew = true;
-    }
-  }
-  return {
-    diagnostics,
-    summary: { total: diagnostics.length, bySeverity, new: newCount, inBaseline },
-    exitCode: blockingNew ? 1 : 0,
-  };
-}
+import type { ManifestBundle, Rule } from './types.js';
 
 /** Inputs every engine variant may need; runEngine resolves these once per run. */
 interface DispatchEnv {
@@ -73,24 +49,19 @@ export interface EngineInputs {
   readonly project: Project;
 }
 
-/** The optional run-shaping inputs the runner threads into a single pass. */
-export interface RunOptions {
-  /** Restrict the run to these rule ids; absent runs every active rule. */
-  readonly ruleFilter?: readonly string[] | undefined;
-  /** The baseline diagnostics are classified against; absent or null skips classification. */
-  readonly baseline?: BaselineFile | null | undefined;
-}
-
 /**
- * Run the §8.1 pipeline over a frozen graph: dispatch each rule by its engine — graph
+ * Run the rule pipeline over a frozen graph: dispatch each rule by its engine — graph
  * rules see the ConsumerGraph, syntactic rules also see the parsed `project`, manifest
- * rules see the project manifests parsed once — drop suppressed diagnostics, dedup
- * placement verdicts, run the §10.2 self-check, then classify against the baseline.
- * Free of file I/O — `suppress`, `project` and `baseline` are supplied by the runner.
+ * rules see the project manifests parsed once — then drop suppressed diagnostics, dedup
+ * placement verdicts and run the runtime self-check. Returns the raw diagnostics;
+ * baseline classification and summarisation are the runner's concern. Free of file I/O.
+ * An absent `ruleFilter` runs every active rule.
  */
-export function runEngine(inputs: EngineInputs, options: RunOptions = {}): CheckResult {
+export function runEngine(
+  inputs: EngineInputs,
+  ruleFilter?: readonly string[],
+): readonly Diagnostic[] {
   const { graph, config, suppress, project } = inputs;
-  const { ruleFilter, baseline } = options;
   const activeRules = getActiveRules(config, ruleFilter);
   if (activeRules.some((r) => r.engine === 'syntactic')) {
     assertGraphProjectConsistent(graph, project);
@@ -107,6 +78,5 @@ export function runEngine(inputs: EngineInputs, options: RunOptions = {}): Check
   diagnostics = diagnostics.filter((d) => !suppress.isSuppressed(d));
   diagnostics = [...dedupPlacement(diagnostics)];
   runtimeSelfCheck(diagnostics);
-  diagnostics = classifyDiagnostics(diagnostics, baseline ?? null);
-  return buildResult(diagnostics);
+  return diagnostics;
 }

@@ -1,13 +1,13 @@
 /**
  * @fileoverview The `check` operation — builds the graph, runs the rule
  * engine, applies baseline classification and renders the report. Exposes
- * the pure engine wrapper `check`, the baseline resolver `resolveBaseline`
- * and the I/O orchestrator `runCheck` consumed by the CLI router.
+ * the I/O-free engine-plus-classification step `check`, the baseline resolver
+ * `resolveBaseline` and the I/O orchestrator `runCheck` consumed by the CLI router.
  */
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 import type { Project } from 'ts-morph';
-import { parseBaselineFile } from '../baseline/index.js';
+import { classifyDiagnostics, parseBaselineFile } from '../baseline/index.js';
 import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
@@ -20,7 +20,7 @@ import { runEngine } from '../rules/engine.js';
 import type { CheckResult } from '../rules/types.js';
 import { buildSuppressIndex } from '../suppress/suppress-index.js';
 import type { SuppressIndex } from '../suppress/types.js';
-import type { Diagnostic } from '../types.js';
+import type { ActiveSeverity, Diagnostic } from '../types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */
@@ -46,17 +46,47 @@ export interface CheckInputs {
 }
 
 /**
- * Pure engine wrapper — a synchronous passthrough to runEngine, free of any
- * file I/O. Every input is supplied by the caller; the runner's I/O
- * orchestration (loading config, building the graph, resolving the baseline)
- * lives in `runCheck`.
+ * Classifies raw engine diagnostics against the baseline and tallies them into a
+ * CheckResult. A null baseline makes every diagnostic new. The exit code is 1 when
+ * any new diagnostic is blocking — a warning or an error — and 0 otherwise.
+ */
+function buildCheckResult(
+  diagnostics: readonly Diagnostic[],
+  baseline: BaselineFile | null,
+): CheckResult {
+  const classified = classifyDiagnostics(diagnostics, baseline);
+  const bySeverity: Record<ActiveSeverity, number> = { info: 0, warning: 0, error: 0 };
+  let newCount = 0;
+  let inBaseline = 0;
+  let blockingNew = false;
+  for (const d of classified) {
+    bySeverity[d.severity] += 1;
+    if (d.status === 'inBaseline') {
+      inBaseline += 1;
+    } else {
+      newCount += 1;
+      if (d.severity !== 'info') blockingNew = true;
+    }
+  }
+  return {
+    diagnostics: classified,
+    summary: { total: classified.length, bySeverity, new: newCount, inBaseline },
+    exitCode: blockingNew ? 1 : 0,
+  };
+}
+
+/**
+ * Runs the rule engine and classifies its raw diagnostics against the baseline,
+ * producing the full CheckResult. Free of file I/O — every input, the resolved
+ * baseline included, is supplied by the caller; the I/O orchestration (loading
+ * config, building the graph, resolving the baseline) lives in `runCheck`.
  */
 export function check(
   inputs: CheckInputs,
   ruleFilter?: readonly string[],
   baseline?: BaselineFile | null,
 ): CheckResult {
-  return runEngine(inputs, { ruleFilter, baseline });
+  return buildCheckResult(runEngine(inputs, ruleFilter), baseline ?? null);
 }
 
 /** Options that steer baseline resolution. */

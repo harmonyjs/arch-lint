@@ -1,13 +1,11 @@
 /**
- * @fileoverview Tests for check() — the pure, I/O-free passthrough to runEngine.
+ * @fileoverview Tests for check() — it runs the (mocked) engine, then classifies the
+ * raw diagnostics against the baseline and tallies them into a CheckResult.
  */
-import type { Project } from 'ts-morph';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { BaselineFile } from '../baseline/types.js';
-import type { ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from '../graph/types.js';
-import type { CheckResult } from '../rules/types.js';
-import type { SuppressIndex } from '../suppress/types.js';
+import type { Diagnostic } from '../types.js';
+import type { CheckInputs } from './check.js';
 
 const runEngineMock = vi.fn();
 vi.mock('../rules/engine.js', () => ({
@@ -16,52 +14,91 @@ vi.mock('../rules/engine.js', () => ({
 
 const { check } = await import('./check.js');
 
-/** A sentinel CheckResult the mocked engine returns. */
-const engineResult: CheckResult = {
-  diagnostics: [],
-  summary: { total: 0, bySeverity: { info: 0, warning: 0, error: 0 }, new: 0, inBaseline: 0 },
-  exitCode: 0,
-};
+/** The engine is mocked, so the inputs are an opaque value forwarded to it. */
+const inputs = {} as CheckInputs;
 
-const graph = { nodes: new Map() } as unknown as ConsumerGraph;
-const config = {} as ResolvedConfig;
-const suppress = {} as SuppressIndex;
-const project = {} as Project;
+/** A raw diagnostic — `check` is responsible for assigning its baseline status. */
+function diagnostic(over: Partial<Diagnostic> = {}): Diagnostic {
+  return {
+    ruleId: 'layer-boundary',
+    severity: 'error',
+    entity: 'src/a.ts',
+    message: 'm',
+    actual: 'a',
+    reason: 'r',
+    suggestions: [],
+    location: { file: 'src/a.ts', line: 1, column: 1 },
+    ...over,
+  };
+}
 
-const inputs = { graph, config, suppress, project };
+function baselineWith(records: BaselineFile['records']): BaselineFile {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-01-01T00:00:00.000Z',
+    generatorVersion: '1.0.0',
+    records,
+  };
+}
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
 
 describe('check', () => {
-  it('returns exactly what runEngine returns', () => {
-    runEngineMock.mockReturnValueOnce(engineResult);
-    expect(check(inputs)).toBe(engineResult);
+  it('classifies every diagnostic as new when no baseline is given', () => {
+    runEngineMock.mockReturnValueOnce([diagnostic(), diagnostic({ entity: 'src/b.ts' })]);
+    const result = check(inputs);
+    expect(result.diagnostics.every((d) => d.status === 'new')).toBe(true);
+    expect(result.summary).toEqual({
+      total: 2,
+      bySeverity: { info: 0, warning: 0, error: 2 },
+      new: 2,
+      inBaseline: 0,
+    });
   });
 
-  it('forwards every argument to runEngine unchanged', () => {
-    runEngineMock.mockReturnValueOnce(engineResult);
-    const baseline = { schemaVersion: 1, records: [] } as unknown as BaselineFile;
-    const ruleFilter = ['layer-boundary'] as const;
-    check(inputs, ruleFilter, baseline);
-    expect(runEngineMock).toHaveBeenCalledWith(
-      { graph, config, suppress, project },
-      { ruleFilter, baseline },
-    );
+  it('marks a diagnostic inBaseline when its logical id is recorded', () => {
+    runEngineMock.mockReturnValueOnce([
+      diagnostic({ entity: 'src/a.ts' }),
+      diagnostic({ entity: 'src/b.ts' }),
+    ]);
+    const baseline = baselineWith([{ ruleId: 'layer-boundary', entity: 'src/a.ts' }]);
+    const result = check(inputs, undefined, baseline);
+    const status = new Map(result.diagnostics.map((d) => [d.entity, d.status]));
+    expect(status.get('src/a.ts')).toBe('inBaseline');
+    expect(status.get('src/b.ts')).toBe('new');
+    expect(result.summary.new).toBe(1);
+    expect(result.summary.inBaseline).toBe(1);
   });
 
-  it('forwards an explicit null baseline through unchanged', () => {
-    runEngineMock.mockReturnValueOnce(engineResult);
-    check(inputs, undefined, null);
-    expect(runEngineMock).toHaveBeenCalledWith(
-      { graph, config, suppress, project },
-      { ruleFilter: undefined, baseline: null },
-    );
+  it('reports exitCode 1 when a new blocking diagnostic exists', () => {
+    runEngineMock.mockReturnValueOnce([diagnostic({ severity: 'warning' })]);
+    expect(check(inputs).exitCode).toBe(1);
   });
 
-  it('omits trailing optional arguments when not supplied', () => {
-    runEngineMock.mockReturnValueOnce(engineResult);
+  it('reports exitCode 0 when every diagnostic is inBaseline', () => {
+    runEngineMock.mockReturnValueOnce([diagnostic({ entity: 'src/a.ts' })]);
+    const baseline = baselineWith([{ ruleId: 'layer-boundary', entity: 'src/a.ts' }]);
+    expect(check(inputs, undefined, baseline).exitCode).toBe(0);
+  });
+
+  it('keeps exitCode 0 when the only new diagnostic is info severity', () => {
+    runEngineMock.mockReturnValueOnce([diagnostic({ severity: 'info' })]);
+    const result = check(inputs);
+    expect(result.summary.bySeverity.info).toBe(1);
+    expect(result.exitCode).toBe(0);
+  });
+
+  it('forwards the rule filter to runEngine', () => {
+    runEngineMock.mockReturnValueOnce([]);
+    check(inputs, ['layer-boundary']);
+    expect(runEngineMock).toHaveBeenCalledWith(inputs, ['layer-boundary']);
+  });
+
+  it('runs the engine with no rule filter when none is supplied', () => {
+    runEngineMock.mockReturnValueOnce([]);
     check(inputs);
-    expect(runEngineMock).toHaveBeenCalledWith(
-      { graph, config, suppress, project },
-      { ruleFilter: undefined, baseline: undefined },
-    );
+    expect(runEngineMock).toHaveBeenCalledWith(inputs, undefined);
   });
 });

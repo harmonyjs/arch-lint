@@ -104,48 +104,6 @@ describe('efferentCoupling — check', () => {
     expect(efferentCoupling.check(graph, cfg(), ctx)).toHaveLength(1);
   });
 
-  it('does not count a foundational subsystem toward efferent coupling', () => {
-    const graph = makeGraph({
-      nodes: {
-        'src/runner/cli.ts': { kind: 'file' },
-        'src/graph/a.ts': { kind: 'file' },
-        'src/errors/e.ts': { kind: 'file' },
-      },
-      edges: [
-        edge('src/runner/cli.ts', 'src/graph/a.ts'),
-        edge('src/runner/cli.ts', 'src/errors/e.ts'),
-      ],
-    });
-    const ctx = makeContext('efferent-coupling', {
-      severity: 'warning',
-      options: { max: 1, foundational: ['errors'] },
-    });
-    expect(efferentCoupling.check(graph, cfg(), ctx)).toEqual([]);
-  });
-
-  it('omits a foundational subsystem from the reported dependency list', () => {
-    const graph = makeGraph({
-      nodes: {
-        'src/runner/cli.ts': { kind: 'file' },
-        'src/graph/a.ts': { kind: 'file' },
-        'src/report/b.ts': { kind: 'file' },
-        'src/errors/e.ts': { kind: 'file' },
-      },
-      edges: [
-        edge('src/runner/cli.ts', 'src/graph/a.ts'),
-        edge('src/runner/cli.ts', 'src/report/b.ts'),
-        edge('src/runner/cli.ts', 'src/errors/e.ts'),
-      ],
-    });
-    const ctx = makeContext('efferent-coupling', {
-      severity: 'warning',
-      options: { max: 1, foundational: ['errors'] },
-    });
-    const out = efferentCoupling.check(graph, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.actual).toBe('2 (graph, report)');
-  });
-
   it('defaults max to 4', () => {
     const nodes: Record<string, { kind: 'file' }> = { 'src/runner/cli.ts': { kind: 'file' } };
     const edges: Edge[] = [];

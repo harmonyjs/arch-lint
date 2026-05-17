@@ -9,7 +9,6 @@ import type { ResolvedConfig } from '../config/types.js';
 import { GraphBuildError } from '../errors/index.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { makeGraph } from '../rules/test-support/make-graph.js';
-import type { CheckResult } from '../rules/types.js';
 import type { Diagnostic } from '../types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
@@ -42,6 +41,13 @@ vi.mock('../suppress/suppress-index.js', () => ({
 const runEngineMock = vi.fn();
 vi.mock('../rules/engine.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
+}));
+
+// Classification is exercised in check.test.ts and classify.test.ts — here it is an
+// identity pass so a test's diagnostics keep the status it set, isolating runCheck.
+vi.mock('../baseline/index.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../baseline/index.js')>()),
+  classifyDiagnostics: (diagnostics: readonly Diagnostic[]): readonly Diagnostic[] => diagnostics,
 }));
 
 const formatReportMock = vi.fn();
@@ -102,24 +108,11 @@ function diagnostic(over: Partial<Diagnostic> = {}): Diagnostic {
   };
 }
 
-function checkResult(diagnostics: readonly Diagnostic[]): CheckResult {
-  return {
-    diagnostics,
-    summary: {
-      total: diagnostics.length,
-      bySeverity: { info: 0, warning: 0, error: diagnostics.length },
-      new: diagnostics.filter((d) => d.status === 'new').length,
-      inBaseline: diagnostics.filter((d) => d.status === 'inBaseline').length,
-    },
-    exitCode: 0,
-  };
-}
-
 /** Wires the happy-path mocks; per-test overrides follow. */
 function arrange(opts: {
   readonly config?: ResolvedConfig;
   readonly graph?: ConsumerGraph;
-  readonly result: CheckResult;
+  readonly diagnostics: readonly Diagnostic[];
 }): void {
   loadConfigMock.mockResolvedValue({ project: { tsconfig: './tsconfig.json' } });
   resolveConfigMock.mockReturnValue(opts.config ?? resolvedConfig());
@@ -134,7 +127,7 @@ function arrange(opts: {
     isSuppressed: () => false,
     findExpired: () => [],
   });
-  runEngineMock.mockReturnValue(opts.result);
+  runEngineMock.mockReturnValue(opts.diagnostics);
   formatReportMock.mockReturnValue('report-text');
 }
 
@@ -146,7 +139,7 @@ afterEach(() => {
 
 describe('runCheck', () => {
   it('returns exit 0 when there is no new violation', async () => {
-    arrange({ result: checkResult([diagnostic({ status: 'inBaseline' })]) });
+    arrange({ diagnostics: [diagnostic({ status: 'inBaseline' })] });
     const outcome = await runCheck({
       cwd: '/repo',
       mode: 'ci',
@@ -162,7 +155,7 @@ describe('runCheck', () => {
   });
 
   it('returns exit 1 when a new violation exists and the mode fails on violations', async () => {
-    arrange({ result: checkResult([diagnostic({ status: 'new' })]) });
+    arrange({ diagnostics: [diagnostic({ status: 'new' })] });
     const outcome = await runCheck({
       cwd: '/repo',
       mode: 'ci',
@@ -181,7 +174,7 @@ describe('runCheck', () => {
         ci: { failOnViolations: true },
       },
     });
-    arrange({ config, result: checkResult([diagnostic({ status: 'new' })]) });
+    arrange({ config, diagnostics: [diagnostic({ status: 'new' })] });
     const outcome = await runCheck({
       cwd: '/repo',
       mode: 'preCommit',
@@ -192,7 +185,7 @@ describe('runCheck', () => {
   });
 
   it('wraps a graph-build failure in a GraphBuildError', async () => {
-    arrange({ result: checkResult([]) });
+    arrange({ diagnostics: [] });
     buildGraphFromSourcesMock.mockImplementationOnce(() => {
       throw new Error('parse blew up');
     });
@@ -202,7 +195,7 @@ describe('runCheck', () => {
   });
 
   it('rethrows an ArchLintError from the graph build without rewrapping', async () => {
-    arrange({ result: checkResult([]) });
+    arrange({ diagnostics: [] });
     const original = new GraphBuildError('already typed');
     buildGraphFromSourcesMock.mockImplementationOnce(() => {
       throw original;
@@ -213,7 +206,7 @@ describe('runCheck', () => {
   });
 
   it('emits a warning and still reports when changed-only cannot find a git base', async () => {
-    arrange({ result: checkResult([diagnostic({ status: 'new' })]) });
+    arrange({ diagnostics: [diagnostic({ status: 'new' })] });
     getChangedFilesMock.mockResolvedValueOnce(null);
     const outcome = await runCheck({
       cwd: '/repo',
@@ -236,10 +229,10 @@ describe('runCheck', () => {
     });
     arrange({
       graph,
-      result: checkResult([
+      diagnostics: [
         diagnostic({ entity: 'src/a.ts', status: 'new' }),
         diagnostic({ entity: 'src/b.ts', status: 'new', fingerprint: 'b' }),
-      ]),
+      ],
     });
     getChangedFilesMock.mockResolvedValueOnce(['src/a.ts']);
     const outcome = await runCheck({

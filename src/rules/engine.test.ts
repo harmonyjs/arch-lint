@@ -4,7 +4,6 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { BaselineFile } from '../baseline/types.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { EngineError } from '../errors/index.js';
 import { runEngine } from './engine.js';
@@ -53,13 +52,13 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress: makeSuppressIndex(),
       project: emptyProject,
     });
-    expect(result.diagnostics.some((d) => d.ruleId === 'lca-placement')).toBe(true);
+    expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });
 
   it('drops diagnostics suppressed by the suppress index', () => {
     const suppress = makeSuppressIndex({ suppressed: ['src/App/Stray'] });
     const result = runEngine({ graph: strayGraph, config: cfg(), suppress, project: emptyProject });
-    expect(result.diagnostics.some((d) => d.entity === 'src/App/Stray')).toBe(false);
+    expect(result.some((d) => d.entity === 'src/App/Stray')).toBe(false);
   });
 
   it('runs nothing for an empty graph', () => {
@@ -69,7 +68,7 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress: makeSuppressIndex(),
       project: emptyProject,
     });
-    expect(result.diagnostics).toEqual([]);
+    expect(result).toEqual([]);
   });
 
   it('dispatches a manifest rule with only its manifest context', () => {
@@ -202,97 +201,22 @@ describe('runEngine pipeline steps 3-4', () => {
   });
 });
 
-describe('runEngine pipeline step 5 (classify + summary + exitCode)', () => {
-  it('classifies every diagnostic as new when baseline is null', () => {
-    const result = runEngine(
-      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
-      { baseline: null },
-    );
-    expect(result.diagnostics.every((d) => d.status === 'new')).toBe(true);
-  });
-
-  it('marks a diagnostic inBaseline when its logical ID is recorded', () => {
-    const baseline: BaselineFile = {
-      schemaVersion: 1,
-      generatedAt: '2026-01-01T00:00:00.000Z',
-      generatorVersion: '1.0.0',
-      records: [{ ruleId: 'lca-placement', entity: 'src/App/Stray' }],
-    };
-    const result = runEngine(
-      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
-      { baseline },
-    );
-    const stray = result.diagnostics.find((d) => d.entity === 'src/App/Stray');
-    expect(stray?.status).toBe('inBaseline');
-  });
-
-  it('reports exitCode 1 when there is a new warning/error diagnostic', () => {
-    const result = runEngine(
-      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
-      { baseline: null },
-    );
-    expect(result.exitCode).toBe(1);
-  });
-
-  it('reports exitCode 0 when every diagnostic is inBaseline', () => {
-    const baseline: BaselineFile = {
-      schemaVersion: 1,
-      generatedAt: '2026-01-01T00:00:00.000Z',
-      generatorVersion: '1.0.0',
-      records: [{ ruleId: 'lca-placement', entity: 'src/App/Stray' }],
-    };
-    const result = runEngine(
-      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
-      { baseline },
-    );
-    expect(result.exitCode).toBe(0);
-  });
-
-  it('fills the summary counters', () => {
-    const result = runEngine(
-      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
-      { baseline: null },
-    );
-    expect(result.summary.total).toBe(result.diagnostics.length);
-    expect(result.summary.new).toBe(result.diagnostics.length);
-    expect(result.summary.inBaseline).toBe(0);
-    expect(result.summary.bySeverity.warning).toBeGreaterThan(0);
-  });
-
+describe('runEngine — rule filter', () => {
   it('honors the ruleFilter argument', () => {
     const result = runEngine(
       { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
-      { ruleFilter: ['layer-boundary'], baseline: null },
+      ['layer-boundary'],
     );
-    expect(result.diagnostics).toEqual([]);
+    expect(result).toEqual([]);
   });
 
-  it('keeps exitCode 0 when the only new diagnostic is info severity', () => {
-    const infoRule: Rule = {
-      id: 'lib-purity',
-      pack: 'layers',
-      engine: 'syntactic',
-      defaultSeverity: 'error',
-      check: () => [
-        {
-          ruleId: 'lib-purity',
-          severity: 'info',
-          entity: 'src/x.ts',
-          fingerprint: 'f',
-          message: 'm',
-          actual: 'a',
-          reason: 'r',
-          suggestions: [],
-          location: { file: 'src/x.ts', line: 1, column: 1 },
-        },
-      ],
-    };
-    const config = cfg({ packs: ['layers'], plugins: [infoRule] });
-    const result = runEngine(
-      { graph: makeGraph({}), config, suppress: makeSuppressIndex(), project: emptyProject },
-      { baseline: null },
-    );
-    expect(result.summary.bySeverity.info).toBe(1);
-    expect(result.exitCode).toBe(0);
+  it('runs every active rule when no ruleFilter is given', () => {
+    const result = runEngine({
+      graph: strayGraph,
+      config: cfg(),
+      suppress: makeSuppressIndex(),
+      project: emptyProject,
+    });
+    expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });
 });

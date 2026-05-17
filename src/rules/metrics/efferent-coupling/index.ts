@@ -13,15 +13,9 @@ interface Options {
   readonly max: number;
   /** Subsystem names exempt from the check — high fan-out is correct by role. */
   readonly allow: readonly string[];
-  /**
-   * Foundational subsystems whose inbound dependency is not counted as efferent
-   * coupling. A maximally-stable shared lexicon — the error taxonomy, say — carries
-   * no logic to extract alongside, so depending on it does not raise extraction cost.
-   */
-  readonly foundational: readonly string[];
 }
 
-const DEFAULTS: Options = { max: 4, allow: [], foundational: [] };
+const DEFAULTS: Options = { max: 4, allow: [] };
 
 /** Rule: a subsystem with Ce above `max` outbound subsystem dependencies is flagged. */
 export const efferentCoupling: GraphRule = {
@@ -33,13 +27,11 @@ export const efferentCoupling: GraphRule = {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const root = config.project.sourceRoot;
     const allow = new Set(opts.allow);
-    const foundational = new Set(opts.foundational);
     const coupling = subsystemCoupling(graph, root);
     const out: Diagnostic[] = [];
     for (const [subsystem, info] of coupling) {
-      if (allow.has(subsystem)) continue;
-      const deps = [...info.outboundSubsystems].filter((s) => !foundational.has(s)).sort();
-      if (deps.length <= opts.max) continue;
+      if (allow.has(subsystem) || info.ce <= opts.max) continue;
+      const outbound = [...info.outboundSubsystems].sort().join(', ');
       out.push({
         ruleId: 'efferent-coupling',
         severity: context.severity,
@@ -47,7 +39,7 @@ export const efferentCoupling: GraphRule = {
         fingerprint: `efferent-coupling#${subsystem}`,
         message: `subsystem ${subsystem} depends on too many other subsystems`,
         expected: `≤ ${opts.max} outbound subsystem dependencies`,
-        actual: `${deps.length} (${deps.join(', ')})`,
+        actual: `${info.ce} (${outbound})`,
         reason:
           'high efferent coupling makes the subsystem hard to extract and reason about in isolation',
         suggestions: [

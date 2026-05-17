@@ -10,7 +10,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { makeGraph } from '../rules/test-support/make-graph.js';
-import type { CheckResult } from '../rules/types.js';
 import type { Diagnostic } from '../types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
@@ -108,24 +107,11 @@ function diagnostic(over: Partial<Diagnostic> = {}): Diagnostic {
   };
 }
 
-function checkResult(diagnostics: readonly Diagnostic[]): CheckResult {
-  return {
-    diagnostics,
-    summary: {
-      total: diagnostics.length,
-      bySeverity: { info: 0, warning: 0, error: diagnostics.length },
-      new: diagnostics.filter((d) => d.status === 'new').length,
-      inBaseline: diagnostics.filter((d) => d.status === 'inBaseline').length,
-    },
-    exitCode: 0,
-  };
-}
-
 /** Wires the happy-path mocks; per-test overrides follow. */
 function arrange(opts: {
   readonly config?: ResolvedConfig;
   readonly graph?: ConsumerGraph;
-  readonly result: CheckResult;
+  readonly diagnostics: readonly Diagnostic[];
 }): void {
   loadConfigMock.mockResolvedValue({ project: { tsconfig: './tsconfig.json' } });
   resolveConfigMock.mockReturnValue(opts.config ?? resolvedConfig());
@@ -140,7 +126,7 @@ function arrange(opts: {
     isSuppressed: () => false,
     findExpired: () => [],
   });
-  runEngineMock.mockReturnValue(opts.result);
+  runEngineMock.mockReturnValue(opts.diagnostics);
   formatReportMock.mockReturnValue('report-text');
 }
 
@@ -150,7 +136,7 @@ afterEach(() => {
 
 describe('runCheckCommand', () => {
   it('runs a plain check as a ci verdict with changed-only off', async () => {
-    arrange({ result: checkResult([]) });
+    arrange({ diagnostics: [] });
 
     const outcome = await runCheckCommand({
       cwd: '/repo',
@@ -162,13 +148,13 @@ describe('runCheckCommand', () => {
     expect(loadConfigMock).toHaveBeenCalledWith('/repo', undefined);
     // changed-only off — the git base is never consulted.
     expect(getChangedFilesMock).not.toHaveBeenCalled();
-    // No rule filter — runEngine receives undefined as its rule-filter option.
-    expect(runEngineMock.mock.calls[0]![1].ruleFilter).toBeUndefined();
+    // No rule filter — runEngine receives undefined as its rule-filter argument.
+    expect(runEngineMock.mock.calls[0]![1]).toBeUndefined();
     expect(outcome).toEqual({ stdout: 'report-text', stderr: [], exitCode: 0 });
   });
 
   it('runs --changed-only as a preCommit verdict and forwards warnings + exit code', async () => {
-    arrange({ result: checkResult([diagnostic({ status: 'new' })]) });
+    arrange({ diagnostics: [diagnostic({ status: 'new' })] });
     getChangedFilesMock.mockResolvedValueOnce(null);
 
     const outcome = await runCheckCommand({
@@ -185,7 +171,7 @@ describe('runCheckCommand', () => {
     // changed-only on — the git base is consulted with the supplied ref.
     expect(getChangedFilesMock).toHaveBeenCalledWith('/repo', 'origin/main');
     // The rule filter reaches the engine.
-    expect(runEngineMock.mock.calls[0]![1].ruleFilter).toEqual(['layer-boundary']);
+    expect(runEngineMock.mock.calls[0]![1]).toEqual(['layer-boundary']);
     // preCommit verdict does not fail on violations, so a new violation is exit 0.
     expect(outcome.stdout).toBe('report-text');
     expect(outcome.stderr).toEqual([
