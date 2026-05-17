@@ -16,19 +16,24 @@ import type { Diagnostic } from '../types.js';
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 
 const loadConfigMock = vi.fn();
-vi.mock('../config/load.js', () => ({
-  loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
-}));
-
 const resolveConfigMock = vi.fn();
-vi.mock('../config/resolve-defaults.js', () => ({
-  resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
-}));
+vi.mock('../config/index.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../config/index.js')>();
+  return {
+    ...actual,
+    loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
+    resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
+  };
+});
 
 const buildGraphFromSourcesMock = vi.fn();
-vi.mock('../graph/build.js', () => ({
-  buildGraphFromSources: (...args: unknown[]): unknown => buildGraphFromSourcesMock(...args),
-}));
+vi.mock('../graph/index.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../graph/index.js')>();
+  return {
+    ...actual,
+    buildGraphFromSources: (...args: unknown[]): unknown => buildGraphFromSourcesMock(...args),
+  };
+});
 
 const loadSourceFilesMock = vi.fn();
 vi.mock('../graph/source-files.js', () => ({
