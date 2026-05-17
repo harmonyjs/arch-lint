@@ -38,11 +38,20 @@ function filesWithSibling(graph: ConsumerGraph, root: string): ReadonlySet<strin
   const result = new Set<string>();
   for (const edge of graph.edges) {
     if (edge.consumer === edge.producer) continue;
-    if (subsystemOf(edge.consumer, root) === subsystemOf(edge.producer, root)) {
+    // A root-level lexicon file has no subsystem; two of them are not siblings.
+    const consumerSubsystem = subsystemOf(edge.consumer, root);
+    if (consumerSubsystem !== null && consumerSubsystem === subsystemOf(edge.producer, root)) {
       result.add(edge.consumer);
     }
   }
   return result;
+}
+
+/** The shared inputs of a single subsystem's cohesion measurement. */
+interface CohesionScan {
+  readonly graph: ConsumerGraph;
+  readonly connected: ReadonlySet<string>;
+  readonly min: number;
 }
 
 /** Entity files of a subsystem — its members; barrels and entry files are excluded. */
@@ -59,21 +68,19 @@ function entityFilesOf(graph: ConsumerGraph, info: SubsystemCoupling): readonly 
  * the subsystem has at least two entity files and its cohesion drops below `min`.
  */
 function measureSubsystem(
-  graph: ConsumerGraph,
   subsystem: string,
   info: SubsystemCoupling,
-  connected: ReadonlySet<string>,
-  min: number,
+  scan: CohesionScan,
 ): CohesionMiss | null {
-  const entities = entityFilesOf(graph, info);
+  const entities = entityFilesOf(scan.graph, info);
   const total = entities.length;
   if (total < 2) return null;
   let internal = 0;
   for (const file of entities) {
-    if (connected.has(file)) internal += 1;
+    if (scan.connected.has(file)) internal += 1;
   }
   const cohesion = internal / total;
-  if (cohesion >= min) return null;
+  if (cohesion >= scan.min) return null;
   return { subsystem, internal, total, cohesion };
 }
 
@@ -115,12 +122,12 @@ export const subsystemCohesion: GraphRule = {
     const root = config.project.sourceRoot;
     const ignore = new Set(opts.ignoreSubsystems);
     const coupling = subsystemCoupling(graph, root);
-    const connected = filesWithSibling(graph, root);
+    const scan: CohesionScan = { graph, connected: filesWithSibling(graph, root), min: opts.min };
 
     const out: Diagnostic[] = [];
     for (const [subsystem, info] of coupling) {
       if (ignore.has(subsystem)) continue;
-      const miss = measureSubsystem(graph, subsystem, info, connected, opts.min);
+      const miss = measureSubsystem(subsystem, info, scan);
       if (miss !== null) out.push(toDiagnostic(miss, root, opts.min, context.severity));
     }
     return out;
