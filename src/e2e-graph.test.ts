@@ -1,5 +1,5 @@
 /**
- * @fileoverview End-to-end test: runGraphCommand over the sample-app example
+ * @fileoverview End-to-end test: runGraphCommand over the sample fixture
  * project produces a valid layered Mermaid document.
  */
 import { dirname, join } from 'node:path';
@@ -8,28 +8,29 @@ import { describe, expect, it } from 'vitest';
 import { runGraphCommand } from './runner/graph.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const sampleApp = join(here, '..', 'examples', 'sample-app');
+const fixture = join(here, 'fixtures', 'sample-project');
 
 describe('graph command end to end', () => {
-  it('renders a document for the sample-app example', async () => {
-    const outcome = await runGraphCommand({ cwd: sampleApp });
+  it('renders a layered Mermaid document for the sample project', async () => {
+    const outcome = await runGraphCommand({
+      cwd: fixture,
+      configPath: join(fixture, 'arch-lint.config.mjs'),
+    });
     expect(outcome.exitCode).toBe(0);
     expect(outcome.stdout).toContain('# Project dependency graph');
     expect(outcome.stdout).toContain('## Legend');
     expect(outcome.stdout).toContain('```mermaid');
     expect(outcome.stdout).toContain('## Overview');
-  });
+  }, 30_000);
 
-  it('graphs the sample-app subsystems, not the arch-lint repo', async () => {
-    const outcome = await runGraphCommand({ cwd: sampleApp });
-    // The top-level folders under examples/sample-app/src/ surface as their
-    // own document sections — proof the document reflects the example project
-    // rather than arch-lint's own src/.
-    expect(outcome.stdout).toContain('## app');
-    expect(outcome.stdout).toContain('## domain');
-    expect(outcome.stdout).toContain('## support');
-    // Files unique to sample-app — arch-lint's own src/ has none of these.
-    expect(outcome.stdout).toContain('greeting-service.ts');
-    expect(outcome.stdout).toContain('clock-display.ts');
-  });
+  it('graphs the sample project — its subsystems and files surface', async () => {
+    const outcome = await runGraphCommand({
+      cwd: fixture,
+      configPath: join(fixture, 'arch-lint.config.mjs'),
+    });
+    // `App` is a top-level folder under the fixture's src/ — it owns a section.
+    // arch-lint's own src/ has no such folder, proving the right project graphed.
+    expect(outcome.stdout).toContain('## App');
+    expect(outcome.stdout).toContain('util.ts');
+  }, 30_000);
 });

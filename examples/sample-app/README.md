@@ -31,7 +31,7 @@ src/support  →  pure, dependency-free  (strings.ts, numbers.ts)
 
 ```
 examples/sample-app/
-  arch-lint.config.ts        arch-lint config (defineConfig, relative source import)
+  arch-lint.config.ts        arch-lint config (defineConfig, relative public API import)
   tsconfig.json              strict NodeNext tsconfig
   src/
     app/
