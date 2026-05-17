@@ -6,3 +6,4 @@
 export { buildGraph, buildGraphFromSources } from './build.js';
 export { graphEntityResolver } from './entity-resolver.js';
 export { buildIncremental } from './incremental.js';
+export { layerOf } from './layers.js';

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Entity-tree helpers — derive component parents, LCA and layer of an entity.
+ * @fileoverview Entity-tree helpers — derive component parents and LCA of an entity.
  */
-import type { ConventionsConfig, LayersConfig } from '../../config/types.js';
+import type { ConventionsConfig } from '../../config/types.js';
 import type { ConsumerGraph } from '../../graph/types.js';
 /** The role-segment subset of conventions — folders that are transparent in the tree. */
 export type RoleConv = Pick<
@@ -64,20 +64,4 @@ export function lca(
   }
   // `common` is ordered deepest-first by construction of entityChain.
   return common !== null && common.length > 0 ? common[0]! : null;
-}
-
-/** True when `prefix` is a segment-wise prefix of `path` (or equal). */
-function isSegmentPrefix(prefix: string, path: string): boolean {
-  return path === prefix || path.startsWith(`${prefix}/`);
-}
-
-/** Layer key (longest segment-wise prefix) of `entityId`; null when none matches. */
-export function layerOf(entityId: string, layers: LayersConfig): string | null {
-  let best: string | null = null;
-  for (const key of Object.keys(layers)) {
-    if (isSegmentPrefix(key, entityId) && (best === null || key.length > best.length)) {
-      best = key;
-    }
-  }
-  return best;
 }
