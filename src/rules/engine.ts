@@ -58,7 +58,11 @@ function dispatchRule(rule: Rule, env: DispatchEnv): Diagnostic[] {
     case 'graph':
       return rule.check(graph, config, buildGraphContext(rule, config, suppress));
     case 'syntactic':
-      return rule.check(graph, config, buildSyntacticContext(rule, config, suppress, project));
+      return rule.check(
+        graph,
+        config,
+        buildSyntacticContext(rule, config, suppress, project, graph),
+      );
     case 'manifest':
       return rule.check(buildManifestContext(rule, config, manifests, cwd));
   }
