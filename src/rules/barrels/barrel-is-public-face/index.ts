@@ -8,7 +8,7 @@ import type { Diagnostic } from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
 import { componentFolderOf, isBarrelFile } from '../../syntactic-support/node-helpers.js';
 import { enforceForSegmentsMatches, segmentsOf } from '../../syntactic-support/segments.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** Options of barrel-is-public-face (D7). */
 export interface BarrelIsPublicFaceOptions {
@@ -101,7 +101,7 @@ function bypassDiagnostic(
   edge: Edge,
   verdict: Verdict,
   folder: string,
-  context: RuleContext<BarrelIsPublicFaceOptions>,
+  context: SyntacticRuleContext<BarrelIsPublicFaceOptions>,
 ): Diagnostic {
   return {
     ruleId: context.ruleId,
@@ -125,7 +125,7 @@ function bypassDiagnostic(
 }
 
 /** D7: bypassing a component-folder barrel is forbidden to external files. */
-export const barrelIsPublicFace: Rule<BarrelIsPublicFaceOptions> = {
+export const barrelIsPublicFace: SyntacticRule<BarrelIsPublicFaceOptions> = {
   id: 'barrel-is-public-face',
   pack: 'barrels',
   engine: 'syntactic',

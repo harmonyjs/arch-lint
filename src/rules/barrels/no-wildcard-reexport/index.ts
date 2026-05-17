@@ -7,7 +7,7 @@ import type { Diagnostic } from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
 import { type ImportInfo, importsOf } from '../../syntactic-support/import-info.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule } from '../../types.js';
+import type { SyntacticRule } from '../../types.js';
 
 /** Builds the diagnostic for one forbidden wildcard re-export. */
 function wildcardDiagnostic(
@@ -40,7 +40,7 @@ function wildcardDiagnostic(
 }
 
 /** Rule: both wildcard re-export forms are forbidden (§8.3). */
-export const noWildcardReexport: Rule = {
+export const noWildcardReexport: SyntacticRule = {
   id: 'no-wildcard-reexport',
   pack: 'barrels',
   engine: 'syntactic',

@@ -15,7 +15,7 @@ describe('unresolvedImportRule', () => {
   it('has the canonical metadata', () => {
     expect(unresolvedImportRule.id).toBe('unresolved-import');
     expect(unresolvedImportRule.pack).toBe('meta');
-    expect(unresolvedImportRule.engine).toBe('meta');
+    expect(unresolvedImportRule.engine).toBe('graph');
     expect(unresolvedImportRule.defaultSeverity).toBe('warning');
   });
 

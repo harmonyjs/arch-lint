@@ -7,7 +7,7 @@ import type { Diagnostic } from '../../../types.js';
 import { importsOf } from '../../syntactic-support/import-info.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule } from '../../types.js';
+import type { SyntacticRule } from '../../types.js';
 import { triggerPackageMatcher } from './matcher.js';
 
 /** Options of ui-cluster-membership. */
@@ -53,7 +53,7 @@ function membershipDiagnostic(
 }
 
 /** Rule: a file importing a trigger package must live in the UI cluster. */
-export const uiClusterMembership: Rule<UiClusterMembershipOptions> = {
+export const uiClusterMembership: SyntacticRule<UiClusterMembershipOptions> = {
   id: 'ui-cluster-membership',
   pack: 'view',
   engine: 'syntactic',
