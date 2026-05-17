@@ -14,7 +14,7 @@ import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { ConfigError } from '../errors.js';
-import { packageRoot } from '../paths.js';
+import { packageRoot } from './paths.js';
 import type { CheckResult } from '../rules/types.js';
 import { type RunCheckOptions, resolveBaseline, runCheck } from './check.js';
 /** Inputs shared by every baseline subcommand. */

@@ -9,7 +9,7 @@ vi.mock('../rules/index.js', () => ({
   allRules: [{ id: 'lca-placement' }, { id: 'layer-boundary' }],
 }));
 
-vi.mock('../paths.js', () => ({
+vi.mock('./paths.js', () => ({
   ruleDocPath: (ruleId: string) => `/docs/rules/${ruleId}.md`,
 }));
 
