@@ -6,7 +6,15 @@
 import type { Rule } from '../rules/types.js';
 import type { Severity } from '../types.js';
 
-export type Pack = 'layers' | 'barrels' | 'placement' | 'perfile' | 'hygiene' | 'view' | 'meta';
+export type Pack =
+  | 'layers'
+  | 'barrels'
+  | 'placement'
+  | 'perfile'
+  | 'hygiene'
+  | 'view'
+  | 'meta'
+  | 'metrics';
 
 export interface ProjectConfig {
   readonly tsconfig: string;

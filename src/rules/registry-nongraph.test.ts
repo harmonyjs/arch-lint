@@ -36,8 +36,22 @@ describe('registry — non-graph packs', () => {
     ]);
   });
 
-  it('registers 27 rules in total', () => {
-    expect(allRules).toHaveLength(27);
+  it('includes all 5 metrics rules', () => {
+    const metrics = allRules
+      .filter((r) => r.pack === 'metrics')
+      .map((r) => r.id)
+      .sort();
+    expect(metrics).toEqual([
+      'afferent-coupling',
+      'cross-cutting-concern',
+      'efferent-coupling',
+      'instability',
+      'subsystem-cohesion',
+    ]);
+  });
+
+  it('registers 32 rules in total', () => {
+    expect(allRules).toHaveLength(32);
   });
 
   it('has globally unique rule ids', () => {
