@@ -27,6 +27,7 @@
     "isolatedDeclarations": true,
     "noUncheckedSideEffectImports": true,
     "strictBuiltinIteratorReturn": true,
+    "erasableSyntaxOnly": true,
 
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
