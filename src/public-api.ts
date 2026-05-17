@@ -2,14 +2,16 @@
  * @fileoverview Public API surface of @avavilov/arch-lint — the single package
  * entry point re-exporting the published types and functions. The internal
  * Resolution type and the config helper modules are intentionally not
- * re-exported. buildGraph (M2) and check (M7) are added by their milestones.
+ * re-exported.
  */
 
 export { resolveConfig } from './config/resolve-defaults.js';
 // ── Functions ────────────────────────────────────────────────────────────────
 export { defineConfig } from './define-config.js';
+export { buildGraph } from './graph/build.js';
+export { check } from './runner/index.js';
 
-// ── Types (Resolution excluded — internal, §5.2) ─────────────────────────────
+// ── Types (Resolution excluded — internal resolver helper) ───────────────────
 export type {
   ActiveSeverity,
   BaselineConfig,
