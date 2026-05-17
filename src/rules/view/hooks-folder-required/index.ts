@@ -7,7 +7,7 @@ import type { ConsumerGraph } from '../../../graph/types.js';
 import type { Diagnostic } from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
 import { isUnderSegment, segmentsOf } from '../../syntactic-support/segments.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** Options of hooks-folder-required (D7). */
 export interface HooksFolderRequiredOptions {
@@ -31,7 +31,7 @@ function isBarrel(fileId: string, config: ResolvedConfig): boolean {
 /** Builds the diagnostic for one hooks-placement violation. */
 function makeDiag(
   fileId: string,
-  context: RuleContext<HooksFolderRequiredOptions>,
+  context: SyntacticRuleContext<HooksFolderRequiredOptions>,
   kind: Kind,
   hooksSegment: string,
   pattern: string,
@@ -84,7 +84,7 @@ function violationOf(
 }
 
 /** D7: use-* files must live in hooks/; strictCheck enforces both directions. */
-export const hooksFolderRequired: Rule<HooksFolderRequiredOptions> = {
+export const hooksFolderRequired: SyntacticRule<HooksFolderRequiredOptions> = {
   id: 'hooks-folder-required',
   pack: 'view',
   engine: 'syntactic',

@@ -39,7 +39,7 @@ describe('placement rule family', () => {
       it('has the canonical metadata', () => {
         expect(rule.id).toBe(descriptor.ruleId);
         expect(rule.pack).toBe('placement');
-        expect(rule.engine).toBe('structural');
+        expect(rule.engine).toBe('graph');
         expect(rule.defaultSeverity).toBe(descriptor.defaultSeverity);
       });
     });

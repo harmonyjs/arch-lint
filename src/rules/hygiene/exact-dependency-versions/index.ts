@@ -1,12 +1,9 @@
 /**
  * @fileoverview exact-dependency-versions rule — requires exact dependency versions
- * (no range operators, no dist-tags). Reads package.json from disk (manifest engine).
+ * (no range operators, no dist-tags). Reads the parsed package.json from the manifest bundle.
  */
-import { existsSync, readFileSync } from 'node:fs';
 import type { Diagnostic } from '../../../types.js';
-import type { Rule, RuleContext } from '../../types.js';
-import { manifestPath } from '../support/manifest-path.js';
-import { parsePackageJson } from '../support/package-json.js';
+import type { ManifestRule, ManifestRuleContext } from '../../types.js';
 
 /** Options of exact-dependency-versions. */
 interface Options {
@@ -25,16 +22,15 @@ function isExact(spec: string): boolean {
 }
 
 /** Rule: dependency sections must pin exact versions (§13.3). */
-export const exactDependencyVersions: Rule = {
+export const exactDependencyVersions: ManifestRule = {
   id: 'exact-dependency-versions',
   pack: 'hygiene',
   engine: 'manifest',
   defaultSeverity: 'error',
-  check: (_graph, config, context: RuleContext): Diagnostic[] => {
+  check: (context: ManifestRuleContext): Diagnostic[] => {
     const opts: Options = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    const path = manifestPath(config, 'package.json');
-    if (!existsSync(path)) return [];
-    const doc = parsePackageJson(readFileSync(path, 'utf8'));
+    const doc = context.manifests.packageJson;
+    if (doc === null) return [];
     const sections = opts.sections.filter((s) => !FORBIDDEN_SECTIONS.has(s));
     const seen = new Set<string>();
     const out: Diagnostic[] = [];
@@ -57,7 +53,7 @@ export const exactDependencyVersions: Rule = {
           actual: `"${spec}"`,
           reason: 'range versions make the build non-reproducible across installs',
           suggestions: [{ action: 'custom', rationale: `pin "${pkg}" to an exact version` }],
-          location: { ...loc, file: path },
+          location: { ...loc, file: 'package.json' },
         });
       }
     }

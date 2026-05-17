@@ -4,7 +4,7 @@
  */
 
 import type { Diagnostic } from '../../../types.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 import { cognitiveComplexity } from '../support/complexity-metric.js';
 import { functionLocation, scanFunctions } from '../support/scan-functions.js';
 
@@ -16,12 +16,12 @@ interface Options {
 const DEFAULTS: Options = { max: 15 };
 
 /** Rule: a function's cognitive complexity must not exceed `max` (§13.1, D4). */
-export const complexity: Rule = {
+export const complexity: SyntacticRule = {
   id: 'complexity',
   pack: 'perfile',
-  engine: 'perfile',
+  engine: 'syntactic',
   defaultSeverity: 'warning',
-  check: (graph, _config, context: RuleContext): Diagnostic[] => {
+  check: (graph, _config, context: SyntacticRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const out: Diagnostic[] = [];
     scanFunctions(graph, context.project, (fileId, unit) => {

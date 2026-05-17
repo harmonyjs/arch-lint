@@ -7,7 +7,7 @@ import type { ConsumerGraph } from '../../../graph/types.js';
 import type { Diagnostic } from '../../../types.js';
 import { isComponentFolderEntry, roleFolderSegment } from '../../syntactic-support/node-helpers.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** Options of barrel-required-for-role (D7). */
 export interface BarrelRequiredForRoleOptions {
@@ -43,7 +43,7 @@ function missingBarrelDiagnostic(
   folderId: string,
   role: string | null,
   config: ResolvedConfig,
-  context: RuleContext<BarrelRequiredForRoleOptions>,
+  context: SyntacticRuleContext<BarrelRequiredForRoleOptions>,
 ): Diagnostic {
   const indexFiles = config.conventions.indexFiles;
   const barrelPath = `${folderId}/${indexFiles[0]}`;
@@ -88,7 +88,7 @@ function violatesBarrelRule(
 }
 
 /** D6: role folders and component folders must contain a barrel. */
-export const barrelRequiredForRole: Rule<BarrelRequiredForRoleOptions> = {
+export const barrelRequiredForRole: SyntacticRule<BarrelRequiredForRoleOptions> = {
   id: 'barrel-required-for-role',
   pack: 'barrels',
   engine: 'syntactic',

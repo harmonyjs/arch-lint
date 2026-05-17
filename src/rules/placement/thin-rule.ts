@@ -3,7 +3,7 @@
  */
 
 import type { ActiveSeverity, Diagnostic } from '../../types.js';
-import type { Rule } from '../types.js';
+import type { GraphRule } from '../types.js';
 import { analyzePlacement, type PlacementVerdict } from './analyze.js';
 import { verdictToDiagnostic } from './verdict-to-diagnostic.js';
 
@@ -17,11 +17,11 @@ export interface ThinRuleSpec {
  * Builds a placement Rule that calls analyzePlacement and emits a Diagnostic only for
  * entities whose §7.3 verdict matches `spec.id` — verdicts never overlap by construction.
  */
-export function makeThinPlacementRule(spec: ThinRuleSpec): Rule {
+export function makeThinPlacementRule(spec: ThinRuleSpec): GraphRule {
   return {
     id: spec.id,
     pack: 'placement',
-    engine: 'structural',
+    engine: 'graph',
     defaultSeverity: spec.defaultSeverity,
     check: (graph, config, context): Diagnostic[] => {
       const out: Diagnostic[] = [];

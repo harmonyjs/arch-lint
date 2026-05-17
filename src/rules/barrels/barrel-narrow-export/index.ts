@@ -8,7 +8,7 @@ import { importsOf } from '../../syntactic-support/import-info.js';
 import { isBarrelFile } from '../../syntactic-support/node-helpers.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule } from '../../types.js';
+import type { SyntacticRule } from '../../types.js';
 
 /** Options of barrel-narrow-export (D7). */
 export interface BarrelNarrowExportOptions {
@@ -91,7 +91,7 @@ function narrowExportDiagnostic(
 }
 
 /** D7: a component-folder barrel re-exports only the folder's entity. */
-export const barrelNarrowExport: Rule<BarrelNarrowExportOptions> = {
+export const barrelNarrowExport: SyntacticRule<BarrelNarrowExportOptions> = {
   id: 'barrel-narrow-export',
   pack: 'barrels',
   engine: 'syntactic',

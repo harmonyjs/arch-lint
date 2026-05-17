@@ -7,7 +7,7 @@ import type { SourceFile } from 'ts-morph';
 import { Node } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** PascalCase name — the component heuristic (decision A2). */
 function isPascalCase(name: string | undefined): boolean {
@@ -36,12 +36,12 @@ function entityCount(sf: SourceFile): number {
 }
 
 /** Rule: at most one exported entity (class/component) per file (§13.1, A2). */
-export const singleEntityPerFile: Rule = {
+export const singleEntityPerFile: SyntacticRule = {
   id: 'single-entity-per-file',
   pack: 'perfile',
-  engine: 'perfile',
+  engine: 'syntactic',
   defaultSeverity: 'error',
-  check: (graph, _config, context: RuleContext): Diagnostic[] => {
+  check: (graph, _config, context: SyntacticRuleContext): Diagnostic[] => {
     const out: Diagnostic[] = [];
     for (const fileId of fileNodeIds(graph)) {
       const sf = sourceFileFor(context.project, fileId);

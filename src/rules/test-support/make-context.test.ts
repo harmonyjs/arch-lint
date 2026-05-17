@@ -4,7 +4,8 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import { makeContext, makeSuppressIndex } from './make-context.js';
+import type { ManifestBundle } from '../types.js';
+import { makeContext, makeManifestContext, makeSuppressIndex } from './make-context.js';
 
 describe('makeSuppressIndex', () => {
   it('returns an index that suppresses nothing by default', () => {
@@ -46,5 +47,34 @@ describe('makeContext', () => {
     const ctx = makeContext('lib-purity', { project });
     expect(ctx.project).toBe(project);
     expect(ctx.project.getSourceFile('src/x.ts')).toBeDefined();
+  });
+});
+
+describe('makeManifestContext', () => {
+  it('builds a ManifestRuleContext with defaults', () => {
+    const ctx = makeManifestContext('package-engines');
+    expect(ctx.ruleId).toBe('package-engines');
+    expect(ctx.severity).toBe('error');
+    expect(ctx.options).toEqual({});
+    expect(ctx.cwd).toBe(process.cwd());
+    expect(ctx.manifests).toEqual({ packageJson: null, npmrc: null, tsconfig: null });
+  });
+
+  it('threads severity, options, manifests and cwd overrides', () => {
+    const manifests: ManifestBundle = {
+      packageJson: { kind: 'package.json' } as unknown as ManifestBundle['packageJson'],
+      npmrc: null,
+      tsconfig: null,
+    };
+    const ctx = makeManifestContext('package-engines', {
+      severity: 'warning',
+      options: { requiredKeys: ['node'] },
+      manifests,
+      cwd: '/tmp/project',
+    });
+    expect(ctx.severity).toBe('warning');
+    expect(ctx.options).toEqual({ requiredKeys: ['node'] });
+    expect(ctx.manifests).toBe(manifests);
+    expect(ctx.cwd).toBe('/tmp/project');
   });
 });

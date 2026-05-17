@@ -18,7 +18,7 @@ describe('layerBoundaryRule', () => {
   it('has the canonical metadata', () => {
     expect(layerBoundaryRule.id).toBe('layer-boundary');
     expect(layerBoundaryRule.pack).toBe('layers');
-    expect(layerBoundaryRule.engine).toBe('structural');
+    expect(layerBoundaryRule.engine).toBe('graph');
     expect(layerBoundaryRule.defaultSeverity).toBe('error');
   });
 

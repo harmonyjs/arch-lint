@@ -3,12 +3,12 @@
  */
 
 import type { Diagnostic } from '../../../types.js';
-import type { Rule } from '../../types.js';
+import type { GraphRule } from '../../types.js';
 /** Rule: every entry in graph.unresolved is a lost consumer edge worth reporting. */
-export const unresolvedImportRule: Rule = {
+export const unresolvedImportRule: GraphRule = {
   id: 'unresolved-import',
   pack: 'meta',
-  engine: 'meta',
+  engine: 'graph',
   defaultSeverity: 'warning',
   check: (graph, _config, context): Diagnostic[] => {
     const out: Diagnostic[] = [];

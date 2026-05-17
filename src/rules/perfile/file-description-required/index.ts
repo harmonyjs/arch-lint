@@ -7,7 +7,7 @@ import type { SourceFile } from 'ts-morph';
 import { Node } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** Options of file-description-required. */
 interface Options {
@@ -35,12 +35,12 @@ function checkFile(sf: SourceFile, opts: Options): string | null {
 }
 
 /** Rule: every file opens with a leading multiline @fileoverview JSDoc block (§13.1). */
-export const fileDescriptionRequired: Rule = {
+export const fileDescriptionRequired: SyntacticRule = {
   id: 'file-description-required',
   pack: 'perfile',
-  engine: 'perfile',
+  engine: 'syntactic',
   defaultSeverity: 'error',
-  check: (graph, _config, context: RuleContext): Diagnostic[] => {
+  check: (graph, _config, context: SyntacticRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const out: Diagnostic[] = [];
     for (const fileId of fileNodeIds(graph)) {

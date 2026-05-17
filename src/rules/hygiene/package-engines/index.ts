@@ -1,12 +1,9 @@
 /**
  * @fileoverview package-engines rule — requires declared `engines` keys in package.json.
- * Reads package.json from disk; the graph is unused (manifest engine).
+ * Reads the parsed package.json from the manifest bundle; the graph is unused.
  */
-import { existsSync, readFileSync } from 'node:fs';
 import type { Diagnostic } from '../../../types.js';
-import type { Rule, RuleContext } from '../../types.js';
-import { manifestPath } from '../support/manifest-path.js';
-import { parsePackageJson } from '../support/package-json.js';
+import type { ManifestRule, ManifestRuleContext } from '../../types.js';
 
 /** Options of package-engines. */
 interface Options {
@@ -16,16 +13,15 @@ interface Options {
 const DEFAULTS: Options = { requiredKeys: ['node', 'npm'] };
 
 /** Rule: package.json must declare every required `engines` key (§13.3). */
-export const packageEngines: Rule = {
+export const packageEngines: ManifestRule = {
   id: 'package-engines',
   pack: 'hygiene',
   engine: 'manifest',
   defaultSeverity: 'error',
-  check: (_graph, config, context: RuleContext): Diagnostic[] => {
+  check: (context: ManifestRuleContext): Diagnostic[] => {
     const opts: Options = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    const path = manifestPath(config, 'package.json');
-    if (!existsSync(path)) return [];
-    const doc = parsePackageJson(readFileSync(path, 'utf8'));
+    const doc = context.manifests.packageJson;
+    if (doc === null) return [];
     const engines = doc.getSection('engines') ?? {};
     const enginesLoc = doc.keyLocation('engines') ?? doc.rootLocation();
     const seen = new Set<string>();
@@ -45,7 +41,7 @@ export const packageEngines: Rule = {
         actual: `engines.${key} is missing`,
         reason: 'an undeclared engine leaves build reproducibility unguaranteed',
         suggestions: [{ action: 'custom', rationale: `add "${key}" to "engines" in package.json` }],
-        location: { ...declaredLoc, file: path },
+        location: { ...declaredLoc, file: 'package.json' },
       });
     }
     return out;

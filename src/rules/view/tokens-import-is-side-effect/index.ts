@@ -8,7 +8,7 @@ import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
 import { type ImportInfo, importsOf } from '../../syntactic-support/import-info.js';
 import { segmentsOf } from '../../syntactic-support/segments.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule } from '../../types.js';
+import type { SyntacticRule } from '../../types.js';
 
 /** The fixed segment name of the design-tokens folder. */
 const TOKENS_SEGMENT = 'tokens';
@@ -62,7 +62,7 @@ function tokensDiagnostic(
 }
 
 /** Rule: tokens/* is imported as a side-effect only; allowedImporters are exempt. */
-export const tokensImportIsSideEffect: Rule<TokensImportIsSideEffectOptions> = {
+export const tokensImportIsSideEffect: SyntacticRule<TokensImportIsSideEffectOptions> = {
   id: 'tokens-import-is-side-effect',
   pack: 'view',
   engine: 'syntactic',

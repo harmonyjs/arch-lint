@@ -15,7 +15,7 @@ describe('expiredSuppressRule', () => {
   it('has the canonical metadata', () => {
     expect(expiredSuppressRule.id).toBe('expired-suppress');
     expect(expiredSuppressRule.pack).toBe('meta');
-    expect(expiredSuppressRule.engine).toBe('meta');
+    expect(expiredSuppressRule.engine).toBe('graph');
     expect(expiredSuppressRule.defaultSeverity).toBe('warning');
   });
 

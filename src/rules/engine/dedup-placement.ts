@@ -1,7 +1,7 @@
 /**
  * @fileoverview dedupPlacement — defensive engine step keeping one placement verdict per entity.
  */
-import type { Diagnostic } from '../types.js';
+import type { Diagnostic } from '../../types.js';
 
 /** §7.3 projection priority — lower index wins a per-entity collision. */
 const PLACEMENT_PRIORITY: readonly string[] = [

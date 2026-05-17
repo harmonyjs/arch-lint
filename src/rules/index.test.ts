@@ -18,7 +18,7 @@ function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
 const pluginRule: Rule = {
   id: 'custom-plugin-rule',
   pack: 'placement',
-  engine: 'structural',
+  engine: 'graph',
   defaultSeverity: 'warning',
   check: () => [],
 };

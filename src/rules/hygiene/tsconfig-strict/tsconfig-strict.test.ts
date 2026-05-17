@@ -6,29 +6,23 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../config/types.js';
-import { makeContext } from '../../test-support/make-context.js';
-import { makeGraph } from '../../test-support/make-graph.js';
+import { makeManifestContext } from '../../test-support/make-context.js';
+import type { ManifestBundle } from '../../types.js';
+import { effectiveCompilerOptions } from '../support/tsconfig-effective.js';
+
 import { tsconfigStrict } from './index.js';
 
 function run(tsconfig: string | null, options: Record<string, unknown>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arch-lint-tsstrict-'));
-  if (tsconfig !== null) writeFileSync(join(dir, 'tsconfig.json'), tsconfig);
-  const config = {
-    project: {
-      tsconfig: join(dir, 'tsconfig.json'),
-      sourceRoot: 'src',
-      cwd: dir,
-      includeOutOfRoot: false,
-    },
-  } as ResolvedConfig;
-  const graph = makeGraph({});
-  const ctx = makeContext('tsconfig-strict', {
-    severity: 'error',
-    project: graph.project,
-    options,
-  });
-  return tsconfigStrict.check(graph, config, ctx);
+  let tsconfigDoc: ManifestBundle['tsconfig'] = null;
+  if (tsconfig !== null) {
+    const dir = mkdtempSync(join(tmpdir(), 'arch-lint-tsstrict-'));
+    const path = join(dir, 'tsconfig.json');
+    writeFileSync(path, tsconfig);
+    tsconfigDoc = effectiveCompilerOptions(path);
+  }
+  const manifests: ManifestBundle = { packageJson: null, npmrc: null, tsconfig: tsconfigDoc };
+  const ctx = makeManifestContext('tsconfig-strict', { severity: 'error', options, manifests });
+  return tsconfigStrict.check(ctx);
 }
 
 describe('tsconfig-strict', () => {
@@ -57,6 +51,7 @@ describe('tsconfig-strict', () => {
     expect(ds[0]!.entity).toBe('tsconfig.json');
     expect(ds[0]!.fingerprint).toBe('strict');
     expect(ds[0]!.actual).toContain('false');
+    expect(ds[0]!.location.file).toBe('tsconfig.json');
   });
 
   it('flags a missing strictest sub-flag', () => {

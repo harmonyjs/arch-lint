@@ -5,7 +5,7 @@
 import picomatch from 'picomatch';
 import type { ExportDeclaration, ImportDeclaration, SourceFile } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
-import type { Rule } from '../../types.js';
+import type { SyntacticRule } from '../../types.js';
 
 interface LibPurityOptions {
   readonly forbiddenImports?: readonly string[];
@@ -85,7 +85,7 @@ function forbiddenDiagnostic(
 }
 
 /** Rule: files of denied segments must not import forbidden external packages. */
-export const libPurityRule: Rule = {
+export const libPurityRule: SyntacticRule = {
   id: 'lib-purity',
   pack: 'layers',
   engine: 'syntactic',

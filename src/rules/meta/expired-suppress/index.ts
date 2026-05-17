@@ -4,7 +4,7 @@
 
 import type { ParsedSuppress } from '../../../suppress/types.js';
 import type { Diagnostic } from '../../../types.js';
-import type { Rule } from '../../types.js';
+import type { GraphRule } from '../../types.js';
 
 /** Deterministic djb2 hash of a string, rendered as a hex digest. */
 function hashReason(reason: string): string {
@@ -34,10 +34,10 @@ function toDiagnostic(suppress: ParsedSuppress, severity: Diagnostic['severity']
 }
 
 /** Rule: surface @arch-decision comments that are expired or malformed (§9). */
-export const expiredSuppressRule: Rule = {
+export const expiredSuppressRule: GraphRule = {
   id: 'expired-suppress',
   pack: 'meta',
-  engine: 'meta',
+  engine: 'graph',
   defaultSeverity: 'warning',
   check: (_graph, _config, context): Diagnostic[] => {
     const out: Diagnostic[] = [];

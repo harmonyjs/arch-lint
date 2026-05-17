@@ -8,7 +8,7 @@ import type { SourceFile } from 'ts-morph';
 import { Node } from 'ts-morph';
 import type { Diagnostic, Location } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** Options of no-default-export. */
 interface Options {
@@ -37,12 +37,12 @@ function defaultExportLocation(sf: SourceFile, fileId: string): Location | null 
 }
 
 /** Rule: `export default` is forbidden in both forms (§13.1). */
-export const noDefaultExport: Rule = {
+export const noDefaultExport: SyntacticRule = {
   id: 'no-default-export',
   pack: 'perfile',
-  engine: 'perfile',
+  engine: 'syntactic',
   defaultSeverity: 'error',
-  check: (graph, _config, context: RuleContext): Diagnostic[] => {
+  check: (graph, _config, context: SyntacticRuleContext): Diagnostic[] => {
     const { exemptPaths } = {
       exemptPaths: [] as readonly string[],
       ...(context.options as Partial<Options>),
