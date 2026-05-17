@@ -1,5 +1,5 @@
 /**
- * @fileoverview Root application component of the sample fixture project.
+ * @fileoverview Root application component, the public entity of the App feature folder.
  */
 import type { User } from '../model/types.js';
 import { greet } from '../lib/util.js';
