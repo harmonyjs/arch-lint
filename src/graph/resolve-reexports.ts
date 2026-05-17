@@ -121,31 +121,55 @@ function reduceWildcard(
   return { kind: 'unresolved', reason: 'missing' };
 }
 
+/** Follows a matched `export { orig as name } from '...'` spec through one hop. */
+function followNamedReExportSpec(
+  ctx: ReExportContext,
+  hop: Hop,
+  match: { originalName: string; specifier: string; hopTypeOnly: boolean },
+): Resolution {
+  const target = resolveTarget(ctx, hop.fromFile, match.specifier);
+  if (target.kind !== 'internal') {
+    return target.kind === 'external'
+      ? { kind: 'external' }
+      : { kind: 'unresolved', reason: 'alias-unresolved' };
+  }
+  const inner = ctx.resolveInner(target.file, match.originalName, hop.seen, hop.touched);
+  return inner.kind === 'resolved' && match.hopTypeOnly ? { ...inner, typeOnly: true } : inner;
+}
+
+/** Resolves `hop.name` against a single `export ... from '...'` statement, if it matches. */
+function resolveNamedReExportStatement(
+  ctx: ReExportContext,
+  hop: Hop,
+  statement: Node,
+): Resolution | undefined {
+  if (!Node.isExportDeclaration(statement)) {
+    return undefined;
+  }
+  const moduleSpec = statement.getModuleSpecifier();
+  if (moduleSpec === undefined) {
+    return undefined;
+  }
+  for (const spec of statement.getNamedExports()) {
+    const exposedName = spec.getAliasNode()?.getText() ?? spec.getNameNode().getText();
+    if (exposedName !== hop.name) {
+      continue;
+    }
+    return followNamedReExportSpec(ctx, hop, {
+      originalName: spec.getNameNode().getText(),
+      specifier: moduleSpec.getLiteralValue(),
+      hopTypeOnly: statement.isTypeOnly() || spec.isTypeOnly(),
+    });
+  }
+  return undefined;
+}
+
 /** §5.1 step 2: resolves `export { orig as name } from '...'` if present. */
 function resolveNamedReExport(ctx: ReExportContext, hop: Hop): Resolution | undefined {
   for (const statement of hop.sourceFile.getStatements()) {
-    if (!Node.isExportDeclaration(statement)) {
-      continue;
-    }
-    const moduleSpec = statement.getModuleSpecifier();
-    if (moduleSpec === undefined) {
-      continue;
-    }
-    for (const spec of statement.getNamedExports()) {
-      const exposedName = spec.getAliasNode()?.getText() ?? spec.getNameNode().getText();
-      if (exposedName !== hop.name) {
-        continue;
-      }
-      const originalName = spec.getNameNode().getText();
-      const target = resolveTarget(ctx, hop.fromFile, moduleSpec.getLiteralValue());
-      if (target.kind !== 'internal') {
-        return target.kind === 'external'
-          ? { kind: 'external' }
-          : { kind: 'unresolved', reason: 'alias-unresolved' };
-      }
-      const inner = ctx.resolveInner(target.file, originalName, hop.seen, hop.touched);
-      const hopTypeOnly = statement.isTypeOnly() || spec.isTypeOnly();
-      return inner.kind === 'resolved' && hopTypeOnly ? { ...inner, typeOnly: true } : inner;
+    const resolved = resolveNamedReExportStatement(ctx, hop, statement);
+    if (resolved !== undefined) {
+      return resolved;
     }
   }
   return undefined;

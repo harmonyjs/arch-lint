@@ -98,25 +98,40 @@ function scanLocalReExport(
   return undefined;
 }
 
+/** A local `export { x as default }` binding within `statement`, if one exists. */
+function localDefaultReExport(statement: Node): { typeOnly: boolean } | undefined {
+  if (!Node.isExportDeclaration(statement) || statement.getModuleSpecifier() !== undefined) {
+    return undefined;
+  }
+  for (const spec of statement.getNamedExports()) {
+    if ((spec.getAliasNode()?.getText() ?? spec.getNameNode().getText()) === 'default') {
+      return { typeOnly: statement.isTypeOnly() || spec.isTypeOnly() };
+    }
+  }
+  return undefined;
+}
+
+/** The default export a single top-level statement contributes, if any. */
+function statementDefaultExport(statement: Node): { typeOnly: boolean } | undefined {
+  if (Node.isExportAssignment(statement) && !statement.isExportEquals()) {
+    return { typeOnly: false };
+  }
+  if (
+    (Node.isFunctionDeclaration(statement) || Node.isClassDeclaration(statement)) &&
+    hasExport(statement) &&
+    hasDefault(statement)
+  ) {
+    return { typeOnly: false };
+  }
+  return localDefaultReExport(statement);
+}
+
 /** §5.1 1c: `export default <decl>` — returns whether the target is type-only. */
 function findDefaultExport(sourceFile: SourceFile): { typeOnly: boolean } | undefined {
   for (const statement of sourceFile.getStatements()) {
-    if (Node.isExportAssignment(statement) && !statement.isExportEquals()) {
-      return { typeOnly: false };
-    }
-    if (
-      (Node.isFunctionDeclaration(statement) || Node.isClassDeclaration(statement)) &&
-      hasExport(statement) &&
-      hasDefault(statement)
-    ) {
-      return { typeOnly: false };
-    }
-    if (Node.isExportDeclaration(statement) && statement.getModuleSpecifier() === undefined) {
-      for (const spec of statement.getNamedExports()) {
-        if ((spec.getAliasNode()?.getText() ?? spec.getNameNode().getText()) === 'default') {
-          return { typeOnly: statement.isTypeOnly() || spec.isTypeOnly() };
-        }
-      }
+    const found = statementDefaultExport(statement);
+    if (found !== undefined) {
+      return found;
     }
   }
   return undefined;
@@ -151,29 +166,37 @@ export function ownExportNames(sourceFile: SourceFile): Set<string> {
   return names;
 }
 
-/** Adds the export names a single top-level statement contributes to `names`. */
-function collectStatementExportNames(statement: Node, names: Set<string>): void {
+/** Adds the names of an exported `export const a, b` variable statement. */
+function collectVariableExportNames(statement: Node, names: Set<string>): void {
   if (Node.isVariableStatement(statement) && hasExport(statement)) {
     for (const decl of statement.getDeclarations()) {
       names.add(decl.getName());
     }
   }
-  if (
-    (Node.isFunctionDeclaration(statement) ||
-      Node.isClassDeclaration(statement) ||
-      Node.isInterfaceDeclaration(statement) ||
-      Node.isTypeAliasDeclaration(statement) ||
-      Node.isEnumDeclaration(statement)) &&
-    hasExport(statement)
-  ) {
-    const declName = statement.getName();
-    if (declName !== undefined) {
-      names.add(declName);
-    }
-    if (hasDefault(statement)) {
-      names.add('default');
-    }
+}
+
+/** Adds the name of an exported named declaration, plus `default` when so marked. */
+function collectNamedDeclarationExportNames(statement: Node, names: Set<string>): void {
+  const isNamedDeclaration =
+    Node.isFunctionDeclaration(statement) ||
+    Node.isClassDeclaration(statement) ||
+    Node.isInterfaceDeclaration(statement) ||
+    Node.isTypeAliasDeclaration(statement) ||
+    Node.isEnumDeclaration(statement);
+  if (!isNamedDeclaration || !hasExport(statement)) {
+    return;
   }
+  const declName = statement.getName();
+  if (declName !== undefined) {
+    names.add(declName);
+  }
+  if (hasDefault(statement)) {
+    names.add('default');
+  }
+}
+
+/** Adds the names contributed by `export default` and `export { ... }` statements. */
+function collectExportClauseNames(statement: Node, names: Set<string>): void {
   if (Node.isExportAssignment(statement) && !statement.isExportEquals()) {
     names.add('default');
   }
@@ -186,4 +209,11 @@ function collectStatementExportNames(statement: Node, names: Set<string>): void 
       names.add(nsName);
     }
   }
+}
+
+/** Adds the export names a single top-level statement contributes to `names`. */
+function collectStatementExportNames(statement: Node, names: Set<string>): void {
+  collectVariableExportNames(statement, names);
+  collectNamedDeclarationExportNames(statement, names);
+  collectExportClauseNames(statement, names);
 }
