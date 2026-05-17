@@ -13,6 +13,7 @@ import type {
   ResolvedConfig,
   ResolvedRuleSetting,
   RuleSetting,
+  ViewConfig,
 } from './types.js';
 
 /** Framework-agnostic default pack set (Appendix B) — 'view' is opt-in. */
@@ -42,6 +43,11 @@ const DEFAULT_RESOLVE: ResolveConfig = {
   maxResolveDepth: 32,
   cacheSize: Infinity,
   extensions: ['.ts', '.tsx'],
+};
+
+/** Default view block (#26) — auto-detect the region from JSX placement. */
+const DEFAULT_VIEW: ViewConfig = {
+  region: 'auto',
 };
 
 /**
@@ -108,6 +114,7 @@ export function resolveConfig(config: Config): ResolvedConfig {
   return {
     project: resolveProject(config.project),
     conventions: { ...DEFAULT_CONVENTIONS, ...config.conventions },
+    view: { ...DEFAULT_VIEW, ...config.view },
     packs: config.packs ?? DEFAULT_PACKS,
     explicitPlacement: config.explicitPlacement ?? [],
     resolve: { ...DEFAULT_RESOLVE, ...config.resolve },

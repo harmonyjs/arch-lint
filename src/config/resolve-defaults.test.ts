@@ -202,6 +202,21 @@ describe('resolveConfig — empty collections', () => {
   });
 });
 
+describe('resolveConfig — view defaults', () => {
+  it('defaults the view block to region auto', () => {
+    const resolved = resolveConfig({ project: { tsconfig: './tsconfig.json' } });
+    expect(resolved.view).toEqual({ region: 'auto' });
+  });
+
+  it('keeps an explicit view.region prefix list', () => {
+    const resolved = resolveConfig({
+      project: { tsconfig: './tsconfig.json' },
+      view: { region: ['src/ui'] },
+    });
+    expect(resolved.view.region).toEqual(['src/ui']);
+  });
+});
+
 describe('resolveConfig — RuleSetting normalization', () => {
   it('normalizes a bare severity string to an object', () => {
     const cfg: Config = {

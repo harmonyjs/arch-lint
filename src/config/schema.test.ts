@@ -119,6 +119,26 @@ describe('configSchema — structural blocks', () => {
   });
 });
 
+describe('configSchema — view block', () => {
+  it('accepts view.region "auto"', () => {
+    expect(() =>
+      validateConfig({ project: { tsconfig: './tsconfig.json' }, view: { region: 'auto' } }),
+    ).not.toThrow();
+  });
+
+  it('accepts view.region as a string array', () => {
+    expect(() =>
+      validateConfig({ project: { tsconfig: './tsconfig.json' }, view: { region: ['src/ui'] } }),
+    ).not.toThrow();
+  });
+
+  it('rejects a numeric view.region', () => {
+    expect(() =>
+      validateConfig({ project: { tsconfig: './tsconfig.json' }, view: { region: 7 } }),
+    ).toThrow(/view\.region/);
+  });
+});
+
 describe('configSchema — rules block', () => {
   it('accepts the full §B rules block (architectural + hygiene rules)', () => {
     const parsed = configSchema.parse({

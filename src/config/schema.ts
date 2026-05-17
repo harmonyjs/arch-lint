@@ -62,6 +62,13 @@ const conventionsSchema = z
   })
   .partial();
 
+/** view block — region detection mode: 'auto' or an explicit prefix list. */
+const viewSchema = z
+  .object({
+    region: z.union([z.literal('auto'), z.array(z.string())]),
+  })
+  .partial();
+
 /** A single layer: canImport list, optional sideEffectOnly subset. */
 const layerSchema = z.object({
   canImport: z.array(z.string()),
@@ -169,6 +176,7 @@ export const configSchema = z.object({
   explicitPlacement: z.array(explicitPlacementSchema).optional(),
   resolve: resolveSchema.optional(),
   layers: layersSchema.optional(),
+  view: viewSchema.optional(),
   rules: z.record(z.string(), ruleSettingSchema).optional(),
   perFileRules: z.record(z.string(), ruleSettingSchema).optional(),
   ignore: z.array(z.string()).optional(),

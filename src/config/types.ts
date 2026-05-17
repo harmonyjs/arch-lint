@@ -41,6 +41,16 @@ export interface ExplicitPlacementRule {
   readonly excludeRules?: readonly string[];
 }
 
+/**
+ * view block (#26) — selects how the view region is classified. `'auto'`
+ * detects roots from JSX-file placement; a string array is an explicit list
+ * of root path prefixes and disables JSX detection. Top-level, not a rule
+ * option: the classification is cross-rule.
+ */
+export interface ViewConfig {
+  readonly region: 'auto' | readonly string[];
+}
+
 export interface ResolveConfig {
   readonly treatTypeOnlyAsEdge: boolean;
   readonly maxResolveDepth: number;
@@ -125,6 +135,7 @@ export interface Config {
   explicitPlacement?: readonly ExplicitPlacementRule[];
   resolve?: Partial<ResolveConfig>;
   layers?: LayersConfig;
+  view?: Partial<ViewConfig>;
   rules?: Readonly<Record<string, RuleSetting>>;
   perFileRules?: Readonly<Record<string, RuleSetting>>;
   ignore?: readonly string[];
@@ -143,6 +154,7 @@ export interface Config {
 export interface ResolvedConfig {
   readonly project: ProjectConfig;
   readonly conventions: ConventionsConfig;
+  readonly view: ViewConfig;
   readonly packs: readonly Pack[];
   readonly explicitPlacement: readonly ExplicitPlacementRule[];
   readonly resolve: ResolveConfig;
