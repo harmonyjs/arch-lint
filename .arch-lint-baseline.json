@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-17T11:59:24.908Z",
+  "generatorVersion": "1.0.0",
+  "records": [
+    {
+      "ruleId": "afferent-coupling",
+      "entity": "src/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "afferent-coupling#types.ts"
+    },
+    {
+      "ruleId": "complexity",
+      "entity": "src/graph/resolve-declarations.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/graph/resolve-declarations.ts#collectStatementExportNames"
+    },
+    {
+      "ruleId": "complexity",
+      "entity": "src/graph/resolve-declarations.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/graph/resolve-declarations.ts#findDefaultExport"
+    },
+    {
+      "ruleId": "complexity",
+      "entity": "src/graph/resolve-reexports.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/graph/resolve-reexports.ts#resolveNamedReExport"
+    },
+    {
+      "ruleId": "complexity",
+      "entity": "src/rules/metrics/subsystem-cohesion/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/metrics/subsystem-cohesion/index.ts#subsystemCohesion.check"
+    },
+    {
+      "ruleId": "complexity",
+      "entity": "src/rules/perfile/no-default-export/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/perfile/no-default-export/index.ts#defaultExportLocation"
+    },
+    {
+      "ruleId": "complexity",
+      "entity": "src/rules/perfile/single-entity-per-file/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/perfile/single-entity-per-file/index.ts#entityCount"
+    },
+    {
+      "ruleId": "complexity",
+      "entity": "src/runner/cli.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/runner/cli.ts#buildProgram"
+    },
+    {
+      "ruleId": "cross-cutting-concern",
+      "entity": "src/config/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "cross-cutting-concern#src/config/types.ts"
+    },
+    {
+      "ruleId": "efferent-coupling",
+      "entity": "src/rules",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "efferent-coupling#rules"
+    },
+    {
+      "ruleId": "efferent-coupling",
+      "entity": "src/runner",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "efferent-coupling#runner"
+    },
+    {
+      "ruleId": "expired-suppress",
+      "entity": "/Users/andreyvavilov/GitHub/arch-lint/src/config/resolve-defaults.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "*#1505"
+    },
+    {
+      "ruleId": "instability",
+      "entity": "src/graph",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "instability#graph"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/baseline/serialize.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/baseline/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/config/load.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/config/resolve-defaults.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/config/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/errors.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/build.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/discover-source-files.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/entities.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/entity-resolver.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/module-resolution.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/resolve-declarations.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/resolve.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/graph/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/report/format.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/hygiene/support/npmrc.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/hygiene/support/package-json.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/hygiene/support/tsconfig-effective.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/metrics/support/subsystem-graph.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/perfile/support/scan-functions.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/placement/analyze.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/placement/rules.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/placement/tree.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/syntactic-support/dedup.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/syntactic-support/find-source-file.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/syntactic-support/import-info.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/syntactic-support/node-helpers.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/syntactic-support/segments.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/rules/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/runner/check.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/runner/paths.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/suppress/entity-resolver.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/suppress/suppress-index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/suppress/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "lca-placement",
+      "entity": "src/types.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z"
+    },
+    {
+      "ruleId": "max-lines-per-function",
+      "entity": "src/runner/cli.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/runner/cli.ts#buildProgram"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/rules/barrels/barrel-narrow-export/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/barrels/barrel-narrow-export/index.ts#narrowExportDiagnostic"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/rules/engine.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/engine.ts#runEngine"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/rules/placement/analyze.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/placement/analyze.ts#computeVerdict"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/rules/placement/analyze.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/placement/analyze.ts#expectedPlacement"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/rules/view/hooks-folder-required/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/view/hooks-folder-required/index.ts#makeDiag"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/rules/view/hooks-folder-required/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/view/hooks-folder-required/index.ts#violationOf"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/rules/view/ui-cluster-membership/index.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/view/ui-cluster-membership/index.ts#membershipDiagnostic"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/runner/check.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/runner/check.ts#check"
+    },
+    {
+      "ruleId": "max-params",
+      "entity": "src/runner/watch.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/runner/watch.ts#render"
+    },
+    {
+      "ruleId": "single-entity-per-file",
+      "entity": "src/errors.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/errors.ts"
+    },
+    {
+      "ruleId": "subsystem-cohesion",
+      "entity": "src/report",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "subsystem-cohesion#report"
+    },
+    {
+      "ruleId": "unresolved-import",
+      "entity": "src/rules/perfile/support/perfile-test-graph.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/perfile/support/perfile-test-graph.ts#../../test-support/make-graph.js#makeGraph"
+    },
+    {
+      "ruleId": "unresolved-import",
+      "entity": "src/rules/perfile/support/perfile-test-graph.ts",
+      "firstSeenAt": "2026-05-17T11:59:24.908Z",
+      "fingerprint": "src/rules/perfile/support/perfile-test-graph.ts#../../test-support/make-graph.js#MockGraph"
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import { defineConfig } from './src/public-api.js';
 export default defineConfig({
   project: { tsconfig: './tsconfig.json', sourceRoot: 'src' },
   packs: ['layers', 'barrels', 'placement', 'meta', 'perfile', 'hygiene', 'metrics'],
+  ignore: ['**/*.test.ts', '**/fixtures/**', '**/test-support/**'],
   rules: {
     'efferent-coupling': { severity: 'warning', max: 4 },
     'afferent-coupling': { severity: 'info', max: 6 },
