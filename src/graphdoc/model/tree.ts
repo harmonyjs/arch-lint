@@ -3,6 +3,7 @@
  * hierarchy implied by the graph's file ids, computes subtree sizes, and decides
  * which folders own their own drill-down section.
  */
+import { baseNameOf } from '#entity-id/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 
 /** A folder gets its own section once its file count exceeds this threshold. */
@@ -25,10 +26,9 @@ export interface FolderTree {
 
 /** Creates an empty folder node for `path`. */
 function emptyFolder(path: string): FolderTree {
-  const slash = path.lastIndexOf('/');
   return {
     path,
-    name: slash === -1 ? path : path.slice(slash + 1),
+    name: baseNameOf(path),
     folders: new Map(),
     files: [],
     folderNodes: [],
