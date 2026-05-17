@@ -2,10 +2,10 @@
  * @fileoverview Tests for buildGraphDoc — ConsumerGraph projection into a GraphDoc.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../config/types.js';
-import { makeGraph } from '../rules/test-support/make-graph.js';
-import { buildGraphDoc } from './model.js';
-import { slugOf } from './model-tree.js';
+import type { ResolvedConfig } from '../../config/types.js';
+import { makeGraph } from '../../rules/test-support/make-graph.js';
+import { buildGraphDoc } from './index.js';
+import { slugOf } from './tree.js';
 
 function cfg(): ResolvedConfig {
   return {

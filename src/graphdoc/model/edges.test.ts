@@ -1,14 +1,14 @@
 /**
- * @fileoverview Tests for model-edges — unresolved projection, coupling badges,
- * and subsystem edge aggregation.
+ * @fileoverview Tests for the model edge projection — unresolved projection,
+ * coupling badges, and subsystem edge aggregation.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../config/types.js';
-import type { UnresolvedImport } from '../graph/types.js';
-import { makeGraph } from '../rules/test-support/make-graph.js';
-import { aggregateSubsystemEdges, badgeOf, projectUnresolved } from './model-edges.js';
-import { baseNode, IdMint, type ProjectionContext, type SectionBody } from './model-nodes.js';
-import type { RenderNode } from './types.js';
+import type { ResolvedConfig } from '../../config/types.js';
+import type { UnresolvedImport } from '../../graph/types.js';
+import { makeGraph } from '../../rules/test-support/make-graph.js';
+import type { RenderNode } from '../types.js';
+import { aggregateSubsystemEdges, badgeOf, projectUnresolved } from './edges.js';
+import { baseNode, IdMint, type ProjectionContext, type SectionBody } from './nodes.js';
 
 function cfg(): ResolvedConfig {
   return {

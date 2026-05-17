@@ -5,7 +5,7 @@
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { renderDocument } from './document.js';
-import { type BuildModelOptions, buildGraphDoc } from './model.js';
+import { type BuildModelOptions, buildGraphDoc } from './model/index.js';
 
 export { extractFileoverviews } from './fileoverview.js';
 export type { GraphDoc } from './types.js';

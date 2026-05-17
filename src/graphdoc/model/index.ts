@@ -3,20 +3,20 @@
  * a renderable GraphDoc: an Overview section of subsystem nodes plus a depth-first
  * walk of per-folder drill-down sections, each a single diagram.
  */
-import type { ResolvedConfig } from '../config/types.js';
-import { subsystemCoupling } from '../graph/index.js';
-import type { ConsumerGraph, Edge } from '../graph/types.js';
+import type { ResolvedConfig } from '../../config/types.js';
+import { subsystemCoupling } from '../../graph/index.js';
+import type { ConsumerGraph, Edge } from '../../graph/types.js';
+import { cyclicNodes } from '../scc.js';
+import type { CouplingBadge, DocSection, GraphDoc } from '../types.js';
 import {
   aggregateSubsystemEdges,
   badgeOf,
   overviewSubsystemNodes,
   projectFileEdges,
   projectUnresolved,
-} from './model-edges.js';
-import { folderNote, IdMint, type ProjectionContext, projectSectionBody } from './model-nodes.js';
-import { buildFolderTree, type FolderTree, sectionFolders, slugOf, titleOf } from './model-tree.js';
-import { cyclicNodes } from './scc.js';
-import type { CouplingBadge, DocSection, GraphDoc } from './types.js';
+} from './edges.js';
+import { folderNote, IdMint, type ProjectionContext, projectSectionBody } from './nodes.js';
+import { buildFolderTree, type FolderTree, sectionFolders, slugOf, titleOf } from './tree.js';
 
 /** Options that narrow the document down from the whole graph. */
 export interface BuildModelOptions {
