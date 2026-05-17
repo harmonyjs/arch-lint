@@ -13,7 +13,7 @@
       "!coverage",
       // Test fixtures are intentionally structured (line counts, layout, imports
       // are the thing under test) — reformatting them would change what they test.
-      "!src/**/__tests__/fixtures",
+      "!src/**/fixtures",
       // vitest.config.ts is owned by the test setup and excluded from this baseline.
       "!vitest.config.ts"
     ]

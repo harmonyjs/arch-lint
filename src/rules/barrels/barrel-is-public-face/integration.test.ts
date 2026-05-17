@@ -10,7 +10,7 @@ import { buildGraph } from '../../../graph/index.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { type BarrelIsPublicFaceOptions, barrelIsPublicFace } from './index.js';
 
-const fixtureRoot = fileURLToPath(new URL('./__tests__/fixtures/bypass-import', import.meta.url));
+const fixtureRoot = fileURLToPath(new URL('./fixtures/bypass-import', import.meta.url));
 
 function ctx() {
   return makeContext<BarrelIsPublicFaceOptions>('barrel-is-public-face', {

@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { runFixture } from './fixture-runner.js';
 
-const fixturesDir = join(import.meta.dirname, 'fixtures');
+const fixturesDir = import.meta.dirname;
 
 describe('resolver fixtures', () => {
   const cases = existsSync(fixturesDir)

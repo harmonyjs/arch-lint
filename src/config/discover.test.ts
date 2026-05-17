@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ConfigError } from '../errors.js';
 import { discoverConfig } from './discover.js';
 
-const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '__tests__', 'fixtures');
+const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 
 afterEach(() => {
   vi.restoreAllMocks();

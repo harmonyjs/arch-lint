@@ -8,7 +8,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { packageRoot } from '../runner/paths.js';
+import { packageRoot } from './runner/paths.js';
 
 const root = packageRoot();
 const binPath = join(root, 'bin', 'arch-lint.js');

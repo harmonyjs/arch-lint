@@ -10,7 +10,7 @@ import { loadSourceFiles } from '../../../graph/source-files.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { noWildcardReexport } from './index.js';
 
-const fixtureRoot = fileURLToPath(new URL('./__tests__/fixtures/wildcard-barrel', import.meta.url));
+const fixtureRoot = fileURLToPath(new URL('./fixtures/wildcard-barrel', import.meta.url));
 
 describe('no-wildcard-reexport — integration', () => {
   it('flags both wildcard forms on a really built graph', async () => {

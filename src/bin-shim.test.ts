@@ -5,7 +5,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { packageRoot } from '../runner/paths.js';
+import { packageRoot } from './runner/paths.js';
 
 describe('bin/arch-lint.js', () => {
   it('is a node shebang shim that delegates to the compiled CLI', async () => {
