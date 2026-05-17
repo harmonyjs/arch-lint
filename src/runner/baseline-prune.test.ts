@@ -5,7 +5,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { BaselineFile } from '../baseline/types.js';
 import type { ResolvedConfig } from '../config/types.js';
-import { ConfigError } from '../errors.js';
+import { ConfigError } from '../errors/index.js';
 import type { CheckResult } from '../rules/types.js';
 import type { Diagnostic } from '../types.js';
 

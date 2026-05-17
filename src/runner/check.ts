@@ -11,7 +11,7 @@ import { parseBaselineFile } from '../baseline/index.js';
 import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
-import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors.js';
+import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors/index.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/discover-source-files.js';
 import { buildGraphFromSources, graphEntityResolver } from '../graph/index.js';
 import type { ConsumerGraph } from '../graph/types.js';

@@ -3,7 +3,7 @@
  */
 
 import type { LayersConfig, ResolvedConfig } from '../../../config/types.js';
-import { ConfigError } from '../../../errors.js';
+import { ConfigError } from '../../../errors/index.js';
 import type { Edge } from '../../../graph/types.js';
 import type { Diagnostic } from '../../../types.js';
 import { layerOf } from '../../placement/tree.js';

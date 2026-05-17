@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigError } from '../errors.js';
+import { ConfigError } from '../errors/index.js';
 import { configSchema, ruleSettingSchema, validateConfig } from './schema.js';
 
 describe('ruleSettingSchema', () => {

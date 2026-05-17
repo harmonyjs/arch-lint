@@ -2,7 +2,7 @@
  * @fileoverview Tests for runtimeSelfCheck — the §10.2 collision detector.
  */
 import { describe, expect, it } from 'vitest';
-import { EngineError } from '../../errors.js';
+import { EngineError } from '../../errors/index.js';
 import type { Diagnostic } from '../../types.js';
 import { runtimeSelfCheck } from './self-check.js';
 
