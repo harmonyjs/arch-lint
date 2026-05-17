@@ -11,7 +11,7 @@ import {
   resolveTargetFile,
 } from './edges-collectors.js';
 import type { Resolver } from './resolve.js';
-import type { SourceFileSet } from './source-files.js';
+import type { SourceFileSet } from './discover-source-files.js';
 import type { Edge, UnresolvedImport } from './types.js';
 
 export interface EdgeBuildResult {

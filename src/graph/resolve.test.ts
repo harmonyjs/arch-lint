@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createResolver, type Resolver } from './resolve.js';
-import { loadSourceFiles, moduleResolutionContextOf } from './source-files.js';
+import { loadSourceFiles, moduleResolutionContextOf } from './discover-source-files.js';
 
 let dir: string;
 

@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ConventionsConfig } from '../config/types.js';
 import { freezeGraph } from './consumer-graph.js';
-import { loadSourceFiles } from './source-files.js';
+import { loadSourceFiles } from './discover-source-files.js';
 import type { Edge, Node } from './types.js';
 
 let dir: string;

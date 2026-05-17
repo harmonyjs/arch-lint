@@ -28,7 +28,7 @@ vi.mock('../graph/build.js', () => ({
 }));
 
 const loadSourceFilesMock = vi.fn();
-vi.mock('../graph/source-files.js', () => ({
+vi.mock('../graph/discover-source-files.js', () => ({
   loadSourceFiles: (...args: unknown[]): unknown => loadSourceFilesMock(...args),
 }));
 
