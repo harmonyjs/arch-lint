@@ -37,5 +37,5 @@ lint:
     npm run build
     node bin/arch-lint.js check
 
-# Build, type-check and test in one shot
-check: typecheck test
+# Type-check, lint and test in one shot
+check: typecheck check-biome test
