@@ -13,10 +13,7 @@ import { libPurityRule } from './layers/lib-purity/index.js';
 import { expiredSuppressRule } from './meta/expired-suppress/index.js';
 import { unresolvedImportRule } from './meta/unresolved-import/index.js';
 import { perfileRules } from './perfile/index.js';
-import { emptyItemsFolderRule } from './placement/empty-items-folder/index.js';
-import { lcaPlacementRule } from './placement/lca-placement/index.js';
-import { siblingsForbiddenRule } from './placement/siblings-forbidden/index.js';
-import { slotsPrivacyRule } from './placement/slots-privacy/index.js';
+import { registerPlacementRules } from './placement/register.js';
 import type { Rule } from './types.js';
 import { hooksFolderRequired } from './view/hooks-folder-required/index.js';
 import { tokensImportIsSideEffect } from './view/tokens-import-is-side-effect/index.js';
@@ -28,10 +25,7 @@ import { uiClusterMembership } from './view/ui-cluster-membership/index.js';
  * rule's options at runtime (`buildRuleContext`).
  */
 export const allRules: readonly Rule[] = [
-  lcaPlacementRule,
-  slotsPrivacyRule,
-  siblingsForbiddenRule,
-  emptyItemsFolderRule,
+  ...registerPlacementRules(),
   layerBoundaryRule,
   libPurityRule,
   unresolvedImportRule,
