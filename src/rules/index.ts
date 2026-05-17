@@ -12,6 +12,7 @@ import { layerBoundaryRule } from './layers/layer-boundary/index.js';
 import { libPurityRule } from './layers/lib-purity/index.js';
 import { expiredSuppressRule } from './meta/expired-suppress/index.js';
 import { unresolvedImportRule } from './meta/unresolved-import/index.js';
+import { metricsRules } from './metrics/index.js';
 import { perfileRules } from './perfile/index.js';
 import { registerPlacementRules } from './placement/index.js';
 import type { Rule } from './types.js';
@@ -39,6 +40,7 @@ export const allRules: readonly Rule[] = [
   tokensImportIsSideEffect as Rule,
   ...perfileRules,
   ...hygieneRules,
+  ...metricsRules,
 ];
 
 /** Effective severity of `rule` under `config` — configured override or default. */
