@@ -1,12 +1,19 @@
 /**
- * @fileoverview subsystem-cohesion rule — flags a subsystem whose files rarely
- * reference each other. Files that sit together but never connect are a folder,
- * not a subsystem.
+ * @fileoverview subsystem-cohesion rule — flags a subsystem whose entity files
+ * rarely reference each other. Files that sit together but never connect are a
+ * folder, not a subsystem. Only entity files count — barrels and entry files are
+ * connective tissue, not members of the subsystem's vocabulary.
  */
+
 import type { ResolvedConfig } from '../../../config/types.js';
+import type { ConsumerGraph } from '../../../graph/types.js';
 import type { Diagnostic } from '../../../types.js';
 import type { GraphRule, GraphRuleContext } from '../../types.js';
-import { subsystemCoupling, subsystemOf } from '../support/subsystem-graph.js';
+import {
+  type SubsystemCoupling,
+  subsystemCoupling,
+  subsystemOf,
+} from '../support/subsystem-graph.js';
 
 /** Tunable options of the subsystem-cohesion rule. */
 interface Options {
@@ -18,7 +25,86 @@ interface Options {
 
 const DEFAULTS: Options = { min: 0.3, ignoreSubsystems: [] };
 
-/** Rule: a multi-file subsystem whose internal cohesion drops below `min` is flagged. */
+/** A subsystem measured below the cohesion threshold. */
+interface CohesionMiss {
+  readonly subsystem: string;
+  readonly internal: number;
+  readonly total: number;
+  readonly cohesion: number;
+}
+
+/** Returns the set of files that import at least one sibling in their own subsystem. */
+function filesWithSibling(graph: ConsumerGraph, root: string): ReadonlySet<string> {
+  const result = new Set<string>();
+  for (const edge of graph.edges) {
+    if (edge.consumer === edge.producer) continue;
+    if (subsystemOf(edge.consumer, root) === subsystemOf(edge.producer, root)) {
+      result.add(edge.consumer);
+    }
+  }
+  return result;
+}
+
+/** Entity files of a subsystem — its members; barrels and entry files are excluded. */
+function entityFilesOf(graph: ConsumerGraph, info: SubsystemCoupling): readonly string[] {
+  const result: string[] = [];
+  for (const file of info.files) {
+    if (graph.nodes.get(file)?.isEntity === true) result.push(file);
+  }
+  return result;
+}
+
+/**
+ * Measures a single subsystem against the cohesion threshold. Returns the miss when
+ * the subsystem has at least two entity files and its cohesion drops below `min`.
+ */
+function measureSubsystem(
+  graph: ConsumerGraph,
+  subsystem: string,
+  info: SubsystemCoupling,
+  connected: ReadonlySet<string>,
+  min: number,
+): CohesionMiss | null {
+  const entities = entityFilesOf(graph, info);
+  const total = entities.length;
+  if (total < 2) return null;
+  let internal = 0;
+  for (const file of entities) {
+    if (connected.has(file)) internal += 1;
+  }
+  const cohesion = internal / total;
+  if (cohesion >= min) return null;
+  return { subsystem, internal, total, cohesion };
+}
+
+/** Builds the diagnostic for a measured cohesion miss. */
+function toDiagnostic(
+  miss: CohesionMiss,
+  root: string,
+  min: number,
+  severity: GraphRuleContext['severity'],
+): Diagnostic {
+  return {
+    ruleId: 'subsystem-cohesion',
+    severity,
+    entity: `${root}/${miss.subsystem}`,
+    fingerprint: `subsystem-cohesion#${miss.subsystem}`,
+    message: `subsystem ${miss.subsystem} has low internal cohesion`,
+    expected: `cohesion ≥ ${min}`,
+    actual: `${miss.cohesion.toFixed(2)} (${miss.internal}/${miss.total} files import a sibling)`,
+    reason: 'files that sit together but never reference each other are a folder, not a subsystem',
+    suggestions: [
+      {
+        action: 'custom',
+        rationale:
+          'either the files belong in different subsystems, or a missing seam should connect them',
+      },
+    ],
+    location: { file: `${root}/${miss.subsystem}`, line: 1, column: 1 },
+  };
+}
+
+/** Rule: a subsystem whose entity-file internal cohesion drops below `min` is flagged. */
 export const subsystemCohesion: GraphRule = {
   id: 'subsystem-cohesion',
   pack: 'metrics',
@@ -29,45 +115,13 @@ export const subsystemCohesion: GraphRule = {
     const root = config.project.sourceRoot;
     const ignore = new Set(opts.ignoreSubsystems);
     const coupling = subsystemCoupling(graph, root);
-
-    // Files that import at least one sibling in their own subsystem.
-    const filesWithSibling = new Set<string>();
-    for (const edge of graph.edges) {
-      if (edge.consumer === edge.producer) continue;
-      if (subsystemOf(edge.consumer, root) === subsystemOf(edge.producer, root)) {
-        filesWithSibling.add(edge.consumer);
-      }
-    }
+    const connected = filesWithSibling(graph, root);
 
     const out: Diagnostic[] = [];
     for (const [subsystem, info] of coupling) {
-      const total = info.files.size;
-      if (total < 2 || ignore.has(subsystem)) continue;
-      let internal = 0;
-      for (const file of info.files) {
-        if (filesWithSibling.has(file)) internal += 1;
-      }
-      const cohesion = internal / total;
-      if (cohesion >= opts.min) continue;
-      out.push({
-        ruleId: 'subsystem-cohesion',
-        severity: context.severity,
-        entity: `${root}/${subsystem}`,
-        fingerprint: `subsystem-cohesion#${subsystem}`,
-        message: `subsystem ${subsystem} has low internal cohesion`,
-        expected: `cohesion ≥ ${opts.min}`,
-        actual: `${cohesion.toFixed(2)} (${internal}/${total} files import a sibling)`,
-        reason:
-          'files that sit together but never reference each other are a folder, not a subsystem',
-        suggestions: [
-          {
-            action: 'custom',
-            rationale:
-              'either the files belong in different subsystems, or a missing seam should connect them',
-          },
-        ],
-        location: { file: `${root}/${subsystem}`, line: 1, column: 1 },
-      });
+      if (ignore.has(subsystem)) continue;
+      const miss = measureSubsystem(graph, subsystem, info, connected, opts.min);
+      if (miss !== null) out.push(toDiagnostic(miss, root, opts.min, context.severity));
     }
     return out;
   },

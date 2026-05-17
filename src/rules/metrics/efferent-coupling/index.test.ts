@@ -66,6 +66,44 @@ describe('efferentCoupling — check', () => {
     expect(out[0]!.location).toEqual({ file: 'src/runner', line: 1, column: 1 });
   });
 
+  it('skips a subsystem listed in allow', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/runner/cli.ts': { kind: 'file' },
+        'src/graph/a.ts': { kind: 'file' },
+        'src/report/b.ts': { kind: 'file' },
+      },
+      edges: [
+        edge('src/runner/cli.ts', 'src/graph/a.ts'),
+        edge('src/runner/cli.ts', 'src/report/b.ts'),
+      ],
+    });
+    const ctx = makeContext('efferent-coupling', {
+      severity: 'warning',
+      options: { max: 1, allow: ['runner'] },
+    });
+    expect(efferentCoupling.check(graph, cfg(), ctx)).toEqual([]);
+  });
+
+  it('defaults allow to empty — an unlisted subsystem is still flagged', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/runner/cli.ts': { kind: 'file' },
+        'src/graph/a.ts': { kind: 'file' },
+        'src/report/b.ts': { kind: 'file' },
+      },
+      edges: [
+        edge('src/runner/cli.ts', 'src/graph/a.ts'),
+        edge('src/runner/cli.ts', 'src/report/b.ts'),
+      ],
+    });
+    const ctx = makeContext('efferent-coupling', {
+      severity: 'warning',
+      options: { max: 1, allow: ['graph'] },
+    });
+    expect(efferentCoupling.check(graph, cfg(), ctx)).toHaveLength(1);
+  });
+
   it('defaults max to 4', () => {
     const nodes: Record<string, { kind: 'file' }> = { 'src/runner/cli.ts': { kind: 'file' } };
     const edges: Edge[] = [];

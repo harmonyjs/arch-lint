@@ -9,7 +9,7 @@ export default defineConfig({
   packs: ['layers', 'barrels', 'placement', 'meta', 'perfile', 'hygiene', 'metrics'],
   ignore: ['**/*.test.ts', '**/fixtures/**', '**/test-support/**'],
   rules: {
-    'efferent-coupling': { severity: 'warning', max: 4 },
+    'efferent-coupling': { severity: 'warning', max: 4, allow: ['runner'] },
     'afferent-coupling': { severity: 'info', max: 6 },
     instability: {
       severity: 'warning',
@@ -20,7 +20,7 @@ export default defineConfig({
     'cross-cutting-concern': {
       severity: 'info',
       maxSubsystems: 5,
-      allow: ['src/types.ts', 'src/errors.ts'],
+      allow: ['src/types.ts', 'src/errors.ts', 'src/config/types.ts'],
     },
   },
 });

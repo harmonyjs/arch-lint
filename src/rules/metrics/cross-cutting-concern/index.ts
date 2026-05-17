@@ -34,7 +34,8 @@ export const crossCuttingConcern: GraphRule = {
       const importingSubsystems = new Set<string>();
       for (const edge of graph.consumersOf.get(node.id) ?? []) {
         const consumerSubsystem = subsystemOf(edge.consumer, root);
-        if (consumerSubsystem !== ownSubsystem) importingSubsystems.add(consumerSubsystem);
+        if (consumerSubsystem === null || consumerSubsystem === ownSubsystem) continue;
+        importingSubsystems.add(consumerSubsystem);
       }
       if (importingSubsystems.size < opts.maxSubsystems) continue;
       const sorted = [...importingSubsystems].sort().join(', ');

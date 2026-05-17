@@ -26,15 +26,21 @@ describe('subsystemCohesion — metadata', () => {
 });
 
 describe('subsystemCohesion — check', () => {
-  it('skips single-file subsystems', () => {
-    const graph = makeGraph({ nodes: { 'src/graph/a.ts': { kind: 'file' } }, edges: [] });
+  it('skips subsystems with fewer than two entity files', () => {
+    const graph = makeGraph({
+      nodes: { 'src/graph/a.ts': { kind: 'file', isEntity: true } },
+      edges: [],
+    });
     const ctx = makeContext('subsystem-cohesion', { severity: 'warning', options: {} });
     expect(subsystemCohesion.check(graph, cfg(), ctx)).toEqual([]);
   });
 
   it('emits nothing at or above the min cohesion', () => {
     const graph = makeGraph({
-      nodes: { 'src/graph/a.ts': { kind: 'file' }, 'src/graph/b.ts': { kind: 'file' } },
+      nodes: {
+        'src/graph/a.ts': { kind: 'file', isEntity: true },
+        'src/graph/b.ts': { kind: 'file', isEntity: true },
+      },
       edges: [edge('src/graph/a.ts', 'src/graph/b.ts')],
     });
     const ctx = makeContext('subsystem-cohesion', { severity: 'warning', options: { min: 0.5 } });
@@ -44,10 +50,10 @@ describe('subsystemCohesion — check', () => {
   it('flags a subsystem below the min cohesion', () => {
     const graph = makeGraph({
       nodes: {
-        'src/graph/a.ts': { kind: 'file' },
-        'src/graph/b.ts': { kind: 'file' },
-        'src/graph/c.ts': { kind: 'file' },
-        'src/graph/d.ts': { kind: 'file' },
+        'src/graph/a.ts': { kind: 'file', isEntity: true },
+        'src/graph/b.ts': { kind: 'file', isEntity: true },
+        'src/graph/c.ts': { kind: 'file', isEntity: true },
+        'src/graph/d.ts': { kind: 'file', isEntity: true },
       },
       edges: [edge('src/graph/a.ts', 'src/graph/b.ts')],
     });
@@ -62,13 +68,41 @@ describe('subsystemCohesion — check', () => {
     expect(out[0]!.actual).toBe('0.25 (1/4 files import a sibling)');
   });
 
+  it('excludes non-entity files from numerator and denominator', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/graph/a.ts': { kind: 'file', isEntity: true },
+        'src/graph/b.ts': { kind: 'file', isEntity: true },
+        'src/graph/index.ts': { kind: 'file', isEntity: false },
+        'src/graph/types.ts': { kind: 'file', isEntity: false },
+      },
+      edges: [edge('src/graph/a.ts', 'src/graph/b.ts')],
+    });
+    const ctx = makeContext('subsystem-cohesion', { severity: 'warning', options: { min: 0.5 } });
+    // Only a.ts and b.ts count; a.ts imports a sibling → 1/2 = 0.5, at the min, no flag.
+    expect(subsystemCohesion.check(graph, cfg(), ctx)).toEqual([]);
+  });
+
+  it('skips a subsystem with fewer than two entity files even when it has many barrels', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/graph/a.ts': { kind: 'file', isEntity: true },
+        'src/graph/index.ts': { kind: 'file', isEntity: false },
+        'src/graph/extra.ts': { kind: 'file', isEntity: false },
+      },
+      edges: [],
+    });
+    const ctx = makeContext('subsystem-cohesion', { severity: 'warning', options: { min: 0.5 } });
+    expect(subsystemCohesion.check(graph, cfg(), ctx)).toEqual([]);
+  });
+
   it('respects the ignoreSubsystems list', () => {
     const graph = makeGraph({
       nodes: {
-        'src/graph/a.ts': { kind: 'file' },
-        'src/graph/b.ts': { kind: 'file' },
-        'src/graph/c.ts': { kind: 'file' },
-        'src/graph/d.ts': { kind: 'file' },
+        'src/graph/a.ts': { kind: 'file', isEntity: true },
+        'src/graph/b.ts': { kind: 'file', isEntity: true },
+        'src/graph/c.ts': { kind: 'file', isEntity: true },
+        'src/graph/d.ts': { kind: 'file', isEntity: true },
       },
       edges: [edge('src/graph/a.ts', 'src/graph/b.ts')],
     });

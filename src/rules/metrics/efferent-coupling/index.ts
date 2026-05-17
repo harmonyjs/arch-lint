@@ -11,9 +11,11 @@ import { subsystemCoupling } from '../support/subsystem-graph.js';
 interface Options {
   /** Maximum tolerated outbound subsystem dependencies. */
   readonly max: number;
+  /** Subsystem names exempt from the check — high fan-out is correct by role. */
+  readonly allow: readonly string[];
 }
 
-const DEFAULTS: Options = { max: 4 };
+const DEFAULTS: Options = { max: 4, allow: [] };
 
 /** Rule: a subsystem with Ce above `max` outbound subsystem dependencies is flagged. */
 export const efferentCoupling: GraphRule = {
@@ -24,10 +26,11 @@ export const efferentCoupling: GraphRule = {
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const root = config.project.sourceRoot;
+    const allow = new Set(opts.allow);
     const coupling = subsystemCoupling(graph, root);
     const out: Diagnostic[] = [];
     for (const [subsystem, info] of coupling) {
-      if (info.ce <= opts.max) continue;
+      if (allow.has(subsystem) || info.ce <= opts.max) continue;
       const outbound = [...info.outboundSubsystems].sort().join(', ');
       out.push({
         ruleId: 'efferent-coupling',

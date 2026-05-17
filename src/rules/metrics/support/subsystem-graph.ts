@@ -28,13 +28,15 @@ interface SubsystemAccumulator {
 
 /**
  * Subsystem of a file id: strips a leading `sourceRoot + '/'` then takes the segment
- * before the first remaining `/`. A root-level file (no further `/`) is its own subsystem.
+ * before the first remaining `/`. A root-level file — one directly under the source
+ * root, with no further `/` — has no subsystem: it is shared lexicon, not a subsystem,
+ * so this returns `null` and the metrics fold excludes it entirely.
  */
-export function subsystemOf(fileId: string, sourceRoot: string): string {
+export function subsystemOf(fileId: string, sourceRoot: string): string | null {
   const prefix = `${sourceRoot}/`;
   const rest = fileId.startsWith(prefix) ? fileId.slice(prefix.length) : fileId;
   const slash = rest.indexOf('/');
-  return slash === -1 ? rest : rest.slice(0, slash);
+  return slash === -1 ? null : rest.slice(0, slash);
 }
 
 /** Returns the accumulator for `name`, creating an empty one on first sight. */
@@ -62,8 +64,11 @@ const couplingCache = new WeakMap<
 
 /**
  * Folds the file-level ConsumerGraph into per-subsystem coupling figures. Every
- * `kind: 'file'` node contributes its membership; every cross-subsystem edge records
- * an outbound link on the consumer subsystem and an inbound link on the producer one.
+ * `kind: 'file'` node that belongs to a subsystem contributes its membership;
+ * root-level files belong to no subsystem and are skipped. Every cross-subsystem
+ * edge whose consumer and producer both belong to a subsystem records an outbound
+ * link on the consumer subsystem and an inbound link on the producer one; an edge
+ * touching a root-level file is not an inter-subsystem coupling link and is skipped.
  * The fold is memoized per `(graph, sourceRoot)` pair — repeated calls are a lookup.
  */
 export function subsystemCoupling(
@@ -92,12 +97,15 @@ function computeSubsystemCoupling(
 
   for (const node of graph.nodes.values()) {
     if (node.kind !== 'file') continue;
-    accumulatorFor(accumulators, subsystemOf(node.id, sourceRoot)).files.add(node.id);
+    const subsystem = subsystemOf(node.id, sourceRoot);
+    if (subsystem === null) continue;
+    accumulatorFor(accumulators, subsystem).files.add(node.id);
   }
 
   for (const edge of graph.edges) {
     const consumerSubsystem = subsystemOf(edge.consumer, sourceRoot);
     const producerSubsystem = subsystemOf(edge.producer, sourceRoot);
+    if (consumerSubsystem === null || producerSubsystem === null) continue;
     if (consumerSubsystem === producerSubsystem) continue;
     accumulatorFor(accumulators, consumerSubsystem).outboundSubsystems.add(producerSubsystem);
     accumulatorFor(accumulators, producerSubsystem).inboundSubsystems.add(consumerSubsystem);
