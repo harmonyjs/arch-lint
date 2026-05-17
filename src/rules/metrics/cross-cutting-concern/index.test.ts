@@ -71,6 +71,55 @@ describe('crossCuttingConcern — check', () => {
     expect(crossCuttingConcern.check(graph, cfg(), ctx)).toEqual([]);
   });
 
+  it('does not count a root-level file as an importing subsystem', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/types.ts': { kind: 'file' },
+        'src/errors.ts': { kind: 'file' },
+        'src/a/x.ts': { kind: 'file' },
+        'src/b/x.ts': { kind: 'file' },
+        'src/c/x.ts': { kind: 'file' },
+      },
+      edges: [
+        edge('src/errors.ts', 'src/types.ts'),
+        edge('src/a/x.ts', 'src/types.ts'),
+        edge('src/b/x.ts', 'src/types.ts'),
+        edge('src/c/x.ts', 'src/types.ts'),
+      ],
+    });
+    const ctx = makeContext('cross-cutting-concern', {
+      severity: 'info',
+      options: { maxSubsystems: 3 },
+    });
+    const out = crossCuttingConcern.check(graph, cfg(), ctx);
+    expect(out).toHaveLength(1);
+    expect(out[0]!.actual).toBe('3 subsystems (a, b, c)');
+  });
+
+  it('still measures a root-level file imported across many subsystems', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/errors.ts': { kind: 'file' },
+        'src/a/x.ts': { kind: 'file' },
+        'src/b/x.ts': { kind: 'file' },
+        'src/c/x.ts': { kind: 'file' },
+      },
+      edges: [
+        edge('src/a/x.ts', 'src/errors.ts'),
+        edge('src/b/x.ts', 'src/errors.ts'),
+        edge('src/c/x.ts', 'src/errors.ts'),
+      ],
+    });
+    const ctx = makeContext('cross-cutting-concern', {
+      severity: 'info',
+      options: { maxSubsystems: 3 },
+    });
+    const out = crossCuttingConcern.check(graph, cfg(), ctx);
+    expect(out).toHaveLength(1);
+    expect(out[0]!.entity).toBe('src/errors.ts');
+    expect(out[0]!.actual).toBe('3 subsystems (a, b, c)');
+  });
+
   it('defaults maxSubsystems to 5', () => {
     const ctx = makeContext('cross-cutting-concern', { severity: 'info' });
     expect(crossCuttingConcern.check(fanInGraph(['a', 'b', 'c', 'd']), cfg(), ctx)).toEqual([]);
