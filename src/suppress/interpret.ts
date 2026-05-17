@@ -2,8 +2,8 @@
  * @fileoverview Semantic interpreter turning a raw scanned @arch-decision into either a
  * valid ParsedSuppress or a typed MalformedSuppress, enforcing the §9 validity rules.
  */
-import type { ParsedSuppress, SuppressConfig } from '../types.js';
-import type { MalformedSuppress, RawSuppressComment } from './types.js';
+import type { SuppressConfig } from '../config/types.js';
+import type { MalformedSuppress, ParsedSuppress, RawSuppressComment } from './types.js';
 
 /** Tagged outcome of interpreting one raw @arch-decision comment. */
 export type InterpretResult =

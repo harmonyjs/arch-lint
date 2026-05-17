@@ -2,12 +2,12 @@
  * @fileoverview Re-export hop resolution — named and wildcard barrel unwinding.
  */
 import { Node, type SourceFile } from 'ts-morph';
-import type { Resolution } from '../types.js';
 import type { ModuleResolutionContext } from './module-resolution.js';
 import { resolveSpecifier } from './module-resolution.js';
 import { ownExportNames } from './resolve-declarations.js';
 import type { SourceFileSet } from './source-files.js';
 import { fileIdOf } from './source-files.js';
+import type { Resolution } from './types.js';
 
 /** A module specifier classified relative to the parsed source set. */
 export type TargetResolution =

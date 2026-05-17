@@ -3,7 +3,8 @@
  * (no range operators, no dist-tags). Reads package.json from disk (manifest engine).
  */
 import { existsSync, readFileSync } from 'node:fs';
-import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
+import type { Diagnostic } from '../../../types.js';
+import type { Rule, RuleContext } from '../../types.js';
 import { manifestPath } from '../support/manifest-path.js';
 import { parsePackageJson } from '../support/package-json.js';
 

@@ -1,8 +1,10 @@
 /**
- * @fileoverview Internal type vocabulary for the M3 suppress subsystem — kinds of
- * malformed @arch-decision comments and intermediate parse shapes not exposed by public API.
+ * @fileoverview Suppress type vocabulary — the parsed @arch-decision suppression
+ * (ParsedSuppress) and the SuppressIndex the rule engine queries, alongside the
+ * kinds of malformed @arch-decision comments and intermediate parse shapes. Only
+ * ParsedSuppress and SuppressIndex are part of the public API.
  */
-import type { Location, ParsedSuppress } from '../types.js';
+import type { Diagnostic, Location } from '../types.js';
 
 /** Why a parsed @arch-decision comment is invalid and must be reported by `expired-suppress`. */
 export type MalformedKind =
@@ -32,4 +34,16 @@ export interface RawSuppressComment {
 export interface EntitySuppressData {
   readonly valid: readonly ParsedSuppress[];
   readonly malformed: readonly MalformedSuppress[];
+}
+
+export interface ParsedSuppress {
+  readonly ruleId: string | null;
+  readonly reason: string;
+  readonly expiry: Date | null;
+  readonly location: Location;
+}
+
+export interface SuppressIndex {
+  isSuppressed(diagnostic: Diagnostic): boolean;
+  findExpired(): readonly ParsedSuppress[];
 }

@@ -6,9 +6,12 @@
 import type { Project } from 'ts-morph';
 import { Project as TsProject } from 'ts-morph';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { ResolvedConfig } from '../config/types.js';
 import { GraphBuildError } from '../errors.js';
+import type { ConsumerGraph } from '../graph/types.js';
 import { makeGraph } from '../rules/test-support/make-graph.js';
-import type { CheckResult, ConsumerGraph, Diagnostic, ResolvedConfig } from '../types.js';
+import type { CheckResult } from '../rules/types.js';
+import type { Diagnostic } from '../types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 

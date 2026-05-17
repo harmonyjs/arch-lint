@@ -2,7 +2,9 @@
  * @fileoverview complexity rule — caps the cognitive complexity of a function (the
  * SonarSource metric, D4). Reads file AST from the RuleContext project (decision D9).
  */
-import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
+
+import type { Diagnostic } from '../../../types.js';
+import type { Rule, RuleContext } from '../../types.js';
 import { cognitiveComplexity } from '../support/complexity-metric.js';
 import { functionLocation, scanFunctions } from '../support/scan-functions.js';
 

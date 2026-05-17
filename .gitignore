@@ -137,6 +137,9 @@ dist
 
 # Mics
 docs/superpowers
+!docs/superpowers/
+docs/superpowers/*
+!docs/superpowers/refactor/
 
 # Claude Code worktrees and local state
 .claude/

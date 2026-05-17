@@ -1,7 +1,7 @@
 /**
  * @fileoverview perfile pack aggregate — collects all 8 entity-shape/size rules for the registry.
  */
-import type { Rule } from '../../types.js';
+import type { Rule } from '../types.js';
 import { complexity } from './complexity/index.js';
 import { fileDescriptionRequired } from './file-description-required/index.js';
 import { maxLines } from './max-lines/index.js';

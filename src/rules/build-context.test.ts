@@ -4,9 +4,10 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig, Rule } from '../types.js';
+import type { ResolvedConfig } from '../config/types.js';
 import { buildRuleContext } from './build-context.js';
 import { makeSuppressIndex } from './test-support/make-context.js';
+import type { Rule } from './types.js';
 
 const rule: Rule = {
   id: 'lca-placement',

@@ -2,8 +2,7 @@
  * @fileoverview Specificity-precedence resolution for a suppress stack (§9): rule-specific
  * comments override broad ones; within a scope the most generous `until` expiry wins.
  */
-import type { ParsedSuppress } from '../types.js';
-
+import type { ParsedSuppress } from './types.js';
 /**
  * Decide whether the given suppress stack suppresses `ruleId` at instant `now`,
  * applying §9 specificity precedence and most-generous-expiry rules.

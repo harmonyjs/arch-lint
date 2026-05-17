@@ -2,7 +2,7 @@
  * @fileoverview Tests for the no-wildcard-reexport rule — forbids export * and export * as ns.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../types.js';
+import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { noWildcardReexport } from './index.js';

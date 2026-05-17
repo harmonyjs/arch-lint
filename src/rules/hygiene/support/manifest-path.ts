@@ -3,7 +3,7 @@
  * for the hygiene pack — anchors a manifest name to project.cwd.
  */
 import { join } from 'node:path';
-import type { ResolvedConfig } from '../../../types.js';
+import type { ResolvedConfig } from '../../../config/types.js';
 
 /** Absolute path to a manifest with the given name, relative to project.cwd. */
 export function manifestPath(config: ResolvedConfig, name: string): string {

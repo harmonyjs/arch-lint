@@ -7,22 +7,20 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 import type { Project } from 'ts-morph';
 import { parseBaselineFile } from '../baseline/index.js';
+import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig } from '../config/load.js';
 import { resolveConfig } from '../config/resolve-defaults.js';
+import type { ResolvedConfig } from '../config/types.js';
 import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors.js';
 import { buildGraphFromSources } from '../graph/build.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
+import type { ConsumerGraph } from '../graph/types.js';
 import { formatReport } from '../report/cli.js';
 import { runEngine } from '../rules/engine.js';
+import type { CheckResult } from '../rules/types.js';
 import { buildSuppressIndex, type SuppressEntity } from '../suppress/suppress-index.js';
-import type {
-  BaselineFile,
-  CheckResult,
-  ConsumerGraph,
-  Diagnostic,
-  ResolvedConfig,
-  SuppressIndex,
-} from '../types.js';
+import type { SuppressIndex } from '../suppress/types.js';
+import type { Diagnostic } from '../types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */

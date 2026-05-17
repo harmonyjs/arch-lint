@@ -3,10 +3,16 @@
  * data and answers isSuppressed / findExpired for the rule engine and `expired-suppress`.
  */
 import type { Project } from 'ts-morph';
-import type { Diagnostic, ParsedSuppress, SuppressConfig, SuppressIndex } from '../types.js';
+import type { SuppressConfig } from '../config/types.js';
+import type { Diagnostic } from '../types.js';
 import { parseEntitySuppress } from './parse.js';
 import { isSuppressedByStack } from './precedence.js';
-import type { EntitySuppressData, MalformedSuppress } from './types.js';
+import type {
+  EntitySuppressData,
+  MalformedSuppress,
+  ParsedSuppress,
+  SuppressIndex,
+} from './types.js';
 
 /** Concrete implementation of the SuppressIndex contract (D8). */
 export class SuppressIndexImpl implements SuppressIndex {

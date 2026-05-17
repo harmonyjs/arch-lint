@@ -2,7 +2,7 @@
  * @fileoverview Tests for the siblings-forbidden rule.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../../types.js';
+import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { siblingsForbiddenRule } from './index.js';

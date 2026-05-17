@@ -13,7 +13,7 @@ import type {
   ResolvedConfig,
   ResolvedRuleSetting,
   RuleSetting,
-} from '../types.js';
+} from './types.js';
 
 /** Framework-agnostic default pack set (Appendix B) — 'view' is opt-in. */
 const DEFAULT_PACKS: readonly Pack[] = [

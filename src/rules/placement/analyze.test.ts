@@ -2,7 +2,7 @@
  * @fileoverview Tests for analyzePlacement — the §7.3 decision tree (D3).
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '../../types.js';
+import type { ResolvedConfig } from '../../config/types.js';
 import { makeGraph } from '../test-support/make-graph.js';
 import { analyzePlacement } from './analyze.js';
 import { componentParentOf } from './tree.js';

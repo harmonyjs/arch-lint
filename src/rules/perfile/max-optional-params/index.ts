@@ -3,7 +3,8 @@
  * parameters of a function (options-creep). Reads file AST from the RuleContext project (D9).
  */
 import { Node } from 'ts-morph';
-import type { Diagnostic, Rule, RuleContext } from '../../../types.js';
+import type { Diagnostic } from '../../../types.js';
+import type { Rule, RuleContext } from '../../types.js';
 import { functionLocation, scanFunctions } from '../support/scan-functions.js';
 
 /** Options of max-optional-params. */

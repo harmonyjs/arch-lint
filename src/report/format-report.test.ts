@@ -2,7 +2,9 @@
  * @fileoverview Golden tests for the full CLI report.
  */
 import { describe, expect, it } from 'vitest';
-import type { CheckResult, Diagnostic, ResolvedConfig } from '../types.js';
+import type { ResolvedConfig } from '../config/types.js';
+import type { CheckResult } from '../rules/types.js';
+import type { Diagnostic } from '../types.js';
 import { formatReport } from './cli.js';
 
 function cfg(): ResolvedConfig {

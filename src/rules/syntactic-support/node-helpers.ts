@@ -2,7 +2,7 @@
  * @fileoverview Graph-node classification — barrel files, component-folder entries,
  * role folders — backing the structural decisions of the barrels and view packs (§4.1).
  */
-import type { ConventionsConfig } from '../../types.js';
+import type { ConventionsConfig } from '../../config/types.js';
 import { segmentsOf } from './segments.js';
 
 /** True when the file is a barrel — its basename is one of conventions.indexFiles. */

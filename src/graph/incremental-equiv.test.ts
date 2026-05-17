@@ -8,9 +8,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { resolveConfig } from '../config/resolve-defaults.js';
-import type { ConsumerGraph } from '../types.js';
 import { buildGraph } from './build.js';
 import { buildIncremental } from './incremental.js';
+import type { ConsumerGraph } from './types.js';
 
 let root: string;
 

@@ -3,8 +3,11 @@
  * records that no longer reproduce, gated by an injected confirmation prompt.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { BaselineFile } from '../../baseline/types.js';
+import type { ResolvedConfig } from '../../config/types.js';
 import { ConfigError } from '../../errors.js';
-import type { BaselineFile, CheckResult, Diagnostic, ResolvedConfig } from '../../types.js';
+import type { CheckResult } from '../../rules/types.js';
+import type { Diagnostic } from '../../types.js';
 
 const loadConfigMock = vi.fn();
 vi.mock('../../config/load.js', () => ({

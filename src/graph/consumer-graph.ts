@@ -2,9 +2,10 @@
  * @fileoverview Assembles the immutable ConsumerGraph from nodes, edges and the
  * unresolved-import list, building indices and the entity-consumer projection.
  */
-import type { ConsumerGraph, Edge, Node, UnresolvedImport } from '../types.js';
+
 import { type EntityContext, projectEntityConsumers } from './entities.js';
 import { buildIndices } from './indices.js';
+import type { ConsumerGraph, Edge, Node, UnresolvedImport } from './types.js';
 
 export interface FreezeGraphInput {
   readonly nodes: ReadonlyMap<string, Node>;

@@ -4,9 +4,10 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic, Location, ParsedSuppress, SuppressConfig } from '../types.js';
+import type { SuppressConfig } from '../config/types.js';
+import type { Diagnostic, Location } from '../types.js';
 import { buildSuppressIndex, type SuppressEntity, SuppressIndexImpl } from './suppress-index.js';
-import type { EntitySuppressData, MalformedSuppress } from './types.js';
+import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
 
 const loc: Location = { file: 'src/Widget/Widget.tsx', line: 1, column: 1 };
 const NOW = new Date('2026-06-01T00:00:00Z');

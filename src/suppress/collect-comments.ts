@@ -3,7 +3,8 @@
  * within the configured maxDistanceLines window, for @arch-decision suppress scanning.
  */
 import { Node } from 'ts-morph';
-import type { Location, SuppressConfig } from '../types.js';
+import type { SuppressConfig } from '../config/types.js';
+import type { Location } from '../types.js';
 
 /** Where a collected comment lived — matches the SuppressConfig.scanLocations vocabulary. */
 export type CommentKind = 'leading-comment' | 'jsdoc';

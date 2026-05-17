@@ -4,7 +4,8 @@
  */
 import picomatch from 'picomatch';
 import type { ExportDeclaration, ImportDeclaration, SourceFile } from 'ts-morph';
-import type { Diagnostic, Rule } from '../../../types.js';
+import type { Diagnostic } from '../../../types.js';
+import type { Rule } from '../../types.js';
 
 interface LibPurityOptions {
   readonly forbiddenImports?: readonly string[];

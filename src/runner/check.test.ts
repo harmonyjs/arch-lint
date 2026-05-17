@@ -3,13 +3,11 @@
  */
 import type { Project } from 'ts-morph';
 import { describe, expect, it, vi } from 'vitest';
-import type {
-  BaselineFile,
-  CheckResult,
-  ConsumerGraph,
-  ResolvedConfig,
-  SuppressIndex,
-} from '../types.js';
+import type { BaselineFile } from '../baseline/types.js';
+import type { ResolvedConfig } from '../config/types.js';
+import type { ConsumerGraph } from '../graph/types.js';
+import type { CheckResult } from '../rules/types.js';
+import type { SuppressIndex } from '../suppress/types.js';
 
 const runEngineMock = vi.fn();
 vi.mock('../rules/engine.js', () => ({

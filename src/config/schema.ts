@@ -7,7 +7,7 @@
  */
 import { z } from 'zod';
 import { ConfigError } from '../errors.js';
-import type { Config } from '../types.js';
+import type { Config } from './types.js';
 
 /** Severity enum — the four allowed rule severities. */
 const severitySchema = z.enum(['off', 'info', 'warning', 'error']);

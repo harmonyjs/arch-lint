@@ -2,11 +2,12 @@
  * @fileoverview Syntactic export resolver — unwinds barrel re-export chains down to a
  * native declaration without invoking the TypeScript type-checker.
  */
-import type { Resolution } from '../types.js';
+
 import type { ModuleResolutionContext } from './module-resolution.js';
 import { findNativeDeclaration } from './resolve-declarations.js';
 import { type ReExportContext, resolveReExport } from './resolve-reexports.js';
 import type { SourceFileSet } from './source-files.js';
+import type { Resolution } from './types.js';
 
 export interface ResolverContext {
   readonly sources: SourceFileSet;
