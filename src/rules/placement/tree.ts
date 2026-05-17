@@ -2,6 +2,7 @@
  * @fileoverview Entity-tree helpers — derive component parents and LCA of an entity.
  */
 import type { ConventionsConfig } from '#config/types.js';
+import { ancestorsOf } from '#entity-id/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 /** The role-segment subset of conventions — folders that are transparent in the tree. */
 export type RoleConv = Pick<
@@ -14,16 +15,6 @@ export type RoleConv = Pick<
   | 'modelSegment'
 >;
 
-/** Ancestor path ids of `id`, nearest first (excluding `id` itself). */
-function ancestors(id: string): readonly string[] {
-  const segs = id.split('/');
-  const out: string[] = [];
-  for (let i = segs.length - 1; i > 0; i -= 1) {
-    out.push(segs.slice(0, i).join('/'));
-  }
-  return out;
-}
-
 /**
  * Nearest ancestor entity of `entityId`; null when none exists. Role and plain folders
  * are skipped — they are never `isEntity` nodes, so node lookup already excludes them.
@@ -33,7 +24,7 @@ export function componentParentOf(
   graph: ConsumerGraph,
   _conv: RoleConv,
 ): string | null {
-  for (const anc of ancestors(entityId)) {
+  for (const anc of ancestorsOf(entityId)) {
     if (graph.nodes.get(anc)?.isEntity === true) return anc;
   }
   return null;
@@ -43,7 +34,7 @@ export function componentParentOf(
 function entityChain(id: string, graph: ConsumerGraph): readonly string[] {
   const chain: string[] = [];
   if (graph.nodes.get(id)?.isEntity === true) chain.push(id);
-  for (const anc of ancestors(id)) {
+  for (const anc of ancestorsOf(id)) {
     if (graph.nodes.get(anc)?.isEntity === true) chain.push(anc);
   }
   return chain;
