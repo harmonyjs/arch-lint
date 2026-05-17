@@ -5,7 +5,7 @@
 import type { SourceFile } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 
 /** Options of max-lines. */
 interface Options {
@@ -53,12 +53,12 @@ function countLines(sf: SourceFile, opts: Options): number {
 }
 
 /** Rule: a file's line count must not exceed `max` (§13.1). */
-export const maxLines: Rule = {
+export const maxLines: SyntacticRule = {
   id: 'max-lines',
   pack: 'perfile',
-  engine: 'perfile',
+  engine: 'syntactic',
   defaultSeverity: 'warning',
-  check: (graph, _config, context: RuleContext): Diagnostic[] => {
+  check: (graph, _config, context: SyntacticRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const out: Diagnostic[] = [];
     for (const fileId of fileNodeIds(graph)) {

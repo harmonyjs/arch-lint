@@ -18,10 +18,10 @@ describe('perfileRules', () => {
     ]);
   });
 
-  it('every rule has pack perfile and engine perfile', () => {
+  it('every rule has pack perfile and engine syntactic', () => {
     for (const rule of perfileRules) {
       expect(rule.pack).toBe('perfile');
-      expect(rule.engine).toBe('perfile');
+      expect(rule.engine).toBe('syntactic');
     }
   });
 

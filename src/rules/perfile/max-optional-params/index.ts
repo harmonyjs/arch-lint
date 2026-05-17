@@ -4,7 +4,7 @@
  */
 import { Node } from 'ts-morph';
 import type { Diagnostic } from '../../../types.js';
-import type { Rule, RuleContext } from '../../types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '../../types.js';
 import { functionLocation, scanFunctions } from '../support/scan-functions.js';
 
 /** Options of max-optional-params. */
@@ -15,12 +15,12 @@ interface Options {
 const DEFAULTS: Options = { max: 3 };
 
 /** Rule: a function's optional/default parameter count must not exceed `max` (§13.1). */
-export const maxOptionalParams: Rule = {
+export const maxOptionalParams: SyntacticRule = {
   id: 'max-optional-params',
   pack: 'perfile',
-  engine: 'perfile',
+  engine: 'syntactic',
   defaultSeverity: 'warning',
-  check: (graph, _config, context: RuleContext): Diagnostic[] => {
+  check: (graph, _config, context: SyntacticRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const out: Diagnostic[] = [];
     scanFunctions(graph, context.project, (fileId, unit) => {
