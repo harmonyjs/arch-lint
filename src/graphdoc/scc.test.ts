@@ -25,6 +25,12 @@ describe('stronglyConnectedComponents', () => {
     expect(cyclic).toHaveLength(1);
     expect([...cyclic[0]!].sort()).toEqual(['a', 'b', 'c']);
   });
+
+  it('handles a node referenced only as an edge target', () => {
+    const adj = new Map([['a', ['b']]]);
+    const components = stronglyConnectedComponents(adj).map((c) => [...c]);
+    expect(components.flat().sort()).toEqual(['a', 'b']);
+  });
 });
 
 describe('cyclicNodes', () => {

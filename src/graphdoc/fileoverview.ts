@@ -7,12 +7,15 @@ import type { SourceFileSet } from '../graph/discover-source-files.js';
 /** Parses the @fileoverview text from a file's leading JSDoc; null when absent. */
 export function fileoverviewOf(text: string): string | null {
   const head = text.slice(0, 4000);
-  const tag = head.indexOf('@fileoverview');
+  const blockStart = head.indexOf('/**');
+  if (blockStart === -1 || head.slice(0, blockStart).trim() !== '') return null;
+  const blockEnd = head.indexOf('*/', blockStart);
+  if (blockEnd === -1) return null;
+  const block = head.slice(blockStart, blockEnd);
+  const tag = block.indexOf('@fileoverview');
   if (tag === -1) return null;
-  const end = head.indexOf('*/', tag);
-  if (end === -1) return null;
-  const cleaned = head
-    .slice(tag + '@fileoverview'.length, end)
+  const cleaned = block
+    .slice(tag + '@fileoverview'.length)
     .split('\n')
     .map((line) => line.replace(/^\s*\*\s?/, '').trim())
     .join(' ')

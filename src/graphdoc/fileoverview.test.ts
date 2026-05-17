@@ -25,6 +25,23 @@ describe('fileoverviewOf', () => {
   it('returns null for an empty file', () => {
     expect(fileoverviewOf('')).toBeNull();
   });
+
+  it('ignores a @fileoverview that is not in the leading JSDoc block', () => {
+    const text = 'import { x } from "y";\n/** @fileoverview Late. */\nexport const z = 1;\n';
+    expect(fileoverviewOf(text)).toBeNull();
+  });
+
+  it('returns null for a leading JSDoc block without a @fileoverview tag', () => {
+    expect(fileoverviewOf('/** Just a plain JSDoc. */\nexport const x = 1;\n')).toBeNull();
+  });
+
+  it('returns null for an unterminated JSDoc block', () => {
+    expect(fileoverviewOf('/** @fileoverview Unterminated')).toBeNull();
+  });
+
+  it('returns null when the @fileoverview tag has no text', () => {
+    expect(fileoverviewOf(['/**', ' * @fileoverview', ' */'].join('\n'))).toBeNull();
+  });
 });
 
 describe('extractFileoverviews', () => {
