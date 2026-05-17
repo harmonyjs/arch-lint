@@ -28,3 +28,14 @@ export function stemOf(baseName: string): string {
   const dot = baseName.indexOf('.');
   return dot === -1 ? baseName : baseName.slice(0, dot);
 }
+
+/** Split an id into segments, dropping the extension of the last segment. */
+export function segmentsOf(id: string): string[] {
+  const trimmed = id.replace(/^\/+/, '').replace(/\/+$/, '');
+  if (trimmed === '') return [];
+  const parts = trimmed.split('/');
+  const last = parts.length - 1;
+  const lastPart = parts[last];
+  if (lastPart !== undefined) parts[last] = lastPart.replace(/\.[^./]+$/, '');
+  return parts;
+}

@@ -65,3 +65,21 @@ describe('stemOf', () => {
     expect(stemOf('Makefile')).toBe('Makefile');
   });
 });
+
+describe('segmentsOf', () => {
+  it('splits a path into segments', () => {
+    expect(segmentsOf('src/App/items/Foo')).toEqual(['src', 'App', 'items', 'Foo']);
+  });
+
+  it('drops the extension of the last segment', () => {
+    expect(segmentsOf('src/App/App.tsx')).toEqual(['src', 'App', 'App']);
+  });
+
+  it('normalizes leading and trailing slashes', () => {
+    expect(segmentsOf('/src/App/')).toEqual(['src', 'App']);
+  });
+
+  it('returns an empty array for the empty string', () => {
+    expect(segmentsOf('')).toEqual([]);
+  });
+});
