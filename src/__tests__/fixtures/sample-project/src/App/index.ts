@@ -1,4 +1,4 @@
 /**
- * @fileoverview Public barrel of the App component-folder.
+ * @fileoverview Public barrel of the App feature folder.
  */
-export { App } from './App.js';
+export { App } from './root.js';
