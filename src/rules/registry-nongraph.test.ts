@@ -50,8 +50,16 @@ describe('registry — non-graph packs', () => {
     ]);
   });
 
-  it('registers 32 rules in total', () => {
-    expect(allRules).toHaveLength(32);
+  it('includes both structure rules', () => {
+    const structure = allRules
+      .filter((r) => r.pack === 'structure')
+      .map((r) => r.id)
+      .sort();
+    expect(structure).toEqual(['orphan-test', 'prefix-cluster-folder']);
+  });
+
+  it('registers 34 rules in total', () => {
+    expect(allRules).toHaveLength(34);
   });
 
   it('has globally unique rule ids', () => {

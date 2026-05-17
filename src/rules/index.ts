@@ -15,6 +15,7 @@ import { unresolvedImportRule } from './meta/unresolved-import/index.js';
 import { metricsRules } from './metrics/index.js';
 import { perfileRules } from './perfile/index.js';
 import { registerPlacementRules } from './placement/index.js';
+import { structureRules } from './structure/index.js';
 import type { Rule } from './types.js';
 import { hooksFolderRequired } from './view/hooks-folder-required/index.js';
 import { tokensImportIsSideEffect } from './view/tokens-import-is-side-effect/index.js';
@@ -41,6 +42,7 @@ export const allRules: readonly Rule[] = [
   ...perfileRules,
   ...hygieneRules,
   ...metricsRules,
+  ...structureRules,
 ];
 
 /** Effective severity of `rule` under `config` — configured override or default. */
