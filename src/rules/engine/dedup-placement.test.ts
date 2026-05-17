@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from '../../types.js';
 import { dedupPlacement } from './dedup-placement.js';
+import { only } from './test-support/only.js';
 
 function diag(ruleId: string, entity: string): Diagnostic {
   return {
@@ -32,15 +33,13 @@ describe('dedupPlacement', () => {
   it('keeps the §7.3 winner when an entity has colliding placement diagnostics', () => {
     const diags = [diag('lca-placement', 'src/A'), diag('slots-privacy', 'src/A')];
     const out = dedupPlacement(diags);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('slots-privacy');
+    expect(only(out).ruleId).toBe('slots-privacy');
   });
 
   it('discards a lower-priority diagnostic that arrives after the winner', () => {
     const diags = [diag('slots-privacy', 'src/A'), diag('lca-placement', 'src/A')];
     const out = dedupPlacement(diags);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('slots-privacy');
+    expect(only(out).ruleId).toBe('slots-privacy');
   });
 
   it('prefers empty-items-folder over siblings-forbidden and lca-placement', () => {
@@ -50,7 +49,6 @@ describe('dedupPlacement', () => {
       diag('empty-items-folder', 'src/A'),
     ];
     const out = dedupPlacement(diags);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('empty-items-folder');
+    expect(only(out).ruleId).toBe('empty-items-folder');
   });
 });

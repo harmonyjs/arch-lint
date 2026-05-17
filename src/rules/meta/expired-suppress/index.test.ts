@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import type { ParsedSuppress } from '../../../suppress/types.js';
 import { makeContext, makeSuppressIndex } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { expiredSuppressRule } from './index.js';
 
 const cfg = {} as ResolvedConfig;
@@ -30,10 +31,10 @@ describe('expiredSuppressRule', () => {
       suppress: makeSuppressIndex({ expired: [expired] }),
     });
     const out = expiredSuppressRule.check(g, cfg, ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('expired-suppress');
-    expect(out[0]!.entity).toBe('src/App/App.tsx');
-    expect(out[0]!.fingerprint?.startsWith('lca-placement#')).toBe(true);
+    const d = only(out);
+    expect(d.ruleId).toBe('expired-suppress');
+    expect(d.entity).toBe('src/App/App.tsx');
+    expect(d.fingerprint?.startsWith('lca-placement#')).toBe(true);
   });
 
   it("uses '*' in the fingerprint for an untargeted suppress", () => {
@@ -46,8 +47,7 @@ describe('expiredSuppressRule', () => {
     const ctx = makeContext('expired-suppress', {
       suppress: makeSuppressIndex({ expired: [expired] }),
     });
-    const out = expiredSuppressRule.check(g, cfg, ctx);
-    expect(out[0]!.fingerprint?.startsWith('*#')).toBe(true);
+    expect(only(expiredSuppressRule.check(g, cfg, ctx)).fingerprint?.startsWith('*#')).toBe(true);
   });
 
   it('deduplicates two suppresses with the same ruleId and reason', () => {

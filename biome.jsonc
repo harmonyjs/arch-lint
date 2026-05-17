@@ -29,11 +29,6 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "style": {
-        // Non-null assertions (`x!`) are idiomatic here — pervasive in tests where
-        // the surrounding assertion already guarantees the element exists.
-        "noNonNullAssertion": "off"
-      },
       "complexity": {
         // tsconfig sets noPropertyAccessFromIndexSignature: true, which *requires*
         // bracket access on index-signature types — the opposite of this rule.

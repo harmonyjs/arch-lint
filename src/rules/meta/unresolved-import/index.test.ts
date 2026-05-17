@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import type { UnresolvedImport } from '../../../graph/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { unresolvedImportRule } from './index.js';
 
 const cfg = {} as ResolvedConfig;
@@ -29,11 +30,11 @@ describe('unresolvedImportRule', () => {
     };
     const g = makeGraph({ unresolved: [u] });
     const out = unresolvedImportRule.check(g, cfg, ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('unresolved-import');
-    expect(out[0]!.entity).toBe('src/App/App.tsx');
-    expect(out[0]!.fingerprint).toBe('src/App/App.tsx#./missing#Thing');
-    expect(out[0]!.location).toEqual({ file: 'src/App/App.tsx', line: 7, column: 1 });
+    const d = only(out);
+    expect(d.ruleId).toBe('unresolved-import');
+    expect(d.entity).toBe('src/App/App.tsx');
+    expect(d.fingerprint).toBe('src/App/App.tsx#./missing#Thing');
+    expect(d.location).toEqual({ file: 'src/App/App.tsx', line: 7, column: 1 });
   });
 
   it('deduplicates identical unresolved entries by fingerprint', () => {

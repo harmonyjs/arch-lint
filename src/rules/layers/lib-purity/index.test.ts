@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
+import { only } from '../../test-support/only.js';
 import { libPurityRule } from './index.js';
 
 function cfg(): ResolvedConfig {
@@ -57,9 +58,9 @@ describe('libPurityRule', () => {
       project: project({ 'src/lib/util.ts': "import { useState } from 'react';" }),
     });
     const out = libPurityRule.check(g, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.ruleId).toBe('lib-purity');
-    expect(out[0]!.actual).toBe('react');
+    const d = only(out);
+    expect(d.ruleId).toBe('lib-purity');
+    expect(d.actual).toBe('react');
   });
 
   it('flags a forbidden glob-package import via picomatch', () => {
@@ -107,8 +108,7 @@ describe('libPurityRule enforceForSegments', () => {
       }),
     });
     const out = libPurityRule.check(g, cfg(), ctx);
-    expect(out).toHaveLength(1);
-    expect(out[0]!.entity).toBe('src/lib/util.ts');
+    expect(only(out).entity).toBe('src/lib/util.ts');
   });
 
   it("flags every file when enforceForSegments is 'all'", () => {
@@ -140,26 +140,22 @@ describe('libPurityRule import forms', () => {
 
   it("flags a forbidden default import with the 'default' symbol", () => {
     const out = single("import React from 'react';");
-    expect(out).toHaveLength(1);
-    expect(out[0]!.fingerprint).toBe('src/lib/util.ts#react#default');
+    expect(only(out).fingerprint).toBe('src/lib/util.ts#react#default');
   });
 
   it('flags a forbidden namespace import with the binding symbol', () => {
     const out = single("import * as React from 'react';");
-    expect(out).toHaveLength(1);
-    expect(out[0]!.fingerprint).toBe('src/lib/util.ts#react#React');
+    expect(only(out).fingerprint).toBe('src/lib/util.ts#react#React');
   });
 
   it('flags a forbidden side-effect-only import with an empty symbol', () => {
     const out = single("import 'react';");
-    expect(out).toHaveLength(1);
-    expect(out[0]!.fingerprint).toBe('src/lib/util.ts#react#');
+    expect(only(out).fingerprint).toBe('src/lib/util.ts#react#');
   });
 
   it('flags a forbidden wildcard re-export with an empty symbol', () => {
     const out = single("export * from 'react';");
-    expect(out).toHaveLength(1);
-    expect(out[0]!.fingerprint).toBe('src/lib/util.ts#react#');
+    expect(only(out).fingerprint).toBe('src/lib/util.ts#react#');
   });
 
   it('ignores a local export with no module specifier', () => {
@@ -187,7 +183,7 @@ describe('libPurityRule fingerprint', () => {
       project: project({ 'src/lib/util.ts': "import { useState } from 'react';" }),
     });
     const out = libPurityRule.check(g, cfg(), ctx);
-    expect(out[0]!.fingerprint).toBe('src/lib/util.ts#react#useState');
+    expect(only(out).fingerprint).toBe('src/lib/util.ts#react#useState');
   });
 
   it('deduplicates two identical forbidden imports', () => {
