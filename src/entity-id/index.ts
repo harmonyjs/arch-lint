@@ -64,3 +64,9 @@ export function firstSegment(id: string): string {
   const slash = id.indexOf('/');
   return slash < 0 ? id : id.slice(0, slash);
 }
+
+/** Parent-folder id of `id`, derived through `segmentsOf` (the canonical
+ *  replacement for the `segmentsOf(x).slice(0, -1).join('/')` idiom). */
+export function folderOf(id: string): string {
+  return segmentsOf(id).slice(0, -1).join('/');
+}

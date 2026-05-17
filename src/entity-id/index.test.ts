@@ -121,3 +121,13 @@ describe('firstSegment', () => {
     expect(firstSegment('index.ts')).toBe('index.ts');
   });
 });
+
+describe('folderOf', () => {
+  it('returns the parent folder id of a file', () => {
+    expect(folderOf('src/App/index.ts')).toBe('src/App');
+  });
+
+  it('returns an empty string for a top-level id', () => {
+    expect(folderOf('index.ts')).toBe('');
+  });
+});
