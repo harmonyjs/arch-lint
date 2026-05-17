@@ -15,24 +15,31 @@ export function stronglyConnectedComponents(
   const out: string[][] = [];
 
   const connect = (v: string): void => {
-    index.set(v, counter);
-    low.set(v, counter);
+    const vIndex = counter;
+    index.set(v, vIndex);
+    let vLow = vIndex;
+    low.set(v, vLow);
     counter += 1;
     stack.push(v);
     onStack.add(v);
     for (const w of adjacency.get(v) ?? []) {
-      if (!index.has(w)) {
+      const wIndex = index.get(w);
+      if (wIndex === undefined) {
         connect(w);
-        low.set(v, Math.min(low.get(v)!, low.get(w)!));
+        // `connect(w)` always assigns `low.get(w)`; fall back to its own index defensively.
+        vLow = Math.min(vLow, low.get(w) ?? Number.POSITIVE_INFINITY);
+        low.set(v, vLow);
       } else if (onStack.has(w)) {
-        low.set(v, Math.min(low.get(v)!, index.get(w)!));
+        vLow = Math.min(vLow, wIndex);
+        low.set(v, vLow);
       }
     }
-    if (low.get(v) === index.get(v)) {
+    if (vLow === vIndex) {
       const component: string[] = [];
-      let w: string;
+      let w: string | undefined;
       do {
-        w = stack.pop()!;
+        w = stack.pop();
+        if (w === undefined) break;
         onStack.delete(w);
         component.push(w);
       } while (w !== v);

@@ -15,6 +15,12 @@ function hashReason(reason: string): string {
   return (hash >>> 0).toString(16);
 }
 
+/** Stable fingerprint of an expired/malformed parsed suppress. */
+function fingerprintOf(suppress: ParsedSuppress): string {
+  const target = suppress.ruleId ?? '*';
+  return `${target}#${hashReason(suppress.reason)}`;
+}
+
 /** Build one diagnostic from an expired/malformed parsed suppress. */
 function toDiagnostic(suppress: ParsedSuppress, severity: Diagnostic['severity']): Diagnostic {
   const target = suppress.ruleId ?? '*';
@@ -22,7 +28,7 @@ function toDiagnostic(suppress: ParsedSuppress, severity: Diagnostic['severity']
     ruleId: 'expired-suppress',
     severity,
     entity: suppress.location.file,
-    fingerprint: `${target}#${hashReason(suppress.reason)}`,
+    fingerprint: fingerprintOf(suppress),
     message: `expired or malformed @arch-decision suppress for ${target}`,
     actual: suppress.location.file,
     reason: suppress.reason,
@@ -43,10 +49,10 @@ export const expiredSuppressRule: GraphRule = {
     const out: Diagnostic[] = [];
     const seen = new Set<string>();
     for (const suppress of context.suppress.findExpired()) {
-      const diagnostic = toDiagnostic(suppress, context.severity);
-      if (seen.has(diagnostic.fingerprint!)) continue;
-      seen.add(diagnostic.fingerprint!);
-      out.push(diagnostic);
+      const fingerprint = fingerprintOf(suppress);
+      if (seen.has(fingerprint)) continue;
+      seen.add(fingerprint);
+      out.push(toDiagnostic(suppress, context.severity));
     }
     return out;
   },

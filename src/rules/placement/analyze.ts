@@ -48,7 +48,9 @@ function realConsumers(entity: string, graph: ConsumerGraph): readonly string[] 
 
 /** Last path segment of `id` — the entity name. */
 function nameOf(id: string): string {
-  return id.split('/').at(-1)!;
+  const segs = id.split('/');
+  // `String.prototype.split` always yields at least one element.
+  return segs[segs.length - 1] ?? id;
 }
 
 /** True when any path segment of `id` equals `segment`. */
@@ -82,8 +84,8 @@ function roleFolderExpected(
     const host = lca(consumers, ctx.graph, conv) ?? ctx.layerRoot;
     return `${host}/${conv.sharedSegment}/${nameOf(entity)}`;
   }
-  const owner = consumers[0]!;
-  if (ctx.graph.nodes.get(owner)?.kind === 'file') return null;
+  const owner = consumers[0];
+  if (owner === undefined || ctx.graph.nodes.get(owner)?.kind === 'file') return null;
   return `${owner}/${conv.privateSegment}/${nameOf(entity)}`;
 }
 

@@ -17,9 +17,9 @@ export function isBarrelFile(fileId: string, conventions: ConventionsConfig): bo
  */
 export function isComponentFolderEntry(fileId: string): boolean {
   const segs = segmentsOf(fileId);
-  if (segs.length < 2) return false;
-  const base = segs[segs.length - 1]!;
-  const parent = segs[segs.length - 2]!;
+  const base = segs.at(-1);
+  const parent = segs.at(-2);
+  if (base === undefined || parent === undefined) return false;
   return base === parent && base !== 'index';
 }
 
