@@ -62,4 +62,21 @@ describe('createDebouncer', () => {
     expect(flush).toHaveBeenCalledTimes(2);
     expect(flush).toHaveBeenNthCalledWith(2, ['c', 'd']);
   });
+
+  it('cancel() prevents a pending flush from firing and discards accumulated events', () => {
+    const flush = vi.fn();
+    const debouncer = createDebouncer<string>(100, flush);
+
+    debouncer.push('a');
+    debouncer.push('b');
+    debouncer.cancel();
+
+    vi.advanceTimersByTime(100);
+    expect(flush).not.toHaveBeenCalled();
+
+    debouncer.push('c');
+    vi.advanceTimersByTime(100);
+    expect(flush).toHaveBeenCalledTimes(1);
+    expect(flush).toHaveBeenCalledWith(['c']);
+  });
 });

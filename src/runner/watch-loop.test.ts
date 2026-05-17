@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for runWatch — the watch loop. A fake EventEmitter
- * watcher and fake timers isolate the loop (debounce + incremental rebuild +
- * render) from the engine internals, which are mocked at their seams.
+ * watcher and fake timers isolate the loop (debounce + rebuild + render) from
+ * the engine internals, which are mocked at their seams.
  */
 import { EventEmitter } from 'node:events';
 import type { FSWatcher } from 'chokidar';
@@ -20,14 +20,9 @@ vi.mock('../config/resolve-defaults.js', () => ({
   resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
 }));
 
-const buildGraphMock = vi.fn();
+const buildGraphFromSourcesMock = vi.fn();
 vi.mock('../graph/build.js', () => ({
-  buildGraph: (...args: unknown[]): unknown => buildGraphMock(...args),
-}));
-
-const buildIncrementalMock = vi.fn();
-vi.mock('../graph/incremental.js', () => ({
-  buildIncremental: (...args: unknown[]): unknown => buildIncrementalMock(...args),
+  buildGraphFromSources: (...args: unknown[]): unknown => buildGraphFromSourcesMock(...args),
 }));
 
 const loadSourceFilesMock = vi.fn();
@@ -96,14 +91,13 @@ function arrange(): { graph: ConsumerGraph; watcher: FakeWatcher } {
   loadConfigMock.mockResolvedValue({ project: { tsconfig: './tsconfig.json' } });
   resolveConfigMock.mockReturnValue(resolvedConfig());
   resolveBaselineMock.mockResolvedValue(null);
-  buildGraphMock.mockResolvedValue(graph);
-  buildIncrementalMock.mockResolvedValue(graph);
   loadSourceFilesMock.mockResolvedValue({
     project: {},
     files: new Map(),
     rootDir: '/repo/src',
     cwd: '/repo',
   });
+  buildGraphFromSourcesMock.mockReturnValue(graph);
   buildSuppressIndexMock.mockReturnValue({ isSuppressed: () => false, findExpired: () => [] });
   checkMock.mockReturnValue(canned);
   formatReportMock.mockReturnValue('report-text');
@@ -132,8 +126,8 @@ describe('runWatch', () => {
       clearScreen,
     });
 
-    expect(buildGraphMock).toHaveBeenCalledTimes(1);
-    expect(buildIncrementalMock).not.toHaveBeenCalled();
+    expect(loadSourceFilesMock).toHaveBeenCalledTimes(1);
+    expect(buildGraphFromSourcesMock).toHaveBeenCalledTimes(1);
     expect(print).toHaveBeenCalledTimes(1);
     expect(print).toHaveBeenCalledWith('report-text');
     expect(clearScreen).toHaveBeenCalledTimes(1);
@@ -143,7 +137,33 @@ describe('runWatch', () => {
     expect(watcher.close).toHaveBeenCalledTimes(1);
   });
 
-  it('debounces a burst of change events into one incremental rebuild with relative paths', async () => {
+  it('debounces a burst of change events into one rebuild and re-render', async () => {
+    const { watcher } = arrange();
+    const print = vi.fn();
+
+    await runWatch({
+      cwd: '/repo',
+      createWatcher: () => watcher as unknown as FSWatcher,
+      print,
+      clearScreen: vi.fn(),
+    });
+    expect(loadSourceFilesMock).toHaveBeenCalledTimes(1);
+
+    watcher.emit('change', '/repo/src/a.ts');
+    watcher.emit('change', '/repo/src/b.ts');
+    watcher.emit('add', '/repo/src/c.ts');
+    expect(loadSourceFilesMock).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(200);
+
+    // One extra rebuild for the whole burst: the initial build plus this one.
+    expect(loadSourceFilesMock).toHaveBeenCalledTimes(2);
+    expect(buildGraphFromSourcesMock).toHaveBeenCalledTimes(2);
+    expect(print).toHaveBeenCalledTimes(2);
+    expect(print).toHaveBeenLastCalledWith('report-text');
+  });
+
+  it('reports a rebuild failure and keeps the session alive for the next event', async () => {
     const { watcher } = arrange();
     const print = vi.fn();
 
@@ -154,20 +174,19 @@ describe('runWatch', () => {
       clearScreen: vi.fn(),
     });
 
+    // A transient parse error on the next rebuild — the loop must not die.
+    loadSourceFilesMock.mockRejectedValueOnce(new Error('parse blew up'));
     watcher.emit('change', '/repo/src/a.ts');
-    watcher.emit('change', '/repo/src/b.ts');
-    watcher.emit('add', '/repo/src/c.ts');
-    expect(buildIncrementalMock).not.toHaveBeenCalled();
-
     await vi.advanceTimersByTimeAsync(200);
 
-    expect(buildIncrementalMock).toHaveBeenCalledTimes(1);
-    const changes = buildIncrementalMock.mock.calls[0]?.[1];
-    expect(changes).toEqual({
-      added: ['src/c.ts'],
-      removed: [],
-      modified: ['src/a.ts', 'src/b.ts'],
-    });
     expect(print).toHaveBeenCalledTimes(2);
+    expect(print).toHaveBeenLastCalledWith('Watch rebuild failed: parse blew up');
+
+    // A subsequent event still triggers a rebuild + render: the session lives.
+    watcher.emit('change', '/repo/src/b.ts');
+    await vi.advanceTimersByTimeAsync(200);
+
+    expect(print).toHaveBeenCalledTimes(3);
+    expect(print).toHaveBeenLastCalledWith('report-text');
   });
 });
