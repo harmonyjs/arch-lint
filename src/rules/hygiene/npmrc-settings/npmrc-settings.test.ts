@@ -46,8 +46,10 @@ describe('npmrc-settings', () => {
     expect(ds[0]!.actual).toContain('false');
   });
 
-  it('returns nothing when .npmrc is absent', () => {
-    expect(run(null, { required: { 'engine-strict': true, 'save-exact': true } })).toEqual([]);
+  it('flags every required key when .npmrc is absent', () => {
+    const ds = run(null, { required: { 'engine-strict': true, 'save-exact': true } });
+    expect(ds).toHaveLength(2);
+    expect(ds.map((d) => d.fingerprint).sort()).toEqual(['engine-strict', 'save-exact']);
   });
 
   it('reports the line of the offending key', () => {
