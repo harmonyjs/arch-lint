@@ -2,11 +2,12 @@
  * @fileoverview no-wildcard-reexport rule — forbids `export *` and `export * as ns`
  * in barrels. Reads import/export AST from the RuleContext project (decision D9).
  */
-import type { Rule } from '../../types.js';
+
 import type { Diagnostic } from '../../../types.js';
 import { dedupByFingerprint } from '../../syntactic-support/dedup.js';
 import { type ImportInfo, importsOf } from '../../syntactic-support/import-info.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
+import type { Rule } from '../../types.js';
 
 /** Builds the diagnostic for one forbidden wildcard re-export. */
 function wildcardDiagnostic(

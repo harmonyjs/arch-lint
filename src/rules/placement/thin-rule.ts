@@ -1,8 +1,9 @@
 /**
  * @fileoverview Builds a thin placement Rule that projects one §7.3 verdict ruleId (D3).
  */
-import type { Rule } from '../types.js';
+
 import type { ActiveSeverity, Diagnostic } from '../../types.js';
+import type { Rule } from '../types.js';
 import { analyzePlacement, type PlacementVerdict } from './analyze.js';
 import { verdictToDiagnostic } from './verdict-to-diagnostic.js';
 

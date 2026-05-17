@@ -4,6 +4,7 @@
  */
 import { Project } from 'ts-morph';
 import type { ConsumerGraph, Edge, Node, UnresolvedImport } from '../../graph/types.js';
+
 interface NodeSpec {
   readonly kind?: 'file' | 'folder';
   readonly isEntity?: boolean;

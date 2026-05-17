@@ -2,16 +2,15 @@
  * @fileoverview Public API surface of @avavilov/arch-lint — the single package
  * entry point re-exporting the published types and functions. The internal
  * Resolution type and the config helper modules are intentionally not
- * re-exported.
+ * re-exported. Exports are grouped by owning module; ordering follows Biome's
+ * path-sorted organize-imports.
  */
 
+// Types — baseline module
+export type { BaselineFile, BaselineRecord } from './baseline/types.js';
+// Function — config resolver
 export { resolveConfig } from './config/resolve-defaults.js';
-// ── Functions ────────────────────────────────────────────────────────────────
-export { defineConfig } from './define-config.js';
-export { buildGraph } from './graph/build.js';
-export { check } from './runner/index.js';
-
-// ── Types: config ────────────────────────────────────────────────────────────
+// Types — config module
 export type {
   BaselineConfig,
   CiRunMode,
@@ -33,8 +32,11 @@ export type {
   RunModeConfig,
   WatchRunMode,
 } from './config/types.js';
-
-// ── Types: graph (Resolution excluded — internal resolver helper) ────────────
+// Function — config helper
+export { defineConfig } from './define-config.js';
+// Function — graph builder
+export { buildGraph } from './graph/build.js';
+// Types — graph module (Resolution excluded — internal resolver helper)
 export type {
   ConsumerGraph,
   Edge,
@@ -42,11 +44,7 @@ export type {
   UnresolvedImport,
   UnresolvedReason,
 } from './graph/types.js';
-
-// ── Types: baseline ──────────────────────────────────────────────────────────
-export type { BaselineFile, BaselineRecord } from './baseline/types.js';
-
-// ── Types: rules ─────────────────────────────────────────────────────────────
+// Types — rules module
 export type {
   CheckResult,
   ConsumerInfo,
@@ -55,16 +53,9 @@ export type {
   RuleEngine,
   Suggestion,
 } from './rules/types.js';
-
-// ── Types: suppress ──────────────────────────────────────────────────────────
+// Function — check runner
+export { check } from './runner/index.js';
+// Types — suppress module
 export type { ParsedSuppress, SuppressIndex } from './suppress/types.js';
-
-// ── Types: core ──────────────────────────────────────────────────────────────
-export type {
-  ActiveSeverity,
-  Diagnostic,
-  // Graph
-  Location,
-  // Primitives
-  Severity,
-} from './types.js';
+// Types — cross-cutting core lexicon
+export type { ActiveSeverity, Diagnostic, Location, Severity } from './types.js';

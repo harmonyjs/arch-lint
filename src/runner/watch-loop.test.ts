@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import type { CheckResult } from '../rules/types.js';
+
 // ── Mocked seams ─────────────────────────────────────────────────────────────
 
 const loadConfigMock = vi.fn();

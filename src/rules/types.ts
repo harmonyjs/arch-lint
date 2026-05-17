@@ -3,8 +3,8 @@
  * the RuleContext the engine threads through, and CheckResult, the engine's output.
  */
 import type { Project } from 'ts-morph';
-import type { ConsumerGraph } from '../graph/types.js';
 import type { Pack, ResolvedConfig } from '../config/types.js';
+import type { ConsumerGraph } from '../graph/types.js';
 import type { SuppressIndex } from '../suppress/types.js';
 import type { ActiveSeverity, Diagnostic, Location } from '../types.js';
 

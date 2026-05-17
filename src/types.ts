@@ -1,7 +1,9 @@
 /**
- * @fileoverview Canonical shared type contract for arch-lint — config, graph,
- * rules, diagnostics, suppress and baseline. Every module imports its types
- * from here; public-api re-exports the published subset (spec Appendix A).
+ * @fileoverview Cross-cutting type lexicon for arch-lint — the thin set of types
+ * shared by two or more independent subsystems. Diagnostic is the shared finding
+ * shape; Severity and Location are reused project-wide. Subsystem-specific types
+ * live in that subsystem's own types.ts. The back-import of ConsumerInfo and
+ * Suggestion is deliberate: they are rules-authored sub-shapes of Diagnostic.
  */
 import type { ConsumerInfo, Suggestion } from './rules/types.js';
 

@@ -3,8 +3,8 @@
  * Reads .npmrc from disk; the graph is unused (manifest engine).
  */
 import { existsSync, readFileSync } from 'node:fs';
-import type { Rule, RuleContext } from '../../types.js';
 import type { Diagnostic } from '../../../types.js';
+import type { Rule, RuleContext } from '../../types.js';
 import { manifestPath } from '../support/manifest-path.js';
 import { parseNpmrc } from '../support/npmrc.js';
 

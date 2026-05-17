@@ -2,7 +2,6 @@
  * @fileoverview Rule registry — aggregates all built-in rules and resolves the active set.
  */
 import type { ResolvedConfig } from '../config/types.js';
-import type { Rule } from './types.js';
 import type { Severity } from '../types.js';
 import { barrelIsPublicFace } from './barrels/barrel-is-public-face/index.js';
 import { barrelNarrowExport } from './barrels/barrel-narrow-export/index.js';
@@ -18,6 +17,7 @@ import { emptyItemsFolderRule } from './placement/empty-items-folder/index.js';
 import { lcaPlacementRule } from './placement/lca-placement/index.js';
 import { siblingsForbiddenRule } from './placement/siblings-forbidden/index.js';
 import { slotsPrivacyRule } from './placement/slots-privacy/index.js';
+import type { Rule } from './types.js';
 import { hooksFolderRequired } from './view/hooks-folder-required/index.js';
 import { tokensImportIsSideEffect } from './view/tokens-import-is-side-effect/index.js';
 import { uiClusterMembership } from './view/ui-cluster-membership/index.js';

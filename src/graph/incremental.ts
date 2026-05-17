@@ -5,8 +5,8 @@
  * Produces a new frozen ConsumerGraph identical to a cold build of the tree.
  */
 import type { ResolvedConfig } from '../config/types.js';
-import type { ConsumerGraph } from './types.js';
 import { buildGraph } from './build.js';
+import type { ConsumerGraph } from './types.js';
 
 /** A set of file-system changes since the previous graph snapshot. */
 export interface GraphChanges {

@@ -6,6 +6,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { CheckResult } from '../../rules/types.js';
 import type { Diagnostic } from '../../types.js';
+
 const runCheckMock = vi.fn();
 vi.mock('../../runner/index.js', () => ({
   runCheck: (...args: unknown[]): unknown => runCheckMock(...args),

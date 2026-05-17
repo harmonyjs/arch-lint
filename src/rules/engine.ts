@@ -3,16 +3,16 @@
  */
 import type { Project } from 'ts-morph';
 import { classifyDiagnostics } from '../baseline/classify.js';
+import type { BaselineFile } from '../baseline/types.js';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
-import type { BaselineFile } from '../baseline/types.js';
-import type { CheckResult } from './types.js';
 import type { SuppressIndex } from '../suppress/types.js';
 import type { ActiveSeverity, Diagnostic } from '../types.js';
 import { buildRuleContext } from './build-context.js';
 import { dedupPlacement } from './dedup-placement.js';
 import { getActiveRules } from './index.js';
 import { runtimeSelfCheck } from './self-check.js';
+import type { CheckResult } from './types.js';
 
 /** Tally classified diagnostics into the CheckResult summary and exit code (§10.3). */
 function buildResult(diagnostics: readonly Diagnostic[]): CheckResult {

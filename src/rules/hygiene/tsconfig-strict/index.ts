@@ -3,8 +3,8 @@
  * (D7 presets). Reads tsconfig.json from disk; the graph is unused (manifest engine).
  */
 import { existsSync } from 'node:fs';
-import type { Rule, RuleContext } from '../../types.js';
 import type { Diagnostic } from '../../../types.js';
+import type { Rule, RuleContext } from '../../types.js';
 import { manifestPath } from '../support/manifest-path.js';
 import { effectiveCompilerOptions } from '../support/tsconfig-effective.js';
 

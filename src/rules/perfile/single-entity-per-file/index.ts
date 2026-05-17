@@ -5,9 +5,9 @@
 
 import type { SourceFile } from 'ts-morph';
 import { Node } from 'ts-morph';
-import type { Rule, RuleContext } from '../../types.js';
 import type { Diagnostic } from '../../../types.js';
 import { fileNodeIds, sourceFileFor } from '../../syntactic-support/source-files.js';
+import type { Rule, RuleContext } from '../../types.js';
 
 /** PascalCase name — the component heuristic (decision A2). */
 function isPascalCase(name: string | undefined): boolean {

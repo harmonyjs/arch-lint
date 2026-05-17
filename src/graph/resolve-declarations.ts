@@ -4,6 +4,7 @@
  */
 import { Node, type SourceFile } from 'ts-morph';
 import type { Resolution } from './types.js';
+
 /** True if a syntax node carries the `export` modifier. */
 function hasExport(node: Node): boolean {
   return Node.isModifierable(node) && node.hasModifier('export');

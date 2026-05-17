@@ -6,6 +6,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { z } from 'zod';
 import type { BaselineFile, BaselineRecord } from './types.js';
+
 const baselineRecordSchema = z.object({
   ruleId: z.string(),
   entity: z.string(),

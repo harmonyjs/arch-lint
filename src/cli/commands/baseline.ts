@@ -15,14 +15,14 @@ import {
   snapshotBaseline,
   writeBaseline,
 } from '../../baseline/index.js';
+import type { BaselineFile } from '../../baseline/types.js';
 import { loadConfig } from '../../config/load.js';
 import { resolveConfig } from '../../config/resolve-defaults.js';
+import type { ResolvedConfig } from '../../config/types.js';
 import { ConfigError } from '../../errors.js';
 import { packageRoot } from '../../paths.js';
-import { type RunCheckOptions, resolveBaseline, runCheck } from '../../runner/index.js';
-import type { ResolvedConfig } from '../../config/types.js';
-import type { BaselineFile } from '../../baseline/types.js';
 import type { CheckResult } from '../../rules/types.js';
+import { type RunCheckOptions, resolveBaseline, runCheck } from '../../runner/index.js';
 /** Inputs shared by every baseline subcommand. */
 export interface BaselineCommandOptions {
   /** Directory the run is rooted at — config discovery starts here. */
