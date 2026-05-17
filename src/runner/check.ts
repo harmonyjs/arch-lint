@@ -12,13 +12,13 @@ import type { BaselineFile } from '../baseline/types.js';
 import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
 import { ArchLintError, ConfigError, GraphBuildError, IOError } from '../errors.js';
-import { buildGraphFromSources } from '../graph/index.js';
+import { buildGraphFromSources, graphEntityResolver } from '../graph/index.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import { formatReport } from '../report/index.js';
 import { runEngine } from '../rules/engine.js';
 import type { CheckResult } from '../rules/types.js';
-import { buildSuppressIndex, type SuppressEntity } from '../suppress/suppress-index.js';
+import { buildSuppressIndex } from '../suppress/suppress-index.js';
 import type { SuppressIndex } from '../suppress/types.js';
 import type { Diagnostic } from '../types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
@@ -87,42 +87,6 @@ export async function resolveBaseline(
   }
 }
 
-/** Strips a trailing `.ts` or `.tsx` extension from a file basename. */
-function dropTsExtension(basename: string): string {
-  return basename.replace(/\.tsx?$/, '');
-}
-
-/** The final path segment of a POSIX id. */
-function basenameOf(id: string): string {
-  return id.slice(id.lastIndexOf('/') + 1);
-}
-
-/**
- * Projects the graph's entity nodes onto the SuppressEntity descriptors the
- * suppress index needs. A file entity is its own entry file (its name is the
- * basename without the `.ts`/`.tsx` extension); a component-folder entity's
- * entry file is the same-named `.tsx` (or `.ts`) file inside it, and its name
- * is the folder basename.
- */
-export function deriveSuppressEntities(
-  graph: ConsumerGraph,
-  sources: SourceFileSet,
-): SuppressEntity[] {
-  const entities: SuppressEntity[] = [];
-  for (const node of graph.nodes.values()) {
-    if (!node.isEntity) continue;
-    const base = basenameOf(node.id);
-    if (node.kind === 'file') {
-      entities.push({ id: node.id, name: dropTsExtension(base), entryFilePath: node.id });
-      continue;
-    }
-    const tsxEntry = `${node.id}/${base}.tsx`;
-    const entryFilePath = sources.files.has(tsxEntry) ? tsxEntry : `${node.id}/${base}.ts`;
-    entities.push({ id: node.id, name: base, entryFilePath });
-  }
-  return entities;
-}
-
 /** A run mode selects which runMode sub-config governs the pass/fail verdict. */
 export type RunMode = 'ci' | 'preCommit';
 
@@ -185,11 +149,7 @@ async function buildGraphAndSources(
 export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcome> {
   const config = resolveConfig(await loadConfig(options.cwd, options.configPath));
   const { graph, sources } = await buildGraphAndSources(config);
-  const suppress = buildSuppressIndex(
-    sources.project,
-    config.suppress,
-    deriveSuppressEntities(graph, sources),
-  );
+  const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
   const result = check(graph, config, suppress, sources.project, options.ruleFilter, baseline);
 
