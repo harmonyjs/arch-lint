@@ -83,3 +83,17 @@ describe('segmentsOf', () => {
     expect(segmentsOf('')).toEqual([]);
   });
 });
+
+describe('ancestorsOf', () => {
+  it('lists the directory ancestors nearest-first', () => {
+    expect(ancestorsOf('src/graph/model/tree.ts')).toEqual([
+      'src/graph/model',
+      'src/graph',
+      'src',
+    ]);
+  });
+
+  it('returns an empty array for a top-level id', () => {
+    expect(ancestorsOf('index.ts')).toEqual([]);
+  });
+});

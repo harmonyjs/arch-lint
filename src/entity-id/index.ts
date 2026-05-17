@@ -39,3 +39,13 @@ export function segmentsOf(id: string): string[] {
   if (lastPart !== undefined) parts[last] = lastPart.replace(/\.[^./]+$/, '');
   return parts;
 }
+
+/** Directory-ancestor ids of `id`, nearest first, excluding `id` itself. */
+export function ancestorsOf(id: string): string[] {
+  const segs = id.split('/');
+  const out: string[] = [];
+  for (let i = segs.length - 1; i > 0; i -= 1) {
+    out.push(segs.slice(0, i).join('/'));
+  }
+  return out;
+}
