@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
+import { only } from '../../test-support/only.js';
 import { singleEntityPerFile } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
@@ -30,8 +31,7 @@ describe('single-entity-per-file', () => {
 
   it('flags a file with two exported classes', () => {
     const ds = run({ 'src/a.ts': 'export class A {}\nexport class B {}\n' });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('src/a.ts');
+    expect(only(ds).fingerprint).toBe('src/a.ts');
   });
 
   it('flags a file with a class and a component', () => {

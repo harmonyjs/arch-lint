@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
+import { only } from '../../test-support/only.js';
 import { noDefaultExport } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
@@ -26,8 +27,7 @@ describe('no-default-export', () => {
 
   it('flags export default of a declaration', () => {
     const ds = run({ 'src/a.ts': 'export default function f() {}\n' });
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('src/a.ts');
+    expect(only(ds).fingerprint).toBe('src/a.ts');
   });
 
   it('flags an export { x as default } re-binding', () => {
@@ -43,7 +43,7 @@ describe('no-default-export', () => {
 
   it('reports the line of the default export', () => {
     const ds = run({ 'src/a.ts': 'const x = 1;\nexport default x;\n' });
-    expect(ds[0]!.location.line).toBe(2);
+    expect(only(ds).location.line).toBe(2);
   });
 
   it('skips a node whose source file is absent from the project', () => {

@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../../../config/types.js';
 import { makeContext } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { perfileTestGraph } from '../../test-support/perfile-test-graph.js';
+import { only } from '../../test-support/only.js';
 import { complexity } from './index.js';
 
 const CONFIG = {} as ResolvedConfig;
@@ -28,9 +29,9 @@ describe('complexity', () => {
   it('flags a function exceeding the cognitive complexity threshold', () => {
     const body = 'function f(x: number) { if (x) { if (x) { if (x) {} } } }\n'; // 1 + 2 + 3 = 6
     const ds = run({ 'src/a.ts': body }, 5);
-    expect(ds).toHaveLength(1);
-    expect(ds[0]!.fingerprint).toBe('src/a.ts#f');
-    expect(ds[0]!.actual).toContain('6');
+    const d = only(ds);
+    expect(d.fingerprint).toBe('src/a.ts#f');
+    expect(d.actual).toContain('6');
   });
 
   it('does not flag a function at exactly the threshold', () => {
