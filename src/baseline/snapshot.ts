@@ -2,7 +2,8 @@
  * @fileoverview The `baseline init` operation: snapshots every current violation into a
  * fresh BaselineFile with deduplicated, alphabetically sorted records.
  */
-import type { BaselineFile, BaselineRecord, Diagnostic } from '../types.js';
+import type { BaselineFile, BaselineRecord } from './types.js';
+import type { Diagnostic } from '../types.js';
 import { sortRecords } from './serialize.js';
 
 /**

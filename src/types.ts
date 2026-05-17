@@ -98,23 +98,6 @@ export interface SuppressIndex {
   findExpired(): readonly ParsedSuppress[];
 }
 
-// ── Baseline ─────────────────────────────────────────────────────────────────
-
-export interface BaselineRecord {
-  readonly ruleId: string;
-  readonly entity: string;
-  readonly fingerprint?: string;
-  readonly firstSeenAt?: string;
-  readonly note?: string;
-}
-
-export interface BaselineFile {
-  readonly schemaVersion: 1;
-  readonly generatedAt: string;
-  readonly generatorVersion: string;
-  readonly records: readonly BaselineRecord[];
-}
-
 // ── Runner ───────────────────────────────────────────────────────────────────
 
 export interface CheckResult {

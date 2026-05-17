@@ -2,7 +2,8 @@
  * @fileoverview The read-only `baseline diff` operation: reports diagnostics not yet in the
  * baseline (added) and baseline records no longer reproduced (resolved).
  */
-import type { BaselineFile, BaselineRecord, Diagnostic } from '../types.js';
+import type { BaselineFile, BaselineRecord } from './types.js';
+import type { Diagnostic } from '../types.js';
 import { sortRecords } from './serialize.js';
 
 /** Result of diffing the current run against the baseline. */

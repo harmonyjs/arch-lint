@@ -43,12 +43,12 @@ export type {
   UnresolvedReason,
 } from './graph/types.js';
 
+// ── Types: baseline ──────────────────────────────────────────────────────────
+export type { BaselineFile, BaselineRecord } from './baseline/types.js';
+
 // ── Types: core ──────────────────────────────────────────────────────────────
 export type {
   ActiveSeverity,
-  BaselineFile,
-  // Baseline
-  BaselineRecord,
   // Runner
   CheckResult,
   // Diagnostics

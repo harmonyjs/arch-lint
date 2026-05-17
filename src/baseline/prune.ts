@@ -2,7 +2,8 @@
  * @fileoverview The `baseline prune` operation: drops baseline records that no longer have
  * a matching diagnostic (resolved), preserving the metadata of records that survive.
  */
-import type { BaselineFile, BaselineRecord, Diagnostic } from '../types.js';
+import type { BaselineFile, BaselineRecord } from './types.js';
+import type { Diagnostic } from '../types.js';
 import { sortRecords } from './serialize.js';
 
 /**

@@ -17,7 +17,8 @@ import { runEngine } from '../rules/engine.js';
 import { buildSuppressIndex, type SuppressEntity } from '../suppress/suppress-index.js';
 import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
-import type { BaselineFile, CheckResult, Diagnostic, SuppressIndex } from '../types.js';
+import type { BaselineFile } from '../baseline/types.js';
+import type { CheckResult, Diagnostic, SuppressIndex } from '../types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */

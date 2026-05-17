@@ -4,8 +4,8 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '../../config/types.js';
-import type { BaselineFile, CheckResult, Diagnostic } from '../../types.js';
-
+import type { BaselineFile } from '../../baseline/types.js';
+import type { CheckResult, Diagnostic } from '../../types.js';
 const loadConfigMock = vi.fn();
 vi.mock('../../config/load.js', () => ({
   loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
