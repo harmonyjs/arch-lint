@@ -6,14 +6,10 @@
  */
 
 import type { ResolvedConfig } from '../../../config/types.js';
+import { type SubsystemCoupling, subsystemCoupling, subsystemOf } from '../../../graph/index.js';
 import type { ConsumerGraph } from '../../../graph/types.js';
 import type { Diagnostic } from '../../../types.js';
 import type { GraphRule, GraphRuleContext } from '../../types.js';
-import {
-  type SubsystemCoupling,
-  subsystemCoupling,
-  subsystemOf,
-} from '../support/subsystem-graph.js';
 
 /** Tunable options of the subsystem-cohesion rule. */
 interface Options {

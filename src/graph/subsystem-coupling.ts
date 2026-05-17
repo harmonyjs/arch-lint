@@ -1,9 +1,9 @@
 /**
- * @fileoverview Subsystem-coupling helper for the metrics pack. A subsystem is the
- * first path segment after the source root; this module folds the file graph into
- * per-subsystem coupling figures (efferent/afferent, membership, inbound set).
+ * @fileoverview Subsystem-coupling helper — folds the file-level ConsumerGraph into
+ * per-subsystem coupling figures (efferent/afferent, membership, inbound set). A
+ * subsystem is the first path segment after the source root.
  */
-import type { ConsumerGraph } from '../../../graph/types.js';
+import type { ConsumerGraph } from './types.js';
 
 /** Per-subsystem coupling figures folded from the file-level ConsumerGraph. */
 export interface SubsystemCoupling {

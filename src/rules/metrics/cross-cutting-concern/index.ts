@@ -3,9 +3,9 @@
  * subsystems. Such a file is either shared lexicon or a leak; it should be named.
  */
 import type { ResolvedConfig } from '../../../config/types.js';
+import { subsystemOf } from '../../../graph/index.js';
 import type { Diagnostic } from '../../../types.js';
 import type { GraphRule, GraphRuleContext } from '../../types.js';
-import { subsystemOf } from '../support/subsystem-graph.js';
 
 /** Tunable options of the cross-cutting-concern rule. */
 interface Options {

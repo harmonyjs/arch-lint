@@ -1,7 +1,7 @@
 /**
  * @fileoverview The CLI router — the single place that parses argv and
- * dispatches to a runner operation (check, baseline, explain, watch). This
- * is where the complete command set can be read in one file.
+ * dispatches to a runner operation (check, baseline, explain, watch, graph).
+ * This is where the complete command set can be read in one file.
  */
 import { createInterface } from 'node:readline/promises';
 import chokidar from 'chokidar';
@@ -10,6 +10,7 @@ import { ArchLintError, ConfigError } from '../errors/index.js';
 import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './baseline.js';
 import { runCheckCommand } from './check.js';
 import { runExplain } from './explain.js';
+import { runGraphCommand } from './graph.js';
 import { runWatch } from './watch.js';
 
 /** The global options every command inherits, as parsed by commander. */
@@ -183,9 +184,33 @@ function registerExplainCommand(program: Command): void {
     });
 }
 
+/** Registers the `graph` command — renders the dependency graph as a Mermaid document. */
+function registerGraphCommand(program: Command): void {
+  program
+    .command('graph')
+    .description('render the dependency graph as a layered Mermaid document')
+    .option('--out <path>', 'write the document to a file instead of stdout')
+    .option('--subsystem <name>', 'limit the document to one subsystem')
+    .action(async (_local: unknown, cmd: Command) => {
+      const globals = cmd.optsWithGlobals() as GlobalOptions & {
+        out?: string;
+        subsystem?: string;
+      };
+      const outcome = await runGraphCommand({
+        cwd: process.cwd(),
+        ...(globals.config !== undefined ? { configPath: globals.config } : {}),
+        ...(globals.out !== undefined ? { out: globals.out } : {}),
+        ...(globals.subsystem !== undefined ? { subsystem: globals.subsystem } : {}),
+      });
+      if (outcome.stdout !== '') process.stdout.write(`${outcome.stdout}\n`);
+      writeStderr(outcome.stderr);
+      process.exitCode = outcome.exitCode;
+    });
+}
+
 /**
  * Builds the arch-lint commander program: the named root with its five global
- * options and the four commands. Each command's `.action` reads the merged
+ * options and the five commands. Each command's `.action` reads the merged
  * global+local options via `optsWithGlobals()`, delegates to its adapter, and
  * applies the resulting stdout/stderr/exit code.
  */
@@ -204,6 +229,7 @@ export function buildProgram(): Command {
   registerWatchCommand(program);
   registerBaselineCommand(program);
   registerExplainCommand(program);
+  registerGraphCommand(program);
 
   return program;
 }

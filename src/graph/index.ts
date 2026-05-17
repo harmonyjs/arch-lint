@@ -4,5 +4,9 @@
  * by the runner.
  */
 export { buildGraph, buildGraphFromSources } from './build.js';
+export { isRoleFolder } from './entities.js';
 export { graphEntityResolver } from './entity-resolver.js';
 export { buildIncremental } from './incremental.js';
+export { layerOf } from './layers.js';
+export type { SubsystemCoupling } from './subsystem-coupling.js';
+export { subsystemCoupling, subsystemOf } from './subsystem-coupling.js';

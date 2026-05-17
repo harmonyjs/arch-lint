@@ -48,8 +48,14 @@ describe('buildProgram', () => {
     expect(buildProgram().name()).toBe('arch-lint');
   });
 
-  it('registers the four top-level commands', () => {
-    expect(commandNames(buildProgram())).toEqual(['baseline', 'check', 'explain', 'watch']);
+  it('registers the five top-level commands', () => {
+    expect(commandNames(buildProgram())).toEqual([
+      'baseline',
+      'check',
+      'explain',
+      'graph',
+      'watch',
+    ]);
   });
 
   it('exposes the five global options', () => {

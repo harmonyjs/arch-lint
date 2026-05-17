@@ -3,9 +3,9 @@
  * unstable. Instability I = Ce/(Ca+Ce); a foundational subsystem should be stable.
  */
 import type { ResolvedConfig } from '../../../config/types.js';
+import { subsystemCoupling } from '../../../graph/index.js';
 import type { Diagnostic } from '../../../types.js';
 import type { GraphRule, GraphRuleContext } from '../../types.js';
-import { subsystemCoupling } from '../support/subsystem-graph.js';
 
 /** Tunable options of the instability rule. */
 interface Options {
