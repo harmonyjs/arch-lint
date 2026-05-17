@@ -37,17 +37,3 @@ export interface Diagnostic {
   readonly location: Location;
   readonly typeOnly?: boolean;
 }
-
-// ── Suppress ─────────────────────────────────────────────────────────────────
-
-export interface ParsedSuppress {
-  readonly ruleId: string | null;
-  readonly reason: string;
-  readonly expiry: Date | null;
-  readonly location: Location;
-}
-
-export interface SuppressIndex {
-  isSuppressed(diagnostic: Diagnostic): boolean;
-  findExpired(): readonly ParsedSuppress[];
-}

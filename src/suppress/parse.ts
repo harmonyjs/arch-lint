@@ -4,12 +4,12 @@
  */
 import type { SourceFile } from 'ts-morph';
 import type { SuppressConfig } from '../config/types.js';
-import type { Location, ParsedSuppress } from '../types.js';
+import type { Location } from '../types.js';
 import { findAnchorDeclaration } from './anchor.js';
 import { type CollectedComment, collectSuppressComments } from './collect-comments.js';
 import { interpretSuppress } from './interpret.js';
 import { scanSuppressText } from './scan-text.js';
-import type { EntitySuppressData, MalformedSuppress } from './types.js';
+import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
 
 /**
  * Parse every @arch-decision comment attached to one entity. When the entry file has no

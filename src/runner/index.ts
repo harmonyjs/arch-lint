@@ -19,7 +19,8 @@ import type { ResolvedConfig } from '../config/types.js';
 import type { ConsumerGraph } from '../graph/types.js';
 import type { BaselineFile } from '../baseline/types.js';
 import type { CheckResult } from '../rules/types.js';
-import type { Diagnostic, SuppressIndex } from '../types.js';
+import type { SuppressIndex } from '../suppress/types.js';
+import type { Diagnostic } from '../types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */

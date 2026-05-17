@@ -4,7 +4,8 @@
  */
 import { Project } from 'ts-morph';
 import type { RuleContext } from '../types.js';
-import type { ActiveSeverity, Diagnostic, ParsedSuppress, SuppressIndex } from '../../types.js';
+import type { ParsedSuppress, SuppressIndex } from '../../suppress/types.js';
+import type { ActiveSeverity, Diagnostic } from '../../types.js';
 interface SuppressIndexSpec {
   readonly suppressed?: readonly string[];
   readonly expired?: readonly ParsedSuppress[];

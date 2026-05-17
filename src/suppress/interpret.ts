@@ -3,8 +3,7 @@
  * valid ParsedSuppress or a typed MalformedSuppress, enforcing the §9 validity rules.
  */
 import type { SuppressConfig } from '../config/types.js';
-import type { ParsedSuppress } from '../types.js';
-import type { MalformedSuppress, RawSuppressComment } from './types.js';
+import type { MalformedSuppress, ParsedSuppress, RawSuppressComment } from './types.js';
 
 /** Tagged outcome of interpreting one raw @arch-decision comment. */
 export type InterpretResult =

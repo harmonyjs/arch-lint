@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../../config/types.js';
-import type { ParsedSuppress } from '../../../types.js';
+import type { ParsedSuppress } from '../../../suppress/types.js';
 import { makeContext, makeSuppressIndex } from '../../test-support/make-context.js';
 import { makeGraph } from '../../test-support/make-graph.js';
 import { expiredSuppressRule } from './index.js';

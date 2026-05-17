@@ -5,7 +5,8 @@
 import type { Project } from 'ts-morph';
 import type { ConsumerGraph } from '../graph/types.js';
 import type { Pack, ResolvedConfig } from '../config/types.js';
-import type { ActiveSeverity, Diagnostic, Location, SuppressIndex } from '../types.js';
+import type { SuppressIndex } from '../suppress/types.js';
+import type { ActiveSeverity, Diagnostic, Location } from '../types.js';
 
 /** How a rule computes — an axis orthogonal to its pack. */
 export type RuleEngine = 'structural' | 'syntactic' | 'perfile' | 'manifest' | 'meta';

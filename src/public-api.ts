@@ -56,15 +56,15 @@ export type {
   Suggestion,
 } from './rules/types.js';
 
+// ── Types: suppress ──────────────────────────────────────────────────────────
+export type { ParsedSuppress, SuppressIndex } from './suppress/types.js';
+
 // ── Types: core ──────────────────────────────────────────────────────────────
 export type {
   ActiveSeverity,
   Diagnostic,
   // Graph
   Location,
-  // Suppress
-  ParsedSuppress,
   // Primitives
   Severity,
-  SuppressIndex,
 } from './types.js';
