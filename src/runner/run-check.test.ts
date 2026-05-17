@@ -46,7 +46,7 @@ vi.mock('../rules/engine.js', () => ({
 }));
 
 const formatReportMock = vi.fn();
-vi.mock('../report/format.js', () => ({
+vi.mock('../report/index.js', () => ({
   formatReport: (...args: unknown[]): unknown => formatReportMock(...args),
 }));
 
