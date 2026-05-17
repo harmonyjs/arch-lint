@@ -5,8 +5,9 @@ import { describe, expect, it } from 'vitest';
 import { structureRules } from './index.js';
 
 describe('structureRules', () => {
-  it('aggregates the two structure rules by id', () => {
+  it('aggregates the three structure rules by id', () => {
     expect(structureRules.map((r) => r.id).sort()).toEqual([
+      'no-upward-relative-import',
       'orphan-test',
       'prefix-cluster-folder',
     ]);
