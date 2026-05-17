@@ -81,15 +81,12 @@ export async function runWatch(opts: WatchOptions): Promise<WatchSession> {
   let graph = await buildGraph(config);
   await render(graph, config, baseline, opts);
 
-  const debouncer = createDebouncer<ClassifiedChange>(
-    config.runMode.watch.debounceMs,
-    (events) => {
-      void (async () => {
-        graph = await buildIncremental(graph, collectChanges(events), config);
-        await render(graph, config, baseline, opts);
-      })();
-    },
-  );
+  const debouncer = createDebouncer<ClassifiedChange>(config.runMode.watch.debounceMs, (events) => {
+    void (async () => {
+      graph = await buildIncremental(graph, collectChanges(events), config);
+      await render(graph, config, baseline, opts);
+    })();
+  });
 
   const watcher = opts.createWatcher(config.project.sourceRoot);
   const feed = (kind: ClassifiedChange['kind']) => (path: string) => {
