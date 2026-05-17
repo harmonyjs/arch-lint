@@ -8,7 +8,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
-import { ConfigError } from '../errors.js';
+import { ConfigError } from '../errors/index.js';
 
 /** Where the config will be read from. Consumed by load.ts. */
 export type ConfigSource =

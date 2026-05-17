@@ -3,7 +3,7 @@
  * fixed process exit code.
  */
 import { describe, expect, it } from 'vitest';
-import { ArchLintError, ConfigError, EngineError, GraphBuildError, IOError } from './errors.js';
+import { ArchLintError, ConfigError, EngineError, GraphBuildError, IOError } from './index.js';
 
 describe('ArchLintError', () => {
   it('is an abstract base — every concrete error is an instance of it', () => {

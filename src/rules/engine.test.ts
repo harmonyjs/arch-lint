@@ -6,7 +6,7 @@ import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { BaselineFile } from '../baseline/types.js';
 import type { ResolvedConfig } from '../config/types.js';
-import { EngineError } from '../errors.js';
+import { EngineError } from '../errors/index.js';
 import { runEngine } from './engine.js';
 import { makeSuppressIndex } from './test-support/make-context.js';
 import { makeGraph } from './test-support/make-graph.js';

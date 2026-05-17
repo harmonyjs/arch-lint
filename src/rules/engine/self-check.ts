@@ -2,7 +2,7 @@
  * @fileoverview runtimeSelfCheck — detects duplicate logical violation IDs (§10.2).
  */
 
-import { EngineError } from '../../errors.js';
+import { EngineError } from '../../errors/index.js';
 import type { Diagnostic } from '../../types.js';
 
 /** Logical violation ID — (ruleId, entity, fingerprint) joined by a space separator. */
