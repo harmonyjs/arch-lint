@@ -7,7 +7,7 @@ import { ConfigError } from '../../../errors.js';
 import type { Edge } from '../../../graph/types.js';
 import type { Diagnostic } from '../../../types.js';
 import { layerOf } from '../../placement/tree.js';
-import type { Rule } from '../../types.js';
+import type { GraphRule, GraphRuleContext } from '../../types.js';
 
 /** Validate that every layer's sideEffectOnly is a subset of its canImport (else exit 2). */
 function assertSideEffectSubset(layers: LayersConfig): void {
@@ -72,12 +72,12 @@ function crossingDiagnostic(
 }
 
 /** Rule: an edge must not cross into a layer absent from the consumer's canImport. */
-export const layerBoundaryRule: Rule = {
+export const layerBoundaryRule: GraphRule = {
   id: 'layer-boundary',
   pack: 'layers',
-  engine: 'structural',
+  engine: 'graph',
   defaultSeverity: 'error',
-  check: (graph, config: ResolvedConfig, context): Diagnostic[] => {
+  check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     assertSideEffectSubset(config.layers);
     const seen = new Set<string>();
     const out: Diagnostic[] = [];
