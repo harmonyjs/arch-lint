@@ -3,9 +3,12 @@
  * once; the family's membership stays a placement implementation detail.
  */
 import type { Rule } from '../types.js';
-import { buildPlacementRules } from './rules.js';
+import { placementRuleDescriptors } from './rules.js';
+import { makeThinPlacementRule } from './thin-rule.js';
 
-/** Every placement Rule, built from the family descriptors. */
+/** Every placement Rule, projected from the family descriptors. */
 export function registerPlacementRules(): readonly Rule[] {
-  return buildPlacementRules();
+  return placementRuleDescriptors.map((d) =>
+    makeThinPlacementRule({ id: d.ruleId, defaultSeverity: d.defaultSeverity }),
+  );
 }

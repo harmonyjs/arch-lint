@@ -13,7 +13,7 @@ import { libPurityRule } from './layers/lib-purity/index.js';
 import { expiredSuppressRule } from './meta/expired-suppress/index.js';
 import { unresolvedImportRule } from './meta/unresolved-import/index.js';
 import { perfileRules } from './perfile/index.js';
-import { registerPlacementRules } from './placement/register.js';
+import { registerPlacementRules } from './placement/index.js';
 import type { Rule } from './types.js';
 import { hooksFolderRequired } from './view/hooks-folder-required/index.js';
 import { tokensImportIsSideEffect } from './view/tokens-import-is-side-effect/index.js';

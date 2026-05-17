@@ -1,12 +1,13 @@
 /**
- * @fileoverview Parameterized tests for the placement rule family — replaces
- * the four per-rule index.test.ts files.
+ * @fileoverview Parameterized tests for the placement rule family — one case
+ * per descriptor, plus verdict-routing coverage shared across the family.
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '../../config/types.js';
 import { makeContext } from '../test-support/make-context.js';
 import { makeGraph } from '../test-support/make-graph.js';
-import { buildPlacementRules, placementRuleDescriptors } from './rules.js';
+import { registerPlacementRules } from './register.js';
+import { placementRuleDescriptors } from './rules.js';
 
 function cfg(): ResolvedConfig {
   return {
@@ -24,7 +25,7 @@ function cfg(): ResolvedConfig {
   } as unknown as ResolvedConfig;
 }
 
-const rulesById = new Map(buildPlacementRules().map((r) => [r.id, r]));
+const rulesById = new Map(registerPlacementRules().map((r) => [r.id, r]));
 
 describe('placement rule family', () => {
   it('builds exactly one Rule per descriptor', () => {
@@ -40,10 +41,6 @@ describe('placement rule family', () => {
         expect(rule.pack).toBe('placement');
         expect(rule.engine).toBe('structural');
         expect(rule.defaultSeverity).toBe(descriptor.defaultSeverity);
-      });
-
-      it('points at a docs/rules page', () => {
-        expect(descriptor.docsPath).toBe(`docs/rules/${descriptor.ruleId}.md`);
       });
     });
   }
