@@ -4,6 +4,7 @@
  */
 import type { Diagnostic } from '../../../types.js';
 import type { ManifestRule, ManifestRuleContext } from '../../types.js';
+import { parseNpmrc } from '../support/npmrc.js';
 
 /** Options of npmrc-settings. */
 interface Options {
@@ -20,8 +21,7 @@ export const npmrcSettings: ManifestRule = {
   defaultSeverity: 'error',
   check: (context: ManifestRuleContext): Diagnostic[] => {
     const opts: Options = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    const doc = context.manifests.npmrc;
-    if (doc === null) return [];
+    const doc = context.manifests.npmrc ?? parseNpmrc('');
     const seen = new Set<string>();
     const out: Diagnostic[] = [];
     for (const [key, want] of Object.entries(opts.required)) {
