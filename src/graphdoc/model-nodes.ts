@@ -5,7 +5,7 @@
  */
 
 import type { ResolvedConfig } from '../config/types.js';
-import { layerOf } from '../graph/index.js';
+import { isRoleFolder, layerOf } from '../graph/index.js';
 import type { ConsumerGraph, Node } from '../graph/types.js';
 import { type FolderTree, THRESHOLD } from './model-tree.js';
 import type { NodeRole, RenderCluster, RenderNode } from './types.js';
@@ -27,19 +27,6 @@ const BARREL_NAMES = new Set(['index.ts', 'index.tsx']);
 export function basename(path: string): string {
   const slash = path.lastIndexOf('/');
   return slash === -1 ? path : path.slice(slash + 1);
-}
-
-/** True when a folder name matches one of the configured convention segments. */
-function isRoleFolder(name: string, config: ResolvedConfig): boolean {
-  const c = config.conventions;
-  return (
-    name === c.privateSegment ||
-    name === c.sharedSegment ||
-    name === c.libSegment ||
-    name === c.hooksSegment ||
-    name === c.explicitClusterSegment ||
-    name === c.modelSegment
-  );
 }
 
 /** Base render role of a graph node before convention-folder adjustment. */
@@ -96,7 +83,7 @@ function roleFromTree(id: string, node: Node, ctx: ProjectionContext): NodeRole 
   const base = baseRoleOf(node);
   if (base !== 'plain-file' && base !== 'entity-file') return base;
   const dir = id.slice(0, id.lastIndexOf('/'));
-  if (isRoleFolder(basename(dir), ctx.config)) return 'role-folder';
+  if (isRoleFolder(basename(dir), ctx.config.conventions)) return 'role-folder';
   return base;
 }
 
@@ -127,28 +114,41 @@ export function makeGroupNode(
   };
 }
 
+/** A RenderCluster together with the RenderNodes minted while building it. */
+export interface ClusterResult {
+  readonly cluster: RenderCluster;
+  readonly nodes: RenderNode[];
+}
+
 /** Builds a RenderCluster for a small subfolder, nesting smaller folders. */
 function makeCluster(
   folder: FolderTree,
   mint: IdMint,
   ctx: ProjectionContext,
   byPath: Map<string, RenderNode>,
-): RenderCluster {
+): ClusterResult {
+  const nodes: RenderNode[] = [];
   const nodeIds: string[] = [];
   for (const id of [...folder.files, ...folder.folderNodes]) {
     const rn = makeRenderNode(id, mint, ctx);
     byPath.set(id, rn);
+    nodes.push(rn);
     nodeIds.push(rn.id);
   }
   const children: RenderCluster[] = [];
   for (const child of folder.folders.values()) {
-    children.push(makeCluster(child, mint, ctx, byPath));
+    const result = makeCluster(child, mint, ctx, byPath);
+    children.push(result.cluster);
+    nodes.push(...result.nodes);
   }
   return {
-    title: folder.name,
-    nodeIds,
-    children,
-    note: folderNote(folder, ctx.fileoverviews),
+    cluster: {
+      title: folder.name,
+      nodeIds,
+      children,
+      note: folderNote(folder, ctx.fileoverviews),
+    },
+    nodes,
   };
 }
 
@@ -178,11 +178,10 @@ export function projectSectionBody(
     if (child.subtreeSize > THRESHOLD) {
       nodes.push(makeGroupNode(child, mint, ctx));
     } else {
-      const cluster = makeCluster(child, mint, ctx, byPath);
+      const { cluster, nodes: clusterNodes } = makeCluster(child, mint, ctx, byPath);
       clusters.push(cluster);
-      nodes.push(...byPath.values());
+      nodes.push(...clusterNodes);
     }
   }
-  const deduped = [...new Map(nodes.map((n) => [n.id, n])).values()];
-  return { nodes: deduped, clusters, byPath };
+  return { nodes, clusters, byPath };
 }
