@@ -98,7 +98,7 @@ function fixtureConfig(projectDir: string): ResolvedConfig {
 export async function runFixture(
   name: string,
 ): Promise<{ actual: FixtureExpectation; expected: FixtureExpectation }> {
-  const caseDir = join(import.meta.dirname, 'fixtures', name);
+  const caseDir = join(import.meta.dirname, name);
   const graph = await buildGraph(fixtureConfig(join(caseDir, 'project')));
   const actual: FixtureExpectation = {
     edges: graph.edges
