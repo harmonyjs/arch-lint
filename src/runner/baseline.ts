@@ -9,20 +9,14 @@
  */
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
-import {
-  diffBaseline,
-  pruneBaseline,
-  snapshotBaseline,
-  writeBaseline,
-} from '../../baseline/index.js';
-import type { BaselineFile } from '../../baseline/types.js';
-import { loadConfig } from '../../config/load.js';
-import { resolveConfig } from '../../config/resolve-defaults.js';
-import type { ResolvedConfig } from '../../config/types.js';
-import { ConfigError } from '../../errors.js';
-import { packageRoot } from '../../paths.js';
-import type { CheckResult } from '../../rules/types.js';
-import { type RunCheckOptions, resolveBaseline, runCheck } from '../../runner/index.js';
+import { diffBaseline, pruneBaseline, snapshotBaseline, writeBaseline } from '../baseline/index.js';
+import type { BaselineFile } from '../baseline/types.js';
+import { loadConfig, resolveConfig } from '../config/index.js';
+import type { ResolvedConfig } from '../config/types.js';
+import { ConfigError } from '../errors.js';
+import { packageRoot } from '../paths.js';
+import type { CheckResult } from '../rules/types.js';
+import { type RunCheckOptions, resolveBaseline, runCheck } from './check.js';
 /** Inputs shared by every baseline subcommand. */
 export interface BaselineCommandOptions {
   /** Directory the run is rooted at — config discovery starts here. */

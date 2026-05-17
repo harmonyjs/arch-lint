@@ -1,6 +1,7 @@
 /**
- * @fileoverview Public surface of the baseline subsystem — re-exports classify, snapshot,
- * prune, diff operations and file io for the runner (M7).
+ * @fileoverview Public surface of the baseline subsystem — a standalone
+ * library of baseline-file operations: classify, snapshot, prune and diff,
+ * plus baseline-file load/parse/serialize/write io.
  */
 export { classifyDiagnostics } from './classify.js';
 export type { BaselineDiff } from './diff.js';

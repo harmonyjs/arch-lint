@@ -9,7 +9,7 @@
 // Types — baseline module
 export type { BaselineFile, BaselineRecord } from './baseline/types.js';
 // Function — config resolver
-export { resolveConfig } from './config/resolve-defaults.js';
+export { resolveConfig } from './config/index.js';
 // Types — config module
 export type {
   BaselineConfig,
@@ -35,7 +35,7 @@ export type {
 // Function — config helper
 export { defineConfig } from './define-config.js';
 // Function — graph builder
-export { buildGraph } from './graph/build.js';
+export { buildGraph } from './graph/index.js';
 // Types — graph module (Resolution excluded — internal resolver helper)
 export type {
   ConsumerGraph,

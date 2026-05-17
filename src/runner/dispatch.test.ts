@@ -8,30 +8,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GraphBuildError } from '../errors.js';
 
 const runCheckCommandMock = vi.fn();
-vi.mock('./commands/check.js', () => ({
+vi.mock('./check.js', () => ({
   runCheckCommand: (...args: unknown[]): unknown => runCheckCommandMock(...args),
 }));
 
-const runWatchCommandMock = vi.fn();
-vi.mock('./commands/watch.js', () => ({
-  runWatchCommand: (...args: unknown[]): unknown => runWatchCommandMock(...args),
+const runWatchMock = vi.fn();
+vi.mock('./watch.js', () => ({
+  runWatch: (...args: unknown[]): unknown => runWatchMock(...args),
 }));
 
 const runExplainMock = vi.fn();
-vi.mock('./commands/explain.js', () => ({
+vi.mock('./explain.js', () => ({
   runExplain: (...args: unknown[]): unknown => runExplainMock(...args),
 }));
 
 const runBaselineInitMock = vi.fn();
 const runBaselineDiffMock = vi.fn();
 const runBaselinePruneMock = vi.fn();
-vi.mock('./commands/baseline.js', () => ({
+vi.mock('./baseline.js', () => ({
   runBaselineInit: (...args: unknown[]): unknown => runBaselineInitMock(...args),
   runBaselineDiff: (...args: unknown[]): unknown => runBaselineDiffMock(...args),
   runBaselinePrune: (...args: unknown[]): unknown => runBaselinePruneMock(...args),
 }));
 
-const { runCli } = await import('./index.js');
+const { runCli } = await import('./cli.js');
 
 /** A node-style argv with the two leading `[node, script]` placeholders. */
 function argv(...args: string[]): readonly string[] {
@@ -107,13 +107,13 @@ describe('runCli', () => {
           resolveClose = resolve;
         }),
     );
-    runWatchCommandMock.mockResolvedValue({ close });
+    runWatchMock.mockResolvedValue({ close });
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
     try {
       await runCli(argv('watch'));
 
-      expect(runWatchCommandMock).toHaveBeenCalledTimes(1);
+      expect(runWatchMock).toHaveBeenCalledTimes(1);
       expect(close).not.toHaveBeenCalled();
 
       process.emit('SIGINT');

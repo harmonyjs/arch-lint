@@ -46,7 +46,7 @@ vi.mock('../rules/engine.js', () => ({
 }));
 
 const formatReportMock = vi.fn();
-vi.mock('../report/cli.js', () => ({
+vi.mock('../report/index.js', () => ({
   formatReport: (...args: unknown[]): unknown => formatReportMock(...args),
 }));
 
@@ -59,7 +59,7 @@ vi.mock('./changed-files.js', async (importOriginal) => {
   };
 });
 
-const { deriveSuppressEntities, runCheck } = await import('./index.js');
+const { deriveSuppressEntities, runCheck } = await import('./check.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

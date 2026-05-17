@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from '../types.js';
-import { renderDiagnostic } from './cli.js';
+import { renderDiagnostic } from './format.js';
 
 const opts = { showConsumers: true, showSuggestions: true, foldLongLists: true, hyperlinks: false };
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * @fileoverview The published `arch-lint` bin entry. A thin shim that delegates
- * to the compiled CLI in `dist/`, passing the process argv straight through.
- * It stays plain JavaScript so it runs without a build step of its own.
+ * @fileoverview Executable shim for the arch-lint CLI. Imports the compiled
+ * runner barrel and hands off the process argv to runCli. It stays plain
+ * JavaScript so it runs without a build step of its own.
  */
-import { runCli } from '../dist/cli/index.js';
+import { runCli } from '../dist/runner/index.js';
 
 await runCli(process.argv);

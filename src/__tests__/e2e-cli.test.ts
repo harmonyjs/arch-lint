@@ -20,7 +20,7 @@ beforeAll(() => {
 
 describe('shipped CLI', () => {
   it('emits the compiled CLI entry point', () => {
-    expect(existsSync(join(root, 'dist', 'cli', 'index.js'))).toBe(true);
+    expect(existsSync(join(root, 'dist', 'runner', 'index.js'))).toBe(true);
   });
 
   it('runs `explain` for a known rule', () => {

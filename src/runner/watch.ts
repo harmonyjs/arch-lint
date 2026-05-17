@@ -7,15 +7,14 @@
 import { relative } from 'node:path';
 import type { FSWatcher } from 'chokidar';
 import type { BaselineFile } from '../baseline/types.js';
-import { loadConfig } from '../config/load.js';
-import { resolveConfig } from '../config/resolve-defaults.js';
+import { loadConfig, resolveConfig } from '../config/index.js';
 import type { ResolvedConfig } from '../config/types.js';
-import { buildGraphFromSources } from '../graph/build.js';
+import { buildGraphFromSources } from '../graph/index.js';
 import { loadSourceFiles, type SourceFileSet } from '../graph/source-files.js';
 import type { ConsumerGraph } from '../graph/types.js';
-import { formatReport } from '../report/cli.js';
+import { formatReport } from '../report/index.js';
 import { buildSuppressIndex } from '../suppress/suppress-index.js';
-import { check, deriveSuppressEntities, resolveBaseline } from './index.js';
+import { check, deriveSuppressEntities, resolveBaseline } from './check.js';
 
 /** Accumulates events and flushes them once after a quiet period. */
 export interface Debouncer<T> {

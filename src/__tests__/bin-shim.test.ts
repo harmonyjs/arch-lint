@@ -12,7 +12,7 @@ describe('bin/arch-lint.js', () => {
     const shim = await readFile(join(packageRoot(), 'bin', 'arch-lint.js'), 'utf8');
 
     expect(shim.startsWith('#!/usr/bin/env node\n')).toBe(true);
-    expect(shim).toContain('../dist/cli/index.js');
+    expect(shim).toContain('../dist/runner/index.js');
     expect(shim).toContain('runCli(process.argv)');
   });
 });
