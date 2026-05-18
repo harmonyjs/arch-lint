@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for analyzeMetrics — the one-pass per-subsystem metrics.
+ * @fileoverview Tests for analyzeMetrics — the one-pass per-unit metrics.
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig, UnitsConfig } from '#foundation/config/types.js';

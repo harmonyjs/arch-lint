@@ -67,6 +67,8 @@ function metricsOf(
     ca: info.ca,
     ce: info.ce,
     instability: total === 0 ? 0 : info.ce / total,
+    // No inbound edges → no value/type split to measure; treat as fully
+    // abstract so a unit nothing depends on never trips a low-abstractness rule.
     abstractness: info.inboundEdges === 0 ? 1 : info.inboundTypeOnlyEdges / info.inboundEdges,
     inboundUnits: info.inboundUnits,
     outboundUnits: info.outboundUnits,
