@@ -4,19 +4,19 @@
  * without writing anything.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { ResolvedConfig } from '#config/types.js';
-import type { CheckResult } from '#rules/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { CheckResult } from '#platform/engine/types.js';
 import type { BaselineDiff } from '#runner/baseline/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
-import type { Diagnostic } from '#types.js';
 
 const loadConfigMock = vi.fn();
-vi.mock('#config/load.js', () => ({
+vi.mock('#foundation/config/load.js', () => ({
   loadConfig: (...args: unknown[]): unknown => loadConfigMock(...args),
 }));
 
 const resolveConfigMock = vi.fn();
-vi.mock('#config/resolve-defaults.js', () => ({
+vi.mock('#foundation/config/resolve-defaults.js', () => ({
   resolveConfig: (...args: unknown[]): unknown => resolveConfigMock(...args),
 }));
 

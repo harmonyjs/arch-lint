@@ -6,9 +6,9 @@
 import picomatch from 'picomatch';
 import type { ExportDeclaration, ExportSpecifier, Statement } from 'ts-morph';
 import { Node, type SourceFile } from 'ts-morph';
-import { fileNodeIds, sourceFileFor } from '#rules/ast/find-source-file.js';
-import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
-import type { Diagnostic, Location } from '#types.js';
+import type { Diagnostic, Location } from '#foundation/types/index.js';
+import { fileNodeIds, sourceFileFor } from '#platform/ast/find-source-file.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
 
 /** Options of no-default-export. */
 interface Options {

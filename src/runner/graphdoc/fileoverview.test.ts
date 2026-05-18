@@ -3,7 +3,7 @@
  */
 import { Project, type SourceFile } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { SourceFileSet } from '#graph/discover-source-files.js';
+import type { SourceFileSet } from '#platform/graph/discover-source-files.js';
 import { extractFileoverviews, fileoverviewOf } from './fileoverview.js';
 
 describe('fileoverviewOf', () => {

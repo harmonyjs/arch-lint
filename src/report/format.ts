@@ -4,9 +4,9 @@
  * consumer lists folded. Pure: takes a CheckResult and config, returns a string.
  */
 import pc from 'picocolors';
-import type { ResolvedConfig } from '#config/types.js';
-import type { CheckResult } from '#rules/types.js';
-import type { ActiveSeverity, ConsumerInfo, Diagnostic } from '#types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { ActiveSeverity, ConsumerInfo, Diagnostic } from '#foundation/types/index.js';
+import type { CheckResult } from '#platform/engine/types.js';
 
 /** Total visual width of a group-header divider line. */
 const HEADER_WIDTH = 61;

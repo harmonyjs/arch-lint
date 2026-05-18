@@ -3,8 +3,8 @@
  * hierarchy implied by the graph's file ids, computes subtree sizes, and decides
  * which folders own their own drill-down section.
  */
-import { baseNameOf } from '#entity-id/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
+import { baseNameOf } from '#foundation/entity-id/index.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** A folder gets its own section once its file count exceeds this threshold. */
 export const THRESHOLD = 18;

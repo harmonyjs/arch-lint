@@ -3,9 +3,9 @@
  * pass: afferent/efferent coupling, instability and internal cohesion.
  * Memoized per (graph, sourceRoot) so the metrics rules share one computation.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import { type SubsystemCoupling, subsystemCoupling, subsystemOf } from '#graph/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { type SubsystemCoupling, subsystemCoupling, subsystemOf } from '#platform/graph/index.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** Every metric arch-lint measures for one subsystem. */
 export interface SubsystemMetrics {

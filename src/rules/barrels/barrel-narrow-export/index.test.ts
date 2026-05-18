@@ -2,7 +2,7 @@
  * @fileoverview Tests for barrel-narrow-export — a barrel re-exports only its own entity (D7).
  */
 import { describe, expect, it } from 'vitest';
-import type { ConventionsConfig, ResolvedConfig } from '#config/types.js';
+import type { ConventionsConfig, ResolvedConfig } from '#foundation/config/types.js';
 import { makeContext } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { type BarrelNarrowExportOptions, barrelNarrowExport } from './index.js';

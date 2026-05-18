@@ -2,13 +2,13 @@
  * @fileoverview barrel-is-public-face rule — an external file must import a component's
  * entity through its barrel, not a folder internal directly (decision D7). Works on edges.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import { enforceForSegmentsMatches, folderOf, segmentsOf } from '#entity-id/index.js';
-import type { ConsumerGraph, Edge } from '#graph/types.js';
-import { componentFolderOf, isBarrelFile } from '#rules/ast/node-helpers.js';
-import { dedupByFingerprint } from '#rules/engine/dedup-diagnostics.js';
-import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { enforceForSegmentsMatches, folderOf, segmentsOf } from '#foundation/entity-id/index.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import { componentFolderOf, isBarrelFile } from '#platform/ast/node-helpers.js';
+import { dedupByFingerprint } from '#platform/engine/dedup-diagnostics.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
+import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 
 /** Options of barrel-is-public-face (D7). */
 export interface BarrelIsPublicFaceOptions {

@@ -2,7 +2,7 @@
  * @fileoverview Tests for diffBaseline — the read-only `baseline diff` operation.
  */
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic, Location } from '#types.js';
+import type { Diagnostic, Location } from '#foundation/types/index.js';
 import { diffBaseline } from './diff.js';
 import type { BaselineFile } from './types.js';
 

@@ -2,12 +2,12 @@
  * @fileoverview prefix-cluster-folder rule — flags a directory where three or more
  * sibling files share a `<prefix>-` name, a hidden subsystem that wants its own folder.
  */
-import { baseNameOf, dirOf, stemOf } from '#entity-id/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
-import { fileNodeIds } from '#rules/ast/find-source-file.js';
+import { baseNameOf, dirOf, stemOf } from '#foundation/entity-id/index.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import { fileNodeIds } from '#platform/ast/find-source-file.js';
+import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 import { isTestFile } from '#rules/structure/support/test-file.js';
-import type { GraphRule, GraphRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
 
 /** Tunable options of the prefix-cluster-folder rule. */
 interface Options {

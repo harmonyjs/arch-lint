@@ -5,8 +5,8 @@
  */
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { ConsumerGraph } from '#graph/types.js';
-import type { Diagnostic } from '#types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 
 const run = promisify(execFile);
 

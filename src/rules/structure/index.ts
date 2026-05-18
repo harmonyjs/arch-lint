@@ -2,7 +2,7 @@
  * @fileoverview structure pack aggregate — collects the file-tree convention rules
  * for the registry.
  */
-import type { Rule } from '#rules/types.js';
+import type { Rule } from '#platform/engine/types.js';
 import { noUpwardRelativeImport } from './no-upward-relative-import/index.js';
 import { orphanTest } from './orphan-test/index.js';
 import { prefixClusterFolder } from './prefix-cluster-folder/index.js';

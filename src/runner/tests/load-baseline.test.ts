@@ -6,8 +6,8 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#config/types.js';
-import { ConfigError } from '#errors/index.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { ConfigError } from '#foundation/errors/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
 import { resolveBaseline } from '#runner/check.js';
 

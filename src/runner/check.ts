@@ -7,22 +7,22 @@
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 import type { Project } from 'ts-morph';
-import { loadConfig, resolveConfig } from '#config/index.js';
-import type { ResolvedConfig } from '#config/types.js';
-import { ArchLintError, ConfigError, GraphBuildError, IOError } from '#errors/index.js';
-import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-files.js';
-import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
-import type { Logger, Telemetry } from '#logger/index.js';
-import { ConsoleLogger, NullTelemetry, RecordingTelemetry } from '#logger/index.js';
+import { loadConfig, resolveConfig } from '#foundation/config/index.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { ArchLintError, ConfigError, GraphBuildError, IOError } from '#foundation/errors/index.js';
+import type { Logger, Telemetry } from '#foundation/logger/index.js';
+import { ConsoleLogger, NullTelemetry, RecordingTelemetry } from '#foundation/logger/index.js';
+import { buildSuppressIndex } from '#foundation/suppress/suppress-index.js';
+import type { SuppressIndex } from '#foundation/suppress/types.js';
+import type { ActiveSeverity, Diagnostic } from '#foundation/types/index.js';
+import { runEngine } from '#platform/engine/index.js';
+import type { CheckResult } from '#platform/engine/types.js';
+import { loadSourceFiles, type SourceFileSet } from '#platform/graph/discover-source-files.js';
+import { buildGraphFromSources, graphEntityResolver } from '#platform/graph/index.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 import { formatReport } from '#report/index.js';
-import { runEngine } from '#rules/engine/index.js';
-import type { CheckResult } from '#rules/types.js';
 import { classifyDiagnostics, parseBaselineFile } from '#runner/baseline/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
-import { buildSuppressIndex } from '#suppress/suppress-index.js';
-import type { SuppressIndex } from '#suppress/types.js';
-import type { ActiveSeverity, Diagnostic } from '#types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */

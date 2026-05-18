@@ -2,12 +2,12 @@
  * @fileoverview barrel-required-for-role rule — role folders and component folders
  * must own a barrel (decision D6). A structural check over the graph node set.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import { folderOf } from '#entity-id/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
-import { isComponentFolderEntry, roleFolderSegment } from '#rules/ast/node-helpers.js';
-import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { folderOf } from '#foundation/entity-id/index.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import { isComponentFolderEntry, roleFolderSegment } from '#platform/ast/node-helpers.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** Options of barrel-required-for-role (D7). */
 export interface BarrelRequiredForRoleOptions {

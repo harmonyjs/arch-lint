@@ -2,8 +2,8 @@
  * @fileoverview Tests for analyzeMetrics — the one-pass per-subsystem metrics.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#config/types.js';
-import type { Edge } from '#graph/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { Edge } from '#platform/graph/types.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { analyzeMetrics } from './analyze.js';
 

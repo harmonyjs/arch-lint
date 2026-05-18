@@ -2,13 +2,13 @@
  * @fileoverview barrel-narrow-export rule — a component-folder barrel re-exports only
  * the folder's own entity (decision D7). Reads AST from the RuleContext project (D9).
  */
-import { folderOf, segmentsOf } from '#entity-id/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
-import { fileNodeIds, sourceFileFor } from '#rules/ast/find-source-file.js';
-import { importsOf } from '#rules/ast/import-info.js';
-import { isBarrelFile } from '#rules/ast/node-helpers.js';
-import type { SyntacticRule } from '#rules/types.js';
-import type { Diagnostic, Location } from '#types.js';
+import { folderOf, segmentsOf } from '#foundation/entity-id/index.js';
+import type { Diagnostic, Location } from '#foundation/types/index.js';
+import { fileNodeIds, sourceFileFor } from '#platform/ast/find-source-file.js';
+import { importsOf } from '#platform/ast/import-info.js';
+import { isBarrelFile } from '#platform/ast/node-helpers.js';
+import type { SyntacticRule } from '#platform/engine/types.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** Options of barrel-narrow-export (D7). */
 export interface BarrelNarrowExportOptions {

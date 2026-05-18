@@ -3,10 +3,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { parseNpmrc } from '#manifest/npmrc.js';
+import { parseNpmrc } from '#foundation/manifest/npmrc.js';
+import type { ManifestBundle } from '#platform/engine/types.js';
 import { makeManifestContext } from '#rules/test-support/make-context.js';
 import { only } from '#rules/test-support/only.js';
-import type { ManifestBundle } from '#rules/types.js';
 
 import { npmrcSettings } from './index.js';
 

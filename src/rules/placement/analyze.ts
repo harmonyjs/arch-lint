@@ -9,10 +9,10 @@
  *    role-folder convention (`slots/` private, `items/` shared) and fire only
  *    for entities physically inside one of those folders.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import { isUnderSegment } from '#entity-id/index.js';
-import { layerOf } from '#graph/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { isUnderSegment } from '#foundation/entity-id/index.js';
+import { layerOf } from '#platform/graph/index.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 import { componentParentOf, lca } from './tree.js';
 
 export interface PlacementVerdict {

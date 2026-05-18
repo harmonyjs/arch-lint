@@ -3,16 +3,16 @@
  * rule tests — every context carries an in-memory ts-morph Project (decision D9).
  */
 import { Project } from 'ts-morph';
-import type { Logger } from '#logger/index.js';
-import { NullLogger } from '#logger/index.js';
+import type { Logger } from '#foundation/logger/index.js';
+import { NullLogger } from '#foundation/logger/index.js';
+import type { ParsedSuppress, SuppressIndex } from '#foundation/suppress/types.js';
+import type { ActiveSeverity, Diagnostic } from '#foundation/types/index.js';
 import type {
   CensusRuleContext,
   ManifestBundle,
   ManifestRuleContext,
   SyntacticRuleContext,
-} from '#rules/types.js';
-import type { ParsedSuppress, SuppressIndex } from '#suppress/types.js';
-import type { ActiveSeverity, Diagnostic } from '#types.js';
+} from '#platform/engine/types.js';
 
 interface SuppressIndexSpec {
   readonly suppressed?: readonly string[];

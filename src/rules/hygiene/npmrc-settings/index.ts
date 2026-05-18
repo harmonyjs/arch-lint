@@ -3,9 +3,9 @@
  * Reads the parsed .npmrc from the manifest bundle; the graph is unused.
  */
 
-import { parseNpmrc } from '#manifest/npmrc.js';
-import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import { parseNpmrc } from '#foundation/manifest/npmrc.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { ManifestRule, ManifestRuleContext } from '#platform/engine/types.js';
 
 /** Options of npmrc-settings. */
 interface Options {

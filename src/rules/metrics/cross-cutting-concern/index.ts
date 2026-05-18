@@ -2,11 +2,11 @@
  * @fileoverview cross-cutting-concern rule — flags a file pulled into many distinct
  * subsystems. Such a file is either shared lexicon or a leak; it should be named.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import { subsystemOf } from '#graph/index.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
+import { subsystemOf } from '#platform/graph/index.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
-import type { GraphRule, GraphRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
 
 /** Tunable options of the cross-cutting-concern rule. */
 interface Options {

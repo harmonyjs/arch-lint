@@ -3,7 +3,7 @@
  * baseline (added) and baseline records no longer reproduced (resolved).
  */
 
-import type { Diagnostic } from '#types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
 import { sortRecords } from './serialize.js';
 import type { BaselineFile, BaselineRecord } from './types.js';
 

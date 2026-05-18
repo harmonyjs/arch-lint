@@ -2,12 +2,12 @@
  * @fileoverview hooks-folder-required rule — use-* files must live in a hooks/ folder
  * (decision D7). The view pack is parametrized by config — no hardcoded React naming.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import { baseNameOf, folderOf, isUnderSegment } from '#entity-id/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
-import { dedupByFingerprint } from '#rules/engine/dedup-diagnostics.js';
-import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { baseNameOf, folderOf, isUnderSegment } from '#foundation/entity-id/index.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import { dedupByFingerprint } from '#platform/engine/dedup-diagnostics.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** Options of hooks-folder-required (D7). */
 export interface HooksFolderRequiredOptions {

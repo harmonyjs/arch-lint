@@ -3,11 +3,11 @@
  * per descriptor, plus verdict-routing coverage shared across the family.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#config/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { GraphRule } from '#platform/engine/types.js';
 import { makeContext } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { only } from '#rules/test-support/only.js';
-import type { GraphRule } from '#rules/types.js';
 import { placementRuleDescriptors } from './family.js';
 import { registerPlacementRules } from './register.js';
 

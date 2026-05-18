@@ -6,10 +6,10 @@
  * verdict.
  */
 import { writeFile } from 'node:fs/promises';
-import { loadConfig, resolveConfig } from '#config/index.js';
-import { ArchLintError, GraphBuildError, IOError } from '#errors/index.js';
-import { loadSourceFiles } from '#graph/discover-source-files.js';
-import { buildGraphFromSources } from '#graph/index.js';
+import { loadConfig, resolveConfig } from '#foundation/config/index.js';
+import { ArchLintError, GraphBuildError, IOError } from '#foundation/errors/index.js';
+import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
+import { buildGraphFromSources } from '#platform/graph/index.js';
 import { extractFileoverviews, renderGraphDoc } from '#runner/graphdoc/index.js';
 
 /** CLI flags that steer a `graph` run, already parsed by the commander program. */

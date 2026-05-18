@@ -3,9 +3,9 @@
  * Reads file AST from the RuleContext project (decision D9).
  */
 
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
 import { functionLocation, scanFunctions } from '#rules/perfile/support/scan-functions.js';
-import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
 
 /** Options of max-lines-per-function. */
 interface Options {

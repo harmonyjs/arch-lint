@@ -4,10 +4,10 @@
  * projects a folder's direct children into diagram nodes and clusters.
  */
 
-import type { ResolvedConfig } from '#config/types.js';
-import { baseNameOf, dirOf } from '#entity-id/index.js';
-import { isRoleFolder, layerOf } from '#graph/index.js';
-import type { ConsumerGraph, Node } from '#graph/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { baseNameOf, dirOf } from '#foundation/entity-id/index.js';
+import { isRoleFolder, layerOf } from '#platform/graph/index.js';
+import type { ConsumerGraph, Node } from '#platform/graph/types.js';
 import type { NodeRole, RenderCluster, RenderNode } from '#runner/graphdoc/types.js';
 import { type FolderTree, THRESHOLD } from './tree.js';
 

@@ -3,8 +3,8 @@
  * Reads the parsed package.json from the manifest bundle; the graph is unused.
  */
 
-import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { ManifestRule, ManifestRuleContext } from '#platform/engine/types.js';
 
 /** Options of package-engines. */
 interface Options {

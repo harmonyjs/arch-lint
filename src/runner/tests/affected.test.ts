@@ -2,10 +2,10 @@
  * @fileoverview Tests for the changed-only reporting filter.
  */
 import { describe, expect, it } from 'vitest';
-import type { ConsumerGraph, Edge } from '#graph/types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { only } from '#rules/test-support/only.js';
 import { affectedEntities, filterToAffected } from '#runner/changed-files.js';
-import type { Diagnostic } from '#types.js';
 
 function edge(consumer: string, producer: string): Edge {
   return { consumer, producer, symbol: 'X', typeOnly: false };

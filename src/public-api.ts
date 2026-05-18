@@ -7,9 +7,9 @@
  */
 
 // Function — config helper
-export { defineConfig } from './config/define-config.js';
+export { defineConfig } from '#foundation/config/define-config.js';
 // Function — config resolver
-export { resolveConfig } from './config/index.js';
+export { resolveConfig } from '#foundation/config/index.js';
 // Types — config module
 export type {
   BaselineConfig,
@@ -31,25 +31,9 @@ export type {
   RuleSettingObject,
   RunModeConfig,
   WatchRunMode,
-} from './config/types.js';
-// Function — graph builder
-export { buildGraph } from './graph/index.js';
-// Types — graph module (Resolution excluded — internal resolver helper)
-export type {
-  ConsumerGraph,
-  Edge,
-  Node,
-  UnresolvedImport,
-  UnresolvedReason,
-} from './graph/types.js';
-// Types — rules module
-export type { CheckResult, Rule, RuleContext, RuleEngine } from './rules/types.js';
-// Types — baseline module
-export type { BaselineFile, BaselineRecord } from './runner/baseline/types.js';
-// Function — check runner
-export { check } from './runner/index.js';
+} from '#foundation/config/types.js';
 // Types — suppress module
-export type { ParsedSuppress, SuppressIndex } from './suppress/types.js';
+export type { ParsedSuppress, SuppressIndex } from '#foundation/suppress/types.js';
 // Types — cross-cutting core lexicon
 export type {
   ActiveSeverity,
@@ -58,4 +42,20 @@ export type {
   Location,
   Severity,
   Suggestion,
-} from './types.js';
+} from '#foundation/types/index.js';
+// Types — rules module
+export type { CheckResult, Rule, RuleContext, RuleEngine } from '#platform/engine/types.js';
+// Function — graph builder
+export { buildGraph } from '#platform/graph/index.js';
+// Types — graph module (Resolution excluded — internal resolver helper)
+export type {
+  ConsumerGraph,
+  Edge,
+  Node,
+  UnresolvedImport,
+  UnresolvedReason,
+} from '#platform/graph/types.js';
+// Types — baseline module
+export type { BaselineFile, BaselineRecord } from './runner/baseline/types.js';
+// Function — check runner
+export { check } from './runner/index.js';

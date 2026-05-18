@@ -3,7 +3,7 @@
  * truth for which rules belong to the family. Each descriptor pairs a verdict
  * id with its default severity; `register.ts` projects them into Rules.
  */
-import type { ActiveSeverity } from '#types.js';
+import type { ActiveSeverity } from '#foundation/types/index.js';
 import type { PlacementVerdict } from './analyze.js';
 
 /**

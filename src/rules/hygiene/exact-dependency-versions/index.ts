@@ -3,8 +3,8 @@
  * (no range operators, no dist-tags). Reads the parsed package.json from the manifest bundle.
  */
 
-import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { ManifestRule, ManifestRuleContext } from '#platform/engine/types.js';
 
 /** Options of exact-dependency-versions. */
 interface Options {

@@ -3,9 +3,9 @@
  * a renderable GraphDoc: an Overview section of subsystem nodes plus a depth-first
  * walk of per-folder drill-down sections, each a single diagram.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import { subsystemCoupling } from '#graph/index.js';
-import type { ConsumerGraph, Edge } from '#graph/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { subsystemCoupling } from '#platform/graph/index.js';
+import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { cyclicNodes } from '#runner/graphdoc/scc.js';
 import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types.js';
 import {

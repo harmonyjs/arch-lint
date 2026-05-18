@@ -2,9 +2,9 @@
  * @fileoverview expired-suppress rule — reports expired or malformed @arch-decision comments.
  */
 
-import type { GraphRule } from '#rules/types.js';
-import type { ParsedSuppress } from '#suppress/types.js';
-import type { Diagnostic } from '#types.js';
+import type { ParsedSuppress } from '#foundation/suppress/types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { GraphRule } from '#platform/engine/types.js';
 
 /** Deterministic djb2 hash of a string, rendered as a hex digest. */
 function hashReason(reason: string): string {

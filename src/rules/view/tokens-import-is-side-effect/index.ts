@@ -4,12 +4,12 @@
  */
 
 import type { SourceFile } from 'ts-morph';
-import { isAtOrUnderPrefix } from '#entity-id/index.js';
-import { sourceFileFor } from '#rules/ast/find-source-file.js';
-import { type ImportInfo, importsOf } from '#rules/ast/import-info.js';
-import { dedupByFingerprint } from '#rules/engine/dedup-diagnostics.js';
-import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import { isAtOrUnderPrefix } from '#foundation/entity-id/index.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import { sourceFileFor } from '#platform/ast/find-source-file.js';
+import { type ImportInfo, importsOf } from '#platform/ast/import-info.js';
+import { dedupByFingerprint } from '#platform/engine/dedup-diagnostics.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
 
 /** The fixed segment name of the design-tokens folder. */
 const TOKENS_SEGMENT = 'tokens';

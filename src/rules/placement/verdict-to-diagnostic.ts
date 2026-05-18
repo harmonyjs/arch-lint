@@ -1,7 +1,7 @@
 /**
  * @fileoverview Converts a PlacementVerdict into a Diagnostic shared by the four placement rules.
  */
-import type { ActiveSeverity, Diagnostic } from '#types.js';
+import type { ActiveSeverity, Diagnostic } from '#foundation/types/index.js';
 import type { PlacementVerdict } from './analyze.js';
 
 /**

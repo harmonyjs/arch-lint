@@ -3,8 +3,8 @@
  * mints cross-section `port` nodes, projects unresolved imports, aggregates the
  * Overview subsystem edges with cyclic `back` tagging, and builds coupling badges.
  */
-import { subsystemOf } from '#graph/index.js';
-import type { ConsumerGraph, UnresolvedImport } from '#graph/types.js';
+import { subsystemOf } from '#platform/graph/index.js';
+import type { ConsumerGraph, UnresolvedImport } from '#platform/graph/types.js';
 import type { CouplingBadge, RenderEdge, RenderNode } from '#runner/graphdoc/types.js';
 import {
   baseNode,

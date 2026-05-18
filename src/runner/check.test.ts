@@ -3,12 +3,12 @@
  * raw diagnostics against the baseline and tallies them into a CheckResult.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { Diagnostic } from '#foundation/types/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
-import type { Diagnostic } from '#types.js';
 import type { CheckInputs } from './check.js';
 
 const runEngineMock = vi.fn();
-vi.mock('#rules/engine/index.js', () => ({
+vi.mock('#platform/engine/index.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 

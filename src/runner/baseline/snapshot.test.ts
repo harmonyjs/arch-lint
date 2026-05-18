@@ -2,7 +2,7 @@
  * @fileoverview Tests for snapshotBaseline — the `baseline init` operation.
  */
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic, Location } from '#types.js';
+import type { Diagnostic, Location } from '#foundation/types/index.js';
 import { snapshotBaseline } from './snapshot.js';
 
 const loc: Location = { file: 'src/a.ts', line: 1, column: 1 };

@@ -4,7 +4,7 @@
 
 import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import type { ManifestBundle } from '#rules/types.js';
+import type { ManifestBundle } from '#platform/engine/types.js';
 import { makeContext, makeManifestContext, makeSuppressIndex } from './make-context.js';
 
 describe('makeSuppressIndex', () => {

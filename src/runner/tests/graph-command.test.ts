@@ -5,7 +5,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { GraphBuildError, IOError } from '#errors/index.js';
+import { GraphBuildError, IOError } from '#foundation/errors/index.js';
 import { runGraphCommand } from '#runner/graph.js';
 
 let dir = '';

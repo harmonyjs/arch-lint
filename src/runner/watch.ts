@@ -6,16 +6,16 @@
  */
 import { relative } from 'node:path';
 import type { FSWatcher } from 'chokidar';
-import { loadConfig, resolveConfig } from '#config/index.js';
-import type { ResolvedConfig } from '#config/types.js';
-import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-files.js';
-import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
-import type { ConsumerGraph } from '#graph/types.js';
-import type { Logger } from '#logger/index.js';
-import { ConsoleLogger, NullTelemetry } from '#logger/index.js';
+import { loadConfig, resolveConfig } from '#foundation/config/index.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { Logger } from '#foundation/logger/index.js';
+import { ConsoleLogger, NullTelemetry } from '#foundation/logger/index.js';
+import { buildSuppressIndex } from '#foundation/suppress/suppress-index.js';
+import { loadSourceFiles, type SourceFileSet } from '#platform/graph/discover-source-files.js';
+import { buildGraphFromSources, graphEntityResolver } from '#platform/graph/index.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
 import { formatReport } from '#report/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
-import { buildSuppressIndex } from '#suppress/suppress-index.js';
 import { check, resolveBaseline } from './check.js';
 
 /** Accumulates events and flushes them once after a quiet period. */

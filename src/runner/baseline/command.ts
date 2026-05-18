@@ -9,12 +9,12 @@
  */
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
-import { loadConfig, resolveConfig } from '#config/index.js';
-import type { ResolvedConfig } from '#config/types.js';
-import { ConfigError } from '#errors/index.js';
-import type { Logger } from '#logger/index.js';
-import { ConsoleLogger } from '#logger/index.js';
-import type { CheckResult } from '#rules/types.js';
+import { loadConfig, resolveConfig } from '#foundation/config/index.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import { ConfigError } from '#foundation/errors/index.js';
+import type { Logger } from '#foundation/logger/index.js';
+import { ConsoleLogger } from '#foundation/logger/index.js';
+import type { CheckResult } from '#platform/engine/types.js';
 import { type RunCheckOptions, resolveBaseline, runCheck } from '#runner/check.js';
 import { packageRoot } from '#runner/paths.js';
 import { diffBaseline, pruneBaseline, snapshotBaseline, writeBaseline } from './index.js';

@@ -2,7 +2,7 @@
  * @fileoverview Converts a MetricsVerdict into a Diagnostic — the projection
  * shared by all five metrics rules.
  */
-import type { ActiveSeverity, Diagnostic } from '#types.js';
+import type { ActiveSeverity, Diagnostic } from '#foundation/types/index.js';
 
 /** A measured threshold violation, before it becomes a Diagnostic. */
 export interface MetricsVerdict {

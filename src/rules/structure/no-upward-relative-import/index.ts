@@ -5,12 +5,12 @@
  * and `../../graph/x.js` resolve to the same graph edge, so only the source text can
  * tell them apart.
  */
-import { dirOf } from '#entity-id/index.js';
-import { fileNodeIds, sourceFileFor } from '#rules/ast/find-source-file.js';
-import { type ImportInfo, importsOf } from '#rules/ast/import-info.js';
-import { dedupByFingerprint } from '#rules/engine/dedup-diagnostics.js';
-import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import { dirOf } from '#foundation/entity-id/index.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import { fileNodeIds, sourceFileFor } from '#platform/ast/find-source-file.js';
+import { type ImportInfo, importsOf } from '#platform/ast/import-info.js';
+import { dedupByFingerprint } from '#platform/engine/dedup-diagnostics.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
 
 /** Tunable options of the no-upward-relative-import rule. */
 export interface NoUpwardRelativeImportOptions {

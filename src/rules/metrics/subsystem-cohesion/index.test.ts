@@ -2,8 +2,8 @@
  * @fileoverview Tests for the subsystem-cohesion metrics rule.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#config/types.js';
-import type { Edge } from '#graph/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { Edge } from '#platform/graph/types.js';
 import { makeContext } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { only } from '#rules/test-support/only.js';

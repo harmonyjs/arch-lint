@@ -1,8 +1,9 @@
 /**
  * @fileoverview Rule registry — aggregates all built-in rules and resolves the active set.
  */
-import type { ResolvedConfig } from '#config/types.js';
-import type { Severity } from '#types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { Severity } from '#foundation/types/index.js';
+import type { Rule } from '#platform/engine/types.js';
 import { barrelIsPublicFace } from './barrels/barrel-is-public-face/index.js';
 import { barrelNarrowExport } from './barrels/barrel-narrow-export/index.js';
 import { barrelRequiredForRole } from './barrels/barrel-required-for-role/index.js';
@@ -16,7 +17,6 @@ import { metricsRules } from './metrics/index.js';
 import { perfileRules } from './perfile/index.js';
 import { registerPlacementRules } from './placement/index.js';
 import { structureRules } from './structure/index.js';
-import type { Rule } from './types.js';
 import { hooksFolderRequired } from './view/hooks-folder-required/index.js';
 import { tokensImportIsSideEffect } from './view/tokens-import-is-side-effect/index.js';
 import { uiClusterMembership } from './view/ui-cluster-membership/index.js';

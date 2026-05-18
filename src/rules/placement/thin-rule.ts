@@ -2,8 +2,8 @@
  * @fileoverview Builds a thin placement Rule that projects one §7.3 verdict ruleId (D3).
  */
 
-import type { GraphRule } from '#rules/types.js';
-import type { Diagnostic } from '#types.js';
+import type { Diagnostic } from '#foundation/types/index.js';
+import type { GraphRule } from '#platform/engine/types.js';
 import { analyzePlacement } from './analyze.js';
 import type { PlacementRuleDescriptor } from './family.js';
 import { verdictToDiagnostic } from './verdict-to-diagnostic.js';

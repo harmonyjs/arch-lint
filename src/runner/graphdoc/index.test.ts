@@ -2,7 +2,7 @@
  * @fileoverview Tests for the graphdoc barrel — renderGraphDoc end to end.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#config/types.js';
+import type { ResolvedConfig } from '#foundation/config/types.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { renderGraphDoc } from './index.js';
 

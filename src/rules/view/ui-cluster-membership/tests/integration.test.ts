@@ -4,9 +4,9 @@
 
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { resolveConfig } from '#config/index.js';
-import { loadSourceFiles } from '#graph/discover-source-files.js';
-import { buildGraph } from '#graph/index.js';
+import { resolveConfig } from '#foundation/config/index.js';
+import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
+import { buildGraph } from '#platform/graph/index.js';
 import { makeContext } from '#rules/test-support/make-context.js';
 import {
   type UiClusterMembershipOptions,
