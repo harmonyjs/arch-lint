@@ -1,0 +1,7 @@
+{
+  "name": "fx-exact-dep",
+  "version": "0.0.0",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}
