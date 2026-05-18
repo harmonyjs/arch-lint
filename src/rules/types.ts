@@ -7,7 +7,7 @@ import type { Project } from 'ts-morph';
 import type { Pack, ResolvedConfig } from '#config/types.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import type { SuppressIndex } from '#suppress/types.js';
-import type { ActiveSeverity, Diagnostic, Location } from '#types.js';
+import type { ActiveSeverity, Diagnostic } from '#types.js';
 import type { NpmrcDoc } from './hygiene/support/npmrc.js';
 import type { PackageJsonDoc } from './hygiene/support/package-json.js';
 import type { EffectiveTsconfig } from './hygiene/support/tsconfig-effective.js';
@@ -110,20 +110,6 @@ export interface CensusRuleContext<TOptions = unknown> extends RuleContextBase<T
 
 /** The default RuleContext alias — the syntactic variant, used by test-support factories. */
 export type RuleContext<TOptions = unknown> = SyntacticRuleContext<TOptions>;
-
-export interface ConsumerInfo {
-  readonly file: string;
-  readonly symbol: string;
-  readonly importPath: string;
-  readonly resolved: string;
-  readonly location: Location;
-}
-
-export interface Suggestion {
-  readonly action: 'move' | 'inline' | 'split' | 'add-barrel' | 'remove-suppress' | 'custom';
-  readonly target?: string;
-  readonly rationale: string;
-}
 
 export interface CheckResult {
   readonly diagnostics: readonly Diagnostic[];

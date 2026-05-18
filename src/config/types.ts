@@ -3,7 +3,6 @@
  * fully-defaulted ResolvedConfig, plus every per-section shape. ResolvedConfig
  * is consumed cross-subsystem; the rest is config-internal lexicon.
  */
-import type { Rule } from '#rules/types.js';
 import type { Severity } from '#types.js';
 
 export type Pack =
@@ -127,6 +126,11 @@ export interface ResolvedRuleSetting {
   readonly [option: string]: unknown;
 }
 
+/** Opaque carrier of a user-supplied plugin rule; the engine narrows it to Rule. */
+export interface PluginRule {
+  readonly id: string;
+}
+
 /** User-facing config input — only project.tsconfig is required. */
 export interface Config {
   project: { tsconfig: string } & Partial<Omit<ProjectConfig, 'tsconfig'>>;
@@ -147,7 +151,7 @@ export interface Config {
     preCommit?: Partial<PreCommitRunMode>;
     ci?: Partial<CiRunMode>;
   };
-  plugins?: readonly Rule[];
+  plugins?: readonly PluginRule[];
 }
 
 /** Config with every default applied; hand-written, not Required<Config>. */
@@ -166,5 +170,5 @@ export interface ResolvedConfig {
   readonly suppress: SuppressConfig;
   readonly report: ReportConfig;
   readonly runMode: RunModeConfig;
-  readonly plugins: readonly Rule[];
+  readonly plugins: readonly PluginRule[];
 }

@@ -45,17 +45,17 @@ export type {
   UnresolvedReason,
 } from './graph/types.js';
 // Types — rules module
-export type {
-  CheckResult,
-  ConsumerInfo,
-  Rule,
-  RuleContext,
-  RuleEngine,
-  Suggestion,
-} from './rules/types.js';
+export type { CheckResult, Rule, RuleContext, RuleEngine } from './rules/types.js';
 // Function — check runner
 export { check } from './runner/index.js';
 // Types — suppress module
 export type { ParsedSuppress, SuppressIndex } from './suppress/types.js';
 // Types — cross-cutting core lexicon
-export type { ActiveSeverity, Diagnostic, Location, Severity } from './types.js';
+export type {
+  ActiveSeverity,
+  ConsumerInfo,
+  Diagnostic,
+  Location,
+  Severity,
+  Suggestion,
+} from './types.js';

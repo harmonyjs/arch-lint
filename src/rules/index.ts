@@ -72,6 +72,8 @@ export function getActiveRules(
   const builtins = allRules.filter(
     (rule) => enabledPacks.has(rule.pack) && passesFilters(rule, config, filter),
   );
-  const plugins = config.plugins.filter((rule) => passesFilters(rule, config, filter));
+  // Safe: pluginRuleSchema (config/schema.ts) validates plugin structure on load.
+  const pluginRules = config.plugins as readonly Rule[];
+  const plugins = pluginRules.filter((rule) => passesFilters(rule, config, filter));
   return [...builtins, ...plugins];
 }
