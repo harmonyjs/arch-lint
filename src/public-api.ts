@@ -6,8 +6,6 @@
  * path-sorted organize-imports.
  */
 
-// Types — baseline module
-export type { BaselineFile, BaselineRecord } from './baseline/types.js';
 // Function — config helper
 export { defineConfig } from './config/define-config.js';
 // Function — config resolver
@@ -46,6 +44,8 @@ export type {
 } from './graph/types.js';
 // Types — rules module
 export type { CheckResult, Rule, RuleContext, RuleEngine } from './rules/types.js';
+// Types — baseline module
+export type { BaselineFile, BaselineRecord } from './runner/baseline/types.js';
 // Function — check runner
 export { check } from './runner/index.js';
 // Types — suppress module

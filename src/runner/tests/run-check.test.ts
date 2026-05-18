@@ -45,8 +45,8 @@ vi.mock('#rules/engine/index.js', () => ({
 
 // Classification is exercised in check.test.ts and classify.test.ts — here it is an
 // identity pass so a test's diagnostics keep the status it set, isolating runCheck.
-vi.mock('#baseline/index.js', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('#baseline/index.js')>()),
+vi.mock('#runner/baseline/index.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('#runner/baseline/index.js')>()),
   classifyDiagnostics: (diagnostics: readonly Diagnostic[]): readonly Diagnostic[] => diagnostics,
 }));
 

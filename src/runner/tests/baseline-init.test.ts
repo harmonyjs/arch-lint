@@ -3,9 +3,9 @@
  * check and writes a fresh snapshot of every violation.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { BaselineFile } from '#baseline/types.js';
 import type { ResolvedConfig } from '#config/types.js';
 import type { CheckResult } from '#rules/types.js';
+import type { BaselineFile } from '#runner/baseline/types.js';
 import type { Diagnostic } from '#types.js';
 
 const loadConfigMock = vi.fn();
@@ -27,14 +27,14 @@ vi.mock('#runner/check.js', () => ({
 
 const snapshotBaselineMock = vi.fn();
 const writeBaselineMock = vi.fn();
-vi.mock('#baseline/index.js', () => ({
+vi.mock('#runner/baseline/index.js', () => ({
   snapshotBaseline: (...args: unknown[]): unknown => snapshotBaselineMock(...args),
   diffBaseline: vi.fn(),
   pruneBaseline: vi.fn(),
   writeBaseline: (...args: unknown[]): unknown => writeBaselineMock(...args),
 }));
 
-const { runBaselineInit } = await import('#runner/baseline.js');
+const { runBaselineInit } = await import('#runner/baseline/command.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

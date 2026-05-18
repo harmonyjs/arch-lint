@@ -4,10 +4,10 @@
  * without writing anything.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { BaselineDiff } from '#baseline/index.js';
-import type { BaselineFile } from '#baseline/types.js';
 import type { ResolvedConfig } from '#config/types.js';
 import type { CheckResult } from '#rules/types.js';
+import type { BaselineDiff } from '#runner/baseline/index.js';
+import type { BaselineFile } from '#runner/baseline/types.js';
 import type { Diagnostic } from '#types.js';
 
 const loadConfigMock = vi.fn();
@@ -29,14 +29,14 @@ vi.mock('#runner/check.js', () => ({
 
 const diffBaselineMock = vi.fn();
 const writeBaselineMock = vi.fn();
-vi.mock('#baseline/index.js', () => ({
+vi.mock('#runner/baseline/index.js', () => ({
   snapshotBaseline: vi.fn(),
   diffBaseline: (...args: unknown[]): unknown => diffBaselineMock(...args),
   pruneBaseline: vi.fn(),
   writeBaseline: (...args: unknown[]): unknown => writeBaselineMock(...args),
 }));
 
-const { runBaselineDiff } = await import('#runner/baseline.js');
+const { runBaselineDiff } = await import('#runner/baseline/command.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

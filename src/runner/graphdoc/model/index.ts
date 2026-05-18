@@ -6,8 +6,8 @@
 import type { ResolvedConfig } from '#config/types.js';
 import { subsystemCoupling } from '#graph/index.js';
 import type { ConsumerGraph, Edge } from '#graph/types.js';
-import { cyclicNodes } from '#graphdoc/scc.js';
-import type { CouplingBadge, DocSection, GraphDoc } from '#graphdoc/types.js';
+import { cyclicNodes } from '#runner/graphdoc/scc.js';
+import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types.js';
 import {
   aggregateSubsystemEdges,
   badgeOf,

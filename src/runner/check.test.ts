@@ -3,7 +3,7 @@
  * raw diagnostics against the baseline and tallies them into a CheckResult.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { BaselineFile } from '#baseline/types.js';
+import type { BaselineFile } from '#runner/baseline/types.js';
 import type { Diagnostic } from '#types.js';
 import type { CheckInputs } from './check.js';
 

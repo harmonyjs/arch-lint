@@ -5,7 +5,7 @@
  */
 import { subsystemOf } from '#graph/index.js';
 import type { ConsumerGraph, UnresolvedImport } from '#graph/types.js';
-import type { CouplingBadge, RenderEdge, RenderNode } from '#graphdoc/types.js';
+import type { CouplingBadge, RenderEdge, RenderNode } from '#runner/graphdoc/types.js';
 import {
   baseNode,
   type IdMint,

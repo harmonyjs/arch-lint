@@ -7,8 +7,6 @@
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 import type { Project } from 'ts-morph';
-import { classifyDiagnostics, parseBaselineFile } from '#baseline/index.js';
-import type { BaselineFile } from '#baseline/types.js';
 import { loadConfig, resolveConfig } from '#config/index.js';
 import type { ResolvedConfig } from '#config/types.js';
 import { ArchLintError, ConfigError, GraphBuildError, IOError } from '#errors/index.js';
@@ -18,6 +16,8 @@ import type { ConsumerGraph } from '#graph/types.js';
 import { formatReport } from '#report/index.js';
 import { runEngine } from '#rules/engine/index.js';
 import type { CheckResult } from '#rules/types.js';
+import { classifyDiagnostics, parseBaselineFile } from '#runner/baseline/index.js';
+import type { BaselineFile } from '#runner/baseline/types.js';
 import { buildSuppressIndex } from '#suppress/suppress-index.js';
 import type { SuppressIndex } from '#suppress/types.js';
 import type { ActiveSeverity, Diagnostic } from '#types.js';

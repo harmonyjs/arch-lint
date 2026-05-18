@@ -7,7 +7,7 @@ import { createInterface } from 'node:readline/promises';
 import chokidar from 'chokidar';
 import { Command } from 'commander';
 import { ArchLintError, ConfigError } from '#errors/index.js';
-import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './baseline.js';
+import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './baseline/command.js';
 import { runCheckCommand } from './check.js';
 import { runExplain } from './explain.js';
 import { runGraphCommand } from './graph.js';
