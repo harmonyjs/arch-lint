@@ -9,9 +9,9 @@ import {
   collectImportedSymbol,
   type EdgeSink,
   locationOf,
+  type Resolver,
   resolveTargetFile,
-} from './edges-collectors.js';
-import type { Resolver } from './resolve.js';
+} from './resolution/index.js';
 import type { Edge, UnresolvedImport } from './types.js';
 
 export interface EdgeBuildResult {

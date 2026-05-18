@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { loadSourceFiles, moduleResolutionContextOf } from './discover-source-files.js';
 import { buildEdges } from './edges.js';
-import { createResolver } from './resolve.js';
+import { createResolver } from './resolution/index.js';
 
 let dir: string;
 

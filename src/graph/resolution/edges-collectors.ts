@@ -3,15 +3,15 @@
  * conversion of a single imported symbol into an edge or an unresolved-import entry.
  */
 import type { ImportDeclaration, Node } from 'ts-morph';
-import type { Location } from '#types.js';
 import {
   fileIdOf,
   moduleResolutionContextOf,
   type SourceFileSet,
-} from './discover-source-files.js';
+} from '#graph/discover-source-files.js';
+import type { Edge, Resolution, UnresolvedImport } from '#graph/types.js';
+import type { Location } from '#types.js';
 import { resolveSpecifier } from './module-resolution.js';
 import type { Resolver } from './resolve.js';
-import type { Edge, Resolution, UnresolvedImport } from './types.js';
 
 /** Mutable accumulators threaded through the per-file edge collectors. */
 export interface EdgeSink {
