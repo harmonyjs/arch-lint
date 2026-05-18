@@ -9,6 +9,7 @@
 import picomatch from 'picomatch';
 import type { UnitsConfig } from '#foundation/config/types.js';
 import { firstSegment } from '#foundation/entity-id/index.js';
+import { GraphUnitsCache } from './graph-units-cache.js';
 import type { ConsumerGraph } from './types.js';
 
 /** Per-unit coupling figures folded from the file-level ConsumerGraph. */
@@ -78,14 +79,44 @@ function compiledGlobsFor(units: UnitsConfig): ReadonlyMap<string, readonly Comp
 }
 
 /**
+ * Per-`units` memo of `unitOf` results, nested `sourceRoot → fileId → unit`.
+ * `unitOf` runs roughly `2N + 5E` times per run over only `N` distinct file
+ * ids, so the memo collapses the repeats. `units` is frozen and stable, so a
+ * WeakMap is a safe, auto-clearing key; `sourceRoot` is part of the key because
+ * it sets the prefix stripped before matching.
+ */
+const unitOfCache = new WeakMap<UnitsConfig, Map<string, Map<string, string | null>>>();
+
+/**
  * The unit a file id belongs to. With declared `units`, the file id (relative to
  * `sourceRoot`) is matched against every unit's glob(s); the most specific match
  * wins — longest literal (wildcard-free) glob prefix, ties broken by declaration
  * order. With no declared units, falls back to the first path segment under
  * `sourceRoot`. A root-level file, or one matched by no glob, has no unit and
  * returns `null`. Does not consult `layers` — units and layers are orthogonal.
+ * Memoized per `(units, sourceRoot, fileId)`.
  */
 export function unitOf(fileId: string, sourceRoot: string, units: UnitsConfig): string | null {
+  let bySourceRoot = unitOfCache.get(units);
+  if (bySourceRoot === undefined) {
+    bySourceRoot = new Map();
+    unitOfCache.set(units, bySourceRoot);
+  }
+  let byFileId = bySourceRoot.get(sourceRoot);
+  if (byFileId === undefined) {
+    byFileId = new Map();
+    bySourceRoot.set(sourceRoot, byFileId);
+  }
+  if (byFileId.has(fileId)) {
+    return byFileId.get(fileId) ?? null;
+  }
+  const result = computeUnitOf(fileId, sourceRoot, units);
+  byFileId.set(fileId, result);
+  return result;
+}
+
+/** Performs the glob match without caching — the body behind `unitOf`. */
+function computeUnitOf(fileId: string, sourceRoot: string, units: UnitsConfig): string | null {
   const prefix = `${sourceRoot}/`;
   const rest = fileId.startsWith(prefix) ? fileId.slice(prefix.length) : fileId;
   const compiled = compiledGlobsFor(units);
@@ -123,15 +154,11 @@ function accumulatorFor(map: Map<string, UnitAccumulator>, name: string): UnitAc
 }
 
 /**
- * Cache keyed on the `(graph, units, sourceRoot)` triple: every metric rule and
- * graphdoc fold the same graph with the same `units`, so the fold runs once and
- * is reused. The ConsumerGraph is frozen and there is exactly one resolved
- * `units` object per run, so a nested WeakMap is a safe, auto-clearing key.
+ * Cache of the per-unit fold: every metric rule and graphdoc fold the same
+ * graph with the same `units`, so `computeUnitCoupling` runs once per
+ * `(graph, units, sourceRoot)` triple and is reused.
  */
-const couplingCache = new WeakMap<
-  ConsumerGraph,
-  WeakMap<UnitsConfig, Map<string, ReadonlyMap<string, UnitCoupling>>>
->();
+const couplingCache = new GraphUnitsCache<ReadonlyMap<string, UnitCoupling>>();
 
 /**
  * Folds the file-level ConsumerGraph into per-unit coupling figures. Every
@@ -146,22 +173,9 @@ export function unitCoupling(
   sourceRoot: string,
   units: UnitsConfig,
 ): ReadonlyMap<string, UnitCoupling> {
-  let byUnits = couplingCache.get(graph);
-  if (byUnits === undefined) {
-    byUnits = new WeakMap();
-    couplingCache.set(graph, byUnits);
-  }
-  let byRoot = byUnits.get(units);
-  if (byRoot === undefined) {
-    byRoot = new Map();
-    byUnits.set(units, byRoot);
-  }
-  const cached = byRoot.get(sourceRoot);
-  if (cached !== undefined) return cached;
-
-  const coupling = computeUnitCoupling(graph, sourceRoot, units);
-  byRoot.set(sourceRoot, coupling);
-  return coupling;
+  return couplingCache.get(graph, units, sourceRoot, () =>
+    computeUnitCoupling(graph, sourceRoot, units),
+  );
 }
 
 /** Performs the graph fold without caching — the body behind `unitCoupling`. */

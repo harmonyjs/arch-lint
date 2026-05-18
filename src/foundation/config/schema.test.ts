@@ -311,4 +311,22 @@ describe('configSchema — units', () => {
       configSchema.parse({ project: { tsconfig: './tsconfig.json' }, units: { x: 5 } }),
     ).toThrow();
   });
+
+  it('rejects an empty-string glob', () => {
+    expect(() =>
+      configSchema.parse({ project: { tsconfig: './tsconfig.json' }, units: { x: '' } }),
+    ).toThrow();
+  });
+
+  it('rejects an empty list of globs', () => {
+    expect(() =>
+      configSchema.parse({ project: { tsconfig: './tsconfig.json' }, units: { x: [] } }),
+    ).toThrow();
+  });
+
+  it('rejects an empty-string glob inside a list', () => {
+    expect(() =>
+      configSchema.parse({ project: { tsconfig: './tsconfig.json' }, units: { x: ['a/**', ''] } }),
+    ).toThrow();
+  });
 });

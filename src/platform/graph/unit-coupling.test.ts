@@ -25,6 +25,10 @@ describe('unitOf — declared units', () => {
     expect(unitOf('src/rules/metrics/analyze.ts', 'src', units)).toBe('rules/metrics');
   });
 
+  it('matches a file id that already lacks the sourceRoot prefix', () => {
+    expect(unitOf('platform/graph/build.ts', 'src', units)).toBe('platform/graph');
+  });
+
   it('returns null for a file matched by no glob', () => {
     expect(unitOf('src/public-api.ts', 'src', units)).toBeNull();
     expect(unitOf('src/runner/cli.ts', 'src', units)).toBeNull();

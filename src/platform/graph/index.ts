@@ -6,6 +6,7 @@
 export { buildGraph, buildGraphFromSources } from './build.js';
 export { isRoleFolder } from './entities.js';
 export { graphEntityResolver } from './entity-resolver.js';
+export { GraphUnitsCache } from './graph-units-cache.js';
 export { buildIncremental } from './incremental.js';
 export { layerOf } from './layers.js';
 export type { UnitCoupling } from './unit-coupling.js';

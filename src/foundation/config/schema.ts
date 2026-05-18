@@ -78,8 +78,16 @@ const layerSchema = z.object({
 /** layers block — keyed by path-segment prefix or file path. */
 const layersSchema = z.record(z.string(), layerSchema);
 
-/** units block — keyed by unit name; each value is a glob or a list of globs. */
-const unitsSchema = z.record(z.string(), z.union([z.string(), z.array(z.string())]));
+/**
+ * units block — keyed by unit name; each value is a non-empty glob or a
+ * non-empty list of non-empty globs. An empty glob matches nothing, so a unit
+ * declared with one would silently never appear — `.min(1)` turns that typo
+ * into a validation error.
+ */
+const unitsSchema = z.record(
+  z.string(),
+  z.union([z.string().min(1), z.array(z.string().min(1)).min(1)]),
+);
 
 /** resolve block — import-resolver knobs; every field optional. */
 const resolveSchema = z

@@ -5,7 +5,7 @@
  * one computation.
  */
 import type { ResolvedConfig, UnitsConfig } from '#foundation/config/types.js';
-import { type UnitCoupling, unitCoupling, unitOf } from '#platform/graph/index.js';
+import { GraphUnitsCache, type UnitCoupling, unitCoupling, unitOf } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** Every metric arch-lint measures for one unit. */
@@ -29,15 +29,12 @@ export interface UnitMetrics {
 export type MetricsReport = ReadonlyMap<string, UnitMetrics>;
 
 /**
- * Cache keyed on the `(graph, units, sourceRoot)` triple — mirrors
- * `unitCoupling`'s `couplingCache`. The ConsumerGraph is frozen and there is
- * exactly one resolved `units` object per run, so a nested WeakMap is safe and
- * auto-clears. `units` is part of the key because a `MetricsReport` embeds
- * unit-aware names: `unitOf` buckets files differently per `units`, so a report
- * folded with one `units` map must not be returned for a call with a different
- * one.
+ * Cache of the per-unit metrics fold — mirrors `unitCoupling`'s `couplingCache`.
+ * `units` is part of the key because a `MetricsReport` embeds unit-aware names:
+ * `unitOf` buckets files differently per `units`, so a report folded with one
+ * `units` map must not be returned for a call with a different one.
  */
-const reportCache = new WeakMap<ConsumerGraph, WeakMap<UnitsConfig, Map<string, MetricsReport>>>();
+const reportCache = new GraphUnitsCache<MetricsReport>();
 
 function cohesiveFilesOf(
   graph: ConsumerGraph,
@@ -99,19 +96,5 @@ function computeReport(graph: ConsumerGraph, root: string, units: UnitsConfig): 
 export function analyzeMetrics(graph: ConsumerGraph, config: ResolvedConfig): MetricsReport {
   const root = config.project.sourceRoot;
   const units = config.units;
-  let byUnits = reportCache.get(graph);
-  if (byUnits === undefined) {
-    byUnits = new WeakMap();
-    reportCache.set(graph, byUnits);
-  }
-  let byRoot = byUnits.get(units);
-  if (byRoot === undefined) {
-    byRoot = new Map();
-    byUnits.set(units, byRoot);
-  }
-  const cached = byRoot.get(root);
-  if (cached !== undefined) return cached;
-  const report = computeReport(graph, root, units);
-  byRoot.set(root, report);
-  return report;
+  return reportCache.get(graph, units, root, () => computeReport(graph, root, units));
 }
