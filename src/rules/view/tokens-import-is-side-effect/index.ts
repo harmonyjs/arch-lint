@@ -4,10 +4,10 @@
  */
 
 import type { SourceFile } from 'ts-morph';
-import { isAtOrUnderPrefix } from '#entity-id.js';
-import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
-import { sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
-import { type ImportInfo, importsOf } from '#rules/syntactic-support/import-info.js';
+import { isAtOrUnderPrefix } from '#entity-id/index.js';
+import { sourceFileFor } from '#rules/ast/find-source-file.js';
+import { type ImportInfo, importsOf } from '#rules/ast/import-info.js';
+import { dedupByFingerprint } from '#rules/engine/dedup-diagnostics.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 

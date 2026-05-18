@@ -3,7 +3,7 @@
  * the under-segment test live in `src/entity-id/`; this module only adds the
  * setting-aware predicate on top of them.
  */
-import { isUnderSegment } from '#entity-id.js';
+import { isUnderSegment } from './path-arithmetic.js';
 
 /**
  * The enforceForSegments predicate (D7): `'all'` matches any path; an array

@@ -3,9 +3,9 @@
  * in barrels. Reads import/export AST from the RuleContext project (decision D9).
  */
 
-import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
-import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
-import { type ImportInfo, importsOf } from '#rules/syntactic-support/import-info.js';
+import { fileNodeIds, sourceFileFor } from '#rules/ast/find-source-file.js';
+import { type ImportInfo, importsOf } from '#rules/ast/import-info.js';
+import { dedupByFingerprint } from '#rules/engine/dedup-diagnostics.js';
 import type { SyntacticRule } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 

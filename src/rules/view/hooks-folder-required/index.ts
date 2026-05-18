@@ -3,9 +3,9 @@
  * (decision D7). The view pack is parametrized by config — no hardcoded React naming.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { baseNameOf, folderOf, isUnderSegment } from '#entity-id.js';
+import { baseNameOf, folderOf, isUnderSegment } from '#entity-id/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
-import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
+import { dedupByFingerprint } from '#rules/engine/dedup-diagnostics.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 

@@ -14,7 +14,7 @@ import {
   isUnderSegment,
   segmentsOf,
   stemOf,
-} from './entity-id.js';
+} from './path-arithmetic.js';
 
 describe('dirOf', () => {
   it('returns the directory portion of a nested file id', () => {

@@ -3,10 +3,10 @@
  * live in the UI cluster. Reads AST from the RuleContext project (decision D9).
  */
 
-import { isStrictlyUnderPrefix } from '#entity-id.js';
+import { isStrictlyUnderPrefix } from '#entity-id/index.js';
 import type { Node } from '#graph/types.js';
-import { sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
-import { importsOf } from '#rules/syntactic-support/import-info.js';
+import { sourceFileFor } from '#rules/ast/find-source-file.js';
+import { importsOf } from '#rules/ast/import-info.js';
 import type { SyntacticRule } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 import { triggerPackageMatcher } from './matcher.js';

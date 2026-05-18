@@ -3,12 +3,9 @@
  * must own a barrel (decision D6). A structural check over the graph node set.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { folderOf } from '#entity-id.js';
+import { folderOf } from '#entity-id/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
-import {
-  isComponentFolderEntry,
-  roleFolderSegment,
-} from '#rules/syntactic-support/node-helpers.js';
+import { isComponentFolderEntry, roleFolderSegment } from '#rules/ast/node-helpers.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 

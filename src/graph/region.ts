@@ -5,7 +5,7 @@
  * diagnostics — it feeds the `view` rule pack via `Node.region`.
  */
 import { type SourceFile, SyntaxKind } from 'ts-morph';
-import { dirOf, isAtOrUnderPrefix } from '#entity-id.js';
+import { dirOf, isAtOrUnderPrefix } from '#entity-id/index.js';
 
 /** True when the file's AST contains at least one JSX construct (§2.1). */
 export function hasJsx(sourceFile: SourceFile): boolean {

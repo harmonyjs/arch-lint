@@ -3,7 +3,7 @@
  * `<name>` source sibling, a test co-located with nothing it tests.
  */
 
-import { baseNameOf, dirOf, dropExtension, isUnderSegment } from '#entity-id.js';
+import { baseNameOf, dirOf, dropExtension, isUnderSegment } from '#entity-id/index.js';
 import { isTestFile } from '#rules/structure/support/test-file.js';
 import type { CensusRule, CensusRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';

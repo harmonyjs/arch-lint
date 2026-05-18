@@ -8,6 +8,7 @@ export {
   buildManifestContext,
   buildSyntacticContext,
 } from './build-context.js';
+export { dedupByFingerprint } from './dedup-diagnostics.js';
 export { dedupPlacement } from './dedup-placement.js';
 export { buildManifestBundle } from './manifest-bundle.js';
 export { type EngineInputs, runEngine } from './run.js';

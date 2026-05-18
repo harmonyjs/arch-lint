@@ -5,7 +5,7 @@
 
 import type { SourceFile } from 'ts-morph';
 import { type Node, SyntaxKind } from 'ts-morph';
-import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import { fileNodeIds, sourceFileFor } from '#rules/ast/find-source-file.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 

@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from '#types.js';
-import { dedupByFingerprint } from './dedup.js';
+import { dedupByFingerprint } from './dedup-diagnostics.js';
 
 function diag(ruleId: string, entity: string, fingerprint: string): Diagnostic {
   return {

@@ -6,7 +6,7 @@
 import picomatch from 'picomatch';
 import type { ExportDeclaration, ExportSpecifier, Statement } from 'ts-morph';
 import { Node, type SourceFile } from 'ts-morph';
-import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import { fileNodeIds, sourceFileFor } from '#rules/ast/find-source-file.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic, Location } from '#types.js';
 

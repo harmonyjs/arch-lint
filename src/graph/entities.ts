@@ -3,7 +3,7 @@
  * folders and component folders, and projects file edges onto the entity tree.
  */
 import type { ConventionsConfig } from '#config/types.js';
-import { baseNameOf, dirOf, firstSegment } from '#entity-id.js';
+import { baseNameOf, dirOf, firstSegment } from '#entity-id/index.js';
 import type { SourceFileSet } from './discover-source-files.js';
 import type { Edge } from './types.js';
 

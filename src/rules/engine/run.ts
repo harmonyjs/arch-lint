@@ -4,8 +4,8 @@
 import type { Project } from 'ts-morph';
 import type { ResolvedConfig } from '#config/types.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import { assertGraphProjectConsistent } from '#rules/ast/index.js';
 import { getActiveRules } from '#rules/index.js';
-import { assertGraphProjectConsistent } from '#rules/syntactic-support/index.js';
 import type { ManifestBundle, Rule } from '#rules/types.js';
 import type { SuppressIndex } from '#suppress/types.js';
 import type { Diagnostic } from '#types.js';

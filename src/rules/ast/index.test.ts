@@ -1,13 +1,12 @@
 /**
- * @fileoverview Tests for the M5 syntactic-support helper barrel.
+ * @fileoverview Tests for the AST helper barrel.
  */
 import { describe, expect, it } from 'vitest';
 import * as support from './index.js';
 
-describe('syntactic-support barrel', () => {
+describe('ast barrel', () => {
   it('re-exports every public helper', () => {
-    expect(typeof support.dedupByFingerprint).toBe('function');
-    expect(typeof support.enforceForSegmentsMatches).toBe('function');
+    expect(typeof support.assertGraphProjectConsistent).toBe('function');
     expect(typeof support.sourceFileFor).toBe('function');
     expect(typeof support.fileNodeIds).toBe('function');
     expect(typeof support.importsOf).toBe('function');

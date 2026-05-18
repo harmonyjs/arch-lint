@@ -4,7 +4,7 @@
  * descriptors suppress consumes, so suppress depends on the interface, never on graph
  * internals.
  */
-import { ancestorsOf, baseNameOf, dropExtension } from '#entity-id.js';
+import { ancestorsOf, baseNameOf, dropExtension } from '#entity-id/index.js';
 import type { EntityResolver, SuppressEntity } from '#types.js';
 import type { ConsumerGraph } from './types.js';
 
