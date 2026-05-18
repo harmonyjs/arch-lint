@@ -1,7 +1,8 @@
 /**
  * @fileoverview analyzeMetrics — computes every per-subsystem metric in one
  * pass: afferent/efferent coupling, instability and internal cohesion.
- * Memoized per (graph, sourceRoot) so the metrics rules share one computation.
+ * Memoized per (graph, layers, sourceRoot) so the metrics rules share one
+ * computation.
  */
 import type { LayersConfig, ResolvedConfig } from '#foundation/config/types.js';
 import { type SubsystemCoupling, subsystemCoupling, subsystemOf } from '#platform/graph/index.js';
@@ -21,7 +22,23 @@ export interface SubsystemMetrics {
 /** Per-subsystem metrics for one run, keyed by subsystem name. */
 export type MetricsReport = ReadonlyMap<string, SubsystemMetrics>;
 
-const reportCache = new WeakMap<ConsumerGraph, Map<string, MetricsReport>>();
+/**
+ * The default `layers` value — a single shared frozen object so that callers
+ * whose config carries no `layers` all share one stable cache identity and a
+ * valid (non-`undefined`) WeakMap key. Mirrors `subsystem-coupling`'s `NO_LAYERS`.
+ */
+const NO_LAYERS: LayersConfig = Object.freeze({});
+
+/**
+ * Cache keyed on the `(graph, layers, sourceRoot)` triple — mirrors
+ * `subsystemCoupling`'s `couplingCache`. The ConsumerGraph and `layers` object
+ * are both frozen for the lifetime of a run, so a nested WeakMap is safe and
+ * auto-clears. `layers` is part of the key because a `MetricsReport` embeds
+ * layer-aware subsystem names: `subsystemOf` buckets files differently per
+ * `layers`, so a report folded with one `layers` map must not be returned for
+ * a call with a different one.
+ */
+const reportCache = new WeakMap<ConsumerGraph, WeakMap<LayersConfig, Map<string, MetricsReport>>>();
 
 function cohesiveFilesOf(
   graph: ConsumerGraph,
@@ -77,19 +94,26 @@ function computeReport(graph: ConsumerGraph, root: string, layers: LayersConfig)
 }
 
 /**
- * Every per-subsystem metric for the run, memoized on (graph, sourceRoot) so
- * the metrics rules trigger a single computation — mirrors `subsystemCoupling`.
+ * Every per-subsystem metric for the run, memoized on (graph, layers,
+ * sourceRoot) so the metrics rules trigger a single computation — mirrors
+ * `subsystemCoupling`.
  */
 export function analyzeMetrics(graph: ConsumerGraph, config: ResolvedConfig): MetricsReport {
   const root = config.project.sourceRoot;
-  let byRoot = reportCache.get(graph);
+  const layers = config.layers ?? NO_LAYERS;
+  let byLayers = reportCache.get(graph);
+  if (byLayers === undefined) {
+    byLayers = new WeakMap();
+    reportCache.set(graph, byLayers);
+  }
+  let byRoot = byLayers.get(layers);
   if (byRoot === undefined) {
     byRoot = new Map();
-    reportCache.set(graph, byRoot);
+    byLayers.set(layers, byRoot);
   }
   const cached = byRoot.get(root);
   if (cached !== undefined) return cached;
-  const report = computeReport(graph, root, config.layers);
+  const report = computeReport(graph, root, layers);
   byRoot.set(root, report);
   return report;
 }

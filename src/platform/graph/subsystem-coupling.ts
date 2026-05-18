@@ -46,6 +46,9 @@ const NO_LAYERS: LayersConfig = Object.freeze({});
  * the first two segments joined (`foundation/config`), or just the layer name when
  * the file sits directly in the layer root (`runner/check.ts` → `runner`). An empty
  * `layers` map means no segment is ever a layer — the first-segment behavior.
+ *
+ * Layer keys are assumed to be single path segments: only the first path segment
+ * is tested against `layers`, so a multi-segment key would never be recognized.
  */
 export function subsystemOf(
   fileId: string,

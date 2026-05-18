@@ -2,7 +2,7 @@
  * @fileoverview Tests for analyzeMetrics — the one-pass per-subsystem metrics.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { LayersConfig, ResolvedConfig } from '#foundation/config/types.js';
 import type { Edge } from '#platform/graph/types.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { analyzeMetrics } from './analyze.js';
@@ -10,8 +10,8 @@ import { analyzeMetrics } from './analyze.js';
 function edge(consumer: string, producer: string): Edge {
   return { consumer, producer, symbol: 'x', typeOnly: false };
 }
-function cfg(): ResolvedConfig {
-  return { project: { sourceRoot: 'src' } } as ResolvedConfig;
+function cfg(layers?: LayersConfig): ResolvedConfig {
+  return { project: { sourceRoot: 'src' }, layers } as ResolvedConfig;
 }
 
 describe('analyzeMetrics', () => {
@@ -52,5 +52,25 @@ describe('analyzeMetrics', () => {
   it('returns the same report object for the same graph (memoized)', () => {
     const graph = makeGraph({ nodes: { 'src/graph/a.ts': { kind: 'file' } }, edges: [] });
     expect(analyzeMetrics(graph, cfg())).toBe(analyzeMetrics(graph, cfg()));
+  });
+
+  it('re-keys the report cache by layers config', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/foundation/config/a.ts': { kind: 'file' },
+        'src/foundation/graph/b.ts': { kind: 'file' },
+      },
+      edges: [edge('src/foundation/config/a.ts', 'src/foundation/graph/b.ts')],
+    });
+    const layers: LayersConfig = { foundation: { canImport: [] } };
+
+    // Without layers, `foundation` is a single first-segment subsystem.
+    const flat = analyzeMetrics(graph, cfg({}));
+    // With `foundation` declared a layer, subsystems descend one level.
+    const layered = analyzeMetrics(graph, cfg(layers));
+
+    expect(flat).not.toBe(layered);
+    expect([...flat.keys()]).toEqual(['foundation']);
+    expect([...layered.keys()].sort()).toEqual(['foundation/config', 'foundation/graph']);
   });
 });
