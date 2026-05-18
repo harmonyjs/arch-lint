@@ -1,14 +1,8 @@
 /**
- * @fileoverview Tests for NullTelemetry and RecordingTelemetry.
+ * @fileoverview Tests for RecordingTelemetry.
  */
 import { describe, expect, it } from 'vitest';
-import { NullTelemetry, RecordingTelemetry } from './telemetry.js';
-
-describe('NullTelemetry', () => {
-  it('runs the span and returns its result', () => {
-    expect(new NullTelemetry().withSpan('x', () => 42)).toBe(42);
-  });
-});
+import { RecordingTelemetry } from './recording-telemetry.js';
 
 describe('RecordingTelemetry', () => {
   it('runs the span, returns its result, and records a timing', () => {
