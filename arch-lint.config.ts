@@ -9,19 +9,21 @@ export default defineConfig({
   packs: ['layers', 'barrels', 'placement', 'meta', 'perfile', 'hygiene', 'metrics', 'structure'],
   ignore: ['**/fixtures/**', '**/test-support/**'],
   baseline: { missingBehavior: 'ignore' },
+  // Only real overrides are listed; every other metrics rule runs at its
+  // built-in default via the `metrics` pack.
   rules: {
-    'efferent-coupling': { severity: 'warning', max: 4, allow: ['runner'] },
-    'afferent-coupling': { severity: 'info', max: 6 },
+    // runner is the composition root — it wires every subsystem together, so its
+    // high efferent coupling is correct by role, not a leak to fix.
+    'efferent-coupling': { allow: ['runner'] },
+    // severity raised from the rule default `info`: a leaf subsystem drifting
+    // unstable is a real architectural regression worth a warning.
     instability: {
       severity: 'warning',
       maxForLeafSubsystems: 0.4,
       leafSubsystems: ['config', 'graph', 'suppress', 'baseline'],
     },
-    'subsystem-cohesion': { severity: 'warning', min: 0.3 },
-    'cross-cutting-concern': {
-      severity: 'info',
-      maxSubsystems: 5,
-      allow: ['src/types.ts', 'src/config/types.ts', 'src/entity-id.ts'],
-    },
+    // types.ts and config/types.ts are deliberate shared lexicon — the core
+    // Diagnostic / ResolvedConfig vocabulary that every pack imports.
+    'cross-cutting-concern': { allow: ['src/types.ts', 'src/config/types.ts'] },
   },
 });
