@@ -3,7 +3,7 @@
  * Reads the parsed .npmrc from the manifest bundle; the graph is unused.
  */
 
-import { parseNpmrc } from '#rules/hygiene/support/npmrc.js';
+import { parseNpmrc } from '#manifest/npmrc.js';
 import type { ManifestRule, ManifestRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 

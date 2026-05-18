@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { parseNpmrc } from '#rules/hygiene/support/npmrc.js';
+import { parseNpmrc } from '#manifest/npmrc.js';
 import { makeManifestContext } from '#rules/test-support/make-context.js';
 import { only } from '#rules/test-support/only.js';
 import type { ManifestBundle } from '#rules/types.js';

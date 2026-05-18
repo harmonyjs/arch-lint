@@ -6,11 +6,11 @@
 import type { Project } from 'ts-morph';
 import type { Pack, ResolvedConfig } from '#config/types.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import type { NpmrcDoc } from '#manifest/npmrc.js';
+import type { PackageJsonDoc } from '#manifest/package-json.js';
+import type { EffectiveTsconfig } from '#manifest/tsconfig-effective.js';
 import type { SuppressIndex } from '#suppress/types.js';
 import type { ActiveSeverity, Diagnostic } from '#types.js';
-import type { NpmrcDoc } from './hygiene/support/npmrc.js';
-import type { PackageJsonDoc } from './hygiene/support/package-json.js';
-import type { EffectiveTsconfig } from './hygiene/support/tsconfig-effective.js';
 
 /** How a rule computes — an axis orthogonal to its pack. */
 export type RuleEngine = 'graph' | 'syntactic' | 'manifest' | 'census';

@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { parsePackageJson } from '#rules/hygiene/support/package-json.js';
+import { parsePackageJson } from '#manifest/package-json.js';
 import { makeManifestContext } from '#rules/test-support/make-context.js';
 import { only } from '#rules/test-support/only.js';
 import type { ManifestBundle } from '#rules/types.js';
