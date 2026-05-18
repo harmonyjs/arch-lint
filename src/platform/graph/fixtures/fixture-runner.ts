@@ -62,6 +62,7 @@ function fixtureConfig(projectDir: string): ResolvedConfig {
       extensions: ['.ts', '.tsx'],
     },
     layers: {},
+    units: {},
     rules: {},
     perFileRules: {},
     ignore: [],
