@@ -210,6 +210,19 @@ async function buildGraphAndSources(
 }
 
 /**
+ * Emits a one-line warning when the metrics pack is enabled but no `units` are
+ * declared — every metrics rule is inert in that state (the unit of measurement
+ * is declared, never positional).
+ */
+export function warnIfMetricsInert(config: ResolvedConfig, logger: Logger): void {
+  if (config.packs.includes('metrics') && Object.keys(config.units).length === 0) {
+    logger.warn(
+      'metrics pack is enabled but no `units` are declared — metrics rules will not run; declare `units` to enable them',
+    );
+  }
+}
+
+/**
  * The full I/O orchestration behind a `check` run: load and resolve config,
  * build the graph and parse sources, build the suppress index and resolve the
  * baseline, run the engine, then apply the changed-only reporting filter and
@@ -219,6 +232,7 @@ async function buildGraphAndSources(
 export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcome> {
   const logger = options.logger ?? new ConsoleLogger();
   const config = resolveConfig(await loadConfig(options.cwd, options.configPath, logger));
+  warnIfMetricsInert(config, logger);
   const { graph, sources } = await buildGraphAndSources(config);
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
