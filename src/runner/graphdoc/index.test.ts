@@ -10,6 +10,7 @@ function cfg(): ResolvedConfig {
   return {
     project: { sourceRoot: 'src', cwd: '.', tsconfig: 'tsconfig.json' },
     layers: {},
+    units: {},
     conventions: {
       privateSegment: 'private',
       sharedSegment: 'shared',

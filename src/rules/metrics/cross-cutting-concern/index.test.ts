@@ -14,7 +14,7 @@ function edge(consumer: string, producer: string): Edge {
 }
 
 function cfg(): ResolvedConfig {
-  return { project: { sourceRoot: 'src' } } as ResolvedConfig;
+  return { project: { sourceRoot: 'src' }, units: {} } as ResolvedConfig;
 }
 
 /** A graph where `src/types.ts` is imported from N distinct other subsystems. */

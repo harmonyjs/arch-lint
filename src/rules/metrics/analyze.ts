@@ -1,11 +1,11 @@
 /**
  * @fileoverview analyzeMetrics — computes every per-subsystem metric in one
  * pass: afferent/efferent coupling, instability and internal cohesion.
- * Memoized per (graph, layers, sourceRoot) so the metrics rules share one
+ * Memoized per (graph, units, sourceRoot) so the metrics rules share one
  * computation.
  */
-import type { LayersConfig, ResolvedConfig } from '#foundation/config/types.js';
-import { type SubsystemCoupling, subsystemCoupling, subsystemOf } from '#platform/graph/index.js';
+import type { ResolvedConfig, UnitsConfig } from '#foundation/config/types.js';
+import { type UnitCoupling, unitCoupling, unitOf } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** Every metric arch-lint measures for one subsystem. */
@@ -23,36 +23,33 @@ export interface SubsystemMetrics {
 export type MetricsReport = ReadonlyMap<string, SubsystemMetrics>;
 
 /**
- * The default `layers` value — a single shared frozen object so that callers
- * whose config carries no `layers` all share one stable cache identity and a
- * valid (non-`undefined`) WeakMap key. Mirrors `subsystem-coupling`'s `NO_LAYERS`.
+ * The default `units` value — a single shared frozen object so callers whose
+ * config carries no `units` share one stable cache identity and a valid WeakMap
+ * key. Removed in Task 3 once every metrics test fixture supplies `units`.
  */
-const NO_LAYERS: LayersConfig = Object.freeze({});
+const NO_UNITS: UnitsConfig = Object.freeze({});
 
 /**
- * Cache keyed on the `(graph, layers, sourceRoot)` triple — mirrors
- * `subsystemCoupling`'s `couplingCache`. The ConsumerGraph and `layers` object
- * are both frozen for the lifetime of a run, so a nested WeakMap is safe and
- * auto-clears. `layers` is part of the key because a `MetricsReport` embeds
- * layer-aware subsystem names: `subsystemOf` buckets files differently per
- * `layers`, so a report folded with one `layers` map must not be returned for
- * a call with a different one.
+ * Cache keyed on the `(graph, units, sourceRoot)` triple — mirrors
+ * `unitCoupling`'s `couplingCache`. The ConsumerGraph is frozen and there is
+ * exactly one resolved `units` object per run, so a nested WeakMap is safe and
+ * auto-clears. `units` is part of the key because a `MetricsReport` embeds
+ * unit-aware names: `unitOf` buckets files differently per `units`, so a report
+ * folded with one `units` map must not be returned for a call with a different
+ * one.
  */
-const reportCache = new WeakMap<ConsumerGraph, WeakMap<LayersConfig, Map<string, MetricsReport>>>();
+const reportCache = new WeakMap<ConsumerGraph, WeakMap<UnitsConfig, Map<string, MetricsReport>>>();
 
 function cohesiveFilesOf(
   graph: ConsumerGraph,
   root: string,
-  layers: LayersConfig,
+  units: UnitsConfig,
 ): ReadonlySet<string> {
   const result = new Set<string>();
   for (const edge of graph.edges) {
     if (edge.consumer === edge.producer) continue;
-    const consumerSubsystem = subsystemOf(edge.consumer, root, layers);
-    if (
-      consumerSubsystem !== null &&
-      consumerSubsystem === subsystemOf(edge.producer, root, layers)
-    ) {
+    const consumerUnit = unitOf(edge.consumer, root, units);
+    if (consumerUnit !== null && consumerUnit === unitOf(edge.producer, root, units)) {
       result.add(edge.consumer);
     }
   }
@@ -61,7 +58,7 @@ function cohesiveFilesOf(
 
 function metricsOf(
   graph: ConsumerGraph,
-  info: SubsystemCoupling,
+  info: UnitCoupling,
   cohesive: ReadonlySet<string>,
 ): SubsystemMetrics {
   const total = info.ca + info.ce;
@@ -76,16 +73,16 @@ function metricsOf(
     ca: info.ca,
     ce: info.ce,
     instability: total === 0 ? 0 : info.ce / total,
-    inboundSubsystems: info.inboundSubsystems,
-    outboundSubsystems: info.outboundSubsystems,
+    inboundSubsystems: info.inboundUnits,
+    outboundSubsystems: info.outboundUnits,
     cohesiveEntityFiles,
     entityFiles,
   };
 }
 
-function computeReport(graph: ConsumerGraph, root: string, layers: LayersConfig): MetricsReport {
-  const coupling = subsystemCoupling(graph, root, layers);
-  const cohesive = cohesiveFilesOf(graph, root, layers);
+function computeReport(graph: ConsumerGraph, root: string, units: UnitsConfig): MetricsReport {
+  const coupling = unitCoupling(graph, root, units);
+  const cohesive = cohesiveFilesOf(graph, root, units);
   const report = new Map<string, SubsystemMetrics>();
   for (const [subsystem, info] of coupling) {
     report.set(subsystem, metricsOf(graph, info, cohesive));
@@ -94,26 +91,26 @@ function computeReport(graph: ConsumerGraph, root: string, layers: LayersConfig)
 }
 
 /**
- * Every per-subsystem metric for the run, memoized on (graph, layers,
+ * Every per-subsystem metric for the run, memoized on (graph, units,
  * sourceRoot) so the metrics rules trigger a single computation — mirrors
- * `subsystemCoupling`.
+ * `unitCoupling`.
  */
 export function analyzeMetrics(graph: ConsumerGraph, config: ResolvedConfig): MetricsReport {
   const root = config.project.sourceRoot;
-  const layers = config.layers ?? NO_LAYERS;
-  let byLayers = reportCache.get(graph);
-  if (byLayers === undefined) {
-    byLayers = new WeakMap();
-    reportCache.set(graph, byLayers);
+  const units = config.units ?? NO_UNITS;
+  let byUnits = reportCache.get(graph);
+  if (byUnits === undefined) {
+    byUnits = new WeakMap();
+    reportCache.set(graph, byUnits);
   }
-  let byRoot = byLayers.get(layers);
+  let byRoot = byUnits.get(units);
   if (byRoot === undefined) {
     byRoot = new Map();
-    byLayers.set(layers, byRoot);
+    byUnits.set(units, byRoot);
   }
   const cached = byRoot.get(root);
   if (cached !== undefined) return cached;
-  const report = computeReport(graph, root, layers);
+  const report = computeReport(graph, root, units);
   byRoot.set(root, report);
   return report;
 }

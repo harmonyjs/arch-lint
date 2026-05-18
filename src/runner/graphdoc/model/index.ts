@@ -4,7 +4,7 @@
  * walk of per-folder drill-down sections, each a single diagram.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { subsystemCoupling } from '#platform/graph/index.js';
+import { unitCoupling } from '#platform/graph/index.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { cyclicNodes } from '#runner/graphdoc/scc.js';
 import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types.js';
@@ -47,7 +47,7 @@ function buildFileSection(folder: FolderTree, ctx: ProjectionContext): DocSectio
 /** Builds the Overview section: one node per subsystem, weighted edges, coupling. */
 function buildOverviewSection(ctx: ProjectionContext, tree: FolderTree): DocSection {
   const mint = new IdMint();
-  const coupling = subsystemCoupling(ctx.graph, ctx.root);
+  const coupling = unitCoupling(ctx.graph, ctx.root, ctx.config.units);
   const badges = new Map<string, CouplingBadge>();
   const byName = overviewSubsystemNodes(tree, mint, ctx);
   const nodes = [...byName.values()];
@@ -55,7 +55,7 @@ function buildOverviewSection(ctx: ProjectionContext, tree: FolderTree): DocSect
     const c = coupling.get(name);
     if (c !== undefined) badges.set(node.id, badgeOf(c.ce, c.ca));
   }
-  const edges = aggregateSubsystemEdges(ctx.graph, ctx.root, byName);
+  const edges = aggregateSubsystemEdges(ctx.graph, ctx.root, ctx.config.units, byName);
   return {
     title: 'Overview',
     slug: 'overview',

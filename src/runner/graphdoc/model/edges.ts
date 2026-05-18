@@ -3,7 +3,8 @@
  * mints cross-section `port` nodes, projects unresolved imports, aggregates the
  * Overview subsystem edges with cyclic `back` tagging, and builds coupling badges.
  */
-import { subsystemOf } from '#platform/graph/index.js';
+import type { UnitsConfig } from '#foundation/config/types.js';
+import { unitOf } from '#platform/graph/index.js';
 import type { ConsumerGraph, UnresolvedImport } from '#platform/graph/types.js';
 import type { CouplingBadge, RenderEdge, RenderNode } from '#runner/graphdoc/types.js';
 import {
@@ -143,23 +144,24 @@ function markBackEdges(
 }
 
 /**
- * The Overview bucket key of a file: its subsystem folder name, or the file id
- * itself for a root-level file that belongs to no subsystem folder.
+ * The Overview bucket key of a file: its unit name, or the file id itself for a
+ * file that belongs to no unit.
  */
-function bucketOf(fileId: string, root: string): string {
-  return subsystemOf(fileId, root) ?? fileId;
+function bucketOf(fileId: string, root: string, units: UnitsConfig): string {
+  return unitOf(fileId, root, units) ?? fileId;
 }
 
 /** Aggregates the graph edges into subsystem→subsystem weighted edges. */
 export function aggregateSubsystemEdges(
   graph: ConsumerGraph,
   root: string,
+  units: UnitsConfig,
   byName: ReadonlyMap<string, RenderNode>,
 ): RenderEdge[] {
   const counts = new Map<string, { from: string; to: string; n: number }>();
   for (const edge of graph.edges) {
-    const from = bucketOf(edge.consumer, root);
-    const to = bucketOf(edge.producer, root);
+    const from = bucketOf(edge.consumer, root, units);
+    const to = bucketOf(edge.producer, root, units);
     if (from === to) continue;
     const fromNode = byName.get(from);
     const toNode = byName.get(to);
@@ -186,7 +188,7 @@ export function overviewSubsystemNodes(
     byName.set(child.name, makeGroupNode(child, mint, ctx));
   }
   for (const file of tree.files) {
-    byName.set(bucketOf(file, ctx.root), makeRenderNode(file, mint, ctx));
+    byName.set(bucketOf(file, ctx.root, ctx.config.units), makeRenderNode(file, mint, ctx));
   }
   return byName;
 }
