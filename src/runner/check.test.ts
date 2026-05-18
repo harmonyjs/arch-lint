@@ -8,7 +8,7 @@ import type { Diagnostic } from '#types.js';
 import type { CheckInputs } from './check.js';
 
 const runEngineMock = vi.fn();
-vi.mock('#rules/engine.js', () => ({
+vi.mock('#rules/engine/index.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 

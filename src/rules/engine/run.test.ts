@@ -6,10 +6,10 @@ import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#config/types.js';
 import { EngineError } from '#errors/index.js';
-import { runEngine } from './engine.js';
-import { makeSuppressIndex } from './test-support/make-context.js';
-import { makeGraph } from './test-support/make-graph.js';
-import type { Rule } from './types.js';
+import { makeSuppressIndex } from '#rules/test-support/make-context.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
+import type { Rule } from '#rules/types.js';
+import { runEngine } from './run.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   return {

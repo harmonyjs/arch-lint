@@ -46,7 +46,7 @@ vi.mock('#suppress/suppress-index.js', () => ({
 }));
 
 const runEngineMock = vi.fn();
-vi.mock('#rules/engine.js', () => ({
+vi.mock('#rules/engine/index.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 

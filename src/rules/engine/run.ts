@@ -4,6 +4,9 @@
 import type { Project } from 'ts-morph';
 import type { ResolvedConfig } from '#config/types.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import { getActiveRules } from '#rules/index.js';
+import { assertGraphProjectConsistent } from '#rules/syntactic-support/index.js';
+import type { ManifestBundle, Rule } from '#rules/types.js';
 import type { SuppressIndex } from '#suppress/types.js';
 import type { Diagnostic } from '#types.js';
 import {
@@ -14,10 +17,7 @@ import {
   buildSyntacticContext,
   dedupPlacement,
   runtimeSelfCheck,
-} from './engine/index.js';
-import { getActiveRules } from './index.js';
-import { assertGraphProjectConsistent } from './syntactic-support/index.js';
-import type { ManifestBundle, Rule } from './types.js';
+} from './index.js';
 
 /** Inputs every engine variant may need; runEngine resolves these once per run. */
 interface DispatchEnv {

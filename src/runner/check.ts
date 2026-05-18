@@ -16,7 +16,7 @@ import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-file
 import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import { formatReport } from '#report/index.js';
-import { runEngine } from '#rules/engine.js';
+import { runEngine } from '#rules/engine/index.js';
 import type { CheckResult } from '#rules/types.js';
 import { buildSuppressIndex } from '#suppress/suppress-index.js';
 import type { SuppressIndex } from '#suppress/types.js';
