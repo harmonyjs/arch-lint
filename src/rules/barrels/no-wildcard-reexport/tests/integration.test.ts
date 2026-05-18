@@ -1,29 +1,15 @@
 /**
- * @fileoverview Integration test for no-wildcard-reexport on a graph from real buildGraph.
+ * @fileoverview Integration test for no-wildcard-reexport — full check() pipeline over a fixture.
  */
-
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { resolveConfig } from '#foundation/config/index.js';
-import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
-import { buildGraph } from '#platform/graph/index.js';
-import { noWildcardReexport } from '#rules/barrels/no-wildcard-reexport/index.js';
-import { makeContext } from '#rules/test-support/make-context.js';
+import { runRuleOnFixture } from '#rules/test-support/run-fixture.js';
 
 const fixtureRoot = fileURLToPath(new URL('../fixtures/wildcard-barrel', import.meta.url));
 
 describe('no-wildcard-reexport — integration', () => {
   it('flags both wildcard forms on a really built graph', async () => {
-    const config = resolveConfig({
-      project: { tsconfig: `${fixtureRoot}/tsconfig.json`, sourceRoot: 'src', cwd: fixtureRoot },
-    });
-    const graph = await buildGraph(config);
-    const { project } = await loadSourceFiles(config);
-    const diags = noWildcardReexport.check(
-      graph,
-      config,
-      makeContext('no-wildcard-reexport', { severity: 'error', project }),
-    );
+    const diags = await runRuleOnFixture({ fixtureRoot, ruleId: 'no-wildcard-reexport' });
     expect(diags).toHaveLength(2);
     const tags = diags.map((d) => d.fingerprint?.split('#').at(-1)).sort();
     expect(tags).toEqual(['*', 'bee']);
