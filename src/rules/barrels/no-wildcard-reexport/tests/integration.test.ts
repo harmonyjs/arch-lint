@@ -7,10 +7,10 @@ import { describe, expect, it } from 'vitest';
 import { resolveConfig } from '#config/index.js';
 import { loadSourceFiles } from '#graph/discover-source-files.js';
 import { buildGraph } from '#graph/index.js';
+import { noWildcardReexport } from '#rules/barrels/no-wildcard-reexport/index.js';
 import { makeContext } from '#rules/test-support/make-context.js';
-import { noWildcardReexport } from './index.js';
 
-const fixtureRoot = fileURLToPath(new URL('./fixtures/wildcard-barrel', import.meta.url));
+const fixtureRoot = fileURLToPath(new URL('../fixtures/wildcard-barrel', import.meta.url));
 
 describe('no-wildcard-reexport — integration', () => {
   it('flags both wildcard forms on a really built graph', async () => {

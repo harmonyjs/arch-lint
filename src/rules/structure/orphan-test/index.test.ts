@@ -37,6 +37,21 @@ describe('orphanTest', () => {
     expect(orphanTest.check(ctx)).toEqual([]);
   });
 
+  it('flags a test whose only same-stem sibling differs past the first dot', () => {
+    const ctx = makeCensusContext('orphan-test', {
+      census: ['src/a/config.schema.ts', 'src/a/config.test.ts'],
+    });
+    const d = only(orphanTest.check(ctx));
+    expect(d.entity).toBe('src/a/config.test.ts');
+  });
+
+  it('pairs a test with a source carrying a dotted name', () => {
+    const ctx = makeCensusContext('orphan-test', {
+      census: ['src/a/config.schema.ts', 'src/a/config.schema.test.ts'],
+    });
+    expect(orphanTest.check(ctx)).toEqual([]);
+  });
+
   it('exempts a test that already lives inside the testFolder', () => {
     const ctx = makeCensusContext('orphan-test', { census: ['src/tests/widget.test.ts'] });
     expect(orphanTest.check(ctx)).toEqual([]);

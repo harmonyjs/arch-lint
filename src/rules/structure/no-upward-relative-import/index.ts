@@ -23,8 +23,12 @@ export interface NoUpwardRelativeImportOptions {
 
 const DEFAULTS: NoUpwardRelativeImportOptions = { aliasPrefix: '#' };
 
-/** Matches a module specifier that climbs out of its own directory. */
-const CLIMBING = /^\.\.\//;
+/**
+ * Matches a module specifier that climbs out of its own directory: a `../…`
+ * path or the bare `..` (the parent directory itself). Does NOT match `..foo`
+ * (a filename), `./…`, `#…` aliases, or bare package specifiers.
+ */
+const CLIMBING = /^\.\.(\/|$)/;
 
 /** Per-run settings the diagnostic builder needs — resolved options plus the source root. */
 interface Settings {

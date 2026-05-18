@@ -78,6 +78,11 @@ describe('no-upward-relative-import', () => {
     expect(run({ 'src/a/b.ts': `import x from '..foo';` })).toEqual([]);
   });
 
+  it('flags the bare .. specifier that resolves to the parent directory', () => {
+    const d = only(run({ 'src/a/b.ts': `import x from '..';` }));
+    expect(d.actual).toBe('..');
+  });
+
   it('names the concrete alias path when the target resolves inside sourceRoot', () => {
     const d = only(run({ 'src/rules/structure/a.ts': `import x from '../../graph/types.js';` }));
     expect(d.expected).toBe('an #-subpath alias import');

@@ -3,7 +3,7 @@
  * `<name>` source sibling, a test co-located with nothing it tests.
  */
 
-import { baseNameOf, dirOf, isUnderSegment, stemOf } from '#entity-id.js';
+import { baseNameOf, dirOf, dropExtension, isUnderSegment } from '#entity-id.js';
 import { isTestFile } from '#rules/structure/support/test-file.js';
 import type { CensusRule, CensusRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
@@ -16,6 +16,16 @@ interface Options {
 
 const DEFAULTS: Options = { testFolder: 'tests' };
 
+/**
+ * The subject name a `<name>.test.<ext>` file claims to cover — the basename
+ * text before `.test.`. `widget.test.ts` -> `widget`; `config.test.ts` ->
+ * `config`; `index.integration.test.ts` -> `index.integration`. Caller must
+ * pass a basename `isTestFile` already accepted, so `.test.` is present.
+ */
+function testSubjectName(testBase: string): string {
+  return testBase.slice(0, testBase.indexOf('.test.'));
+}
+
 /** Rule: a `*.test.*` file with no same-stem source sibling is an orphaned test. */
 export const orphanTest: CensusRule = {
   id: 'orphan-test',
@@ -24,8 +34,8 @@ export const orphanTest: CensusRule = {
   defaultSeverity: 'warning',
   check: (context: CensusRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    // directory → stems of its non-test source files
-    const sourceStems = new Map<string, Set<string>>();
+    // directory → names of its non-test source files (basename minus last extension)
+    const sourceNames = new Map<string, Set<string>>();
     const testFiles: string[] = [];
     for (const fileId of context.census) {
       const base = baseNameOf(fileId);
@@ -34,19 +44,19 @@ export const orphanTest: CensusRule = {
         continue;
       }
       const dir = dirOf(fileId);
-      let stems = sourceStems.get(dir);
-      if (stems === undefined) {
-        stems = new Set();
-        sourceStems.set(dir, stems);
+      let names = sourceNames.get(dir);
+      if (names === undefined) {
+        names = new Set();
+        sourceNames.set(dir, names);
       }
-      stems.add(stemOf(base));
+      names.add(dropExtension(base));
     }
     const out: Diagnostic[] = [];
     for (const testId of testFiles) {
       if (isUnderSegment(testId, opts.testFolder)) continue;
       const dir = dirOf(testId);
-      const name = stemOf(baseNameOf(testId));
-      if (sourceStems.get(dir)?.has(name)) continue;
+      const name = testSubjectName(baseNameOf(testId));
+      if (sourceNames.get(dir)?.has(name)) continue;
       out.push({
         ruleId: context.ruleId,
         severity: context.severity,

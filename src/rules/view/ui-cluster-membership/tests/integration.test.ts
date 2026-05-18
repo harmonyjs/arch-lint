@@ -8,9 +8,12 @@ import { resolveConfig } from '#config/index.js';
 import { loadSourceFiles } from '#graph/discover-source-files.js';
 import { buildGraph } from '#graph/index.js';
 import { makeContext } from '#rules/test-support/make-context.js';
-import { type UiClusterMembershipOptions, uiClusterMembership } from './index.js';
+import {
+  type UiClusterMembershipOptions,
+  uiClusterMembership,
+} from '#rules/view/ui-cluster-membership/index.js';
 
-const fixtureRoot = fileURLToPath(new URL('./fixtures/trigger-outside', import.meta.url));
+const fixtureRoot = fileURLToPath(new URL('../fixtures/trigger-outside', import.meta.url));
 
 describe('ui-cluster-membership — integration', () => {
   it('flags only the file outside the cluster on a really built graph', async () => {
