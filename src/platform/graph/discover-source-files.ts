@@ -7,8 +7,7 @@ import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { baseNameOf } from '#foundation/entity-id/index.js';
-import { isTestFile } from '#rules/structure/support/test-file.js';
+import { baseNameOf, isTestFile } from '#foundation/entity-id/index.js';
 import type { ModuleResolutionContext } from './resolution/index.js';
 
 export interface DiscoverOptions {

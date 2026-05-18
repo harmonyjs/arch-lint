@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for the structure-pack test-file predicate.
+ * @fileoverview Tests for the test-file predicate.
  */
 import { describe, expect, it } from 'vitest';
 import { isTestFile } from './test-file.js';

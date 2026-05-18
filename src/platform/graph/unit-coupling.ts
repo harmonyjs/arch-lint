@@ -8,7 +8,7 @@
 
 import picomatch from 'picomatch';
 import type { UnitsConfig } from '#foundation/config/types.js';
-import { firstSegment } from '#foundation/entity-id/index.js';
+import { firstSegment, relativeToRoot } from '#foundation/entity-id/index.js';
 import { GraphUnitsCache } from './graph-units-cache.js';
 import type { ConsumerGraph } from './types.js';
 
@@ -117,8 +117,7 @@ export function unitOf(fileId: string, sourceRoot: string, units: UnitsConfig): 
 
 /** Performs the glob match without caching — the body behind `unitOf`. */
 function computeUnitOf(fileId: string, sourceRoot: string, units: UnitsConfig): string | null {
-  const prefix = `${sourceRoot}/`;
-  const rest = fileId.startsWith(prefix) ? fileId.slice(prefix.length) : fileId;
+  const rest = relativeToRoot(fileId, sourceRoot);
   const compiled = compiledGlobsFor(units);
   if (compiled.size === 0) {
     return rest.includes('/') ? firstSegment(rest) : null;

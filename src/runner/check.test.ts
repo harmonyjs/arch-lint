@@ -1,6 +1,7 @@
 /**
- * @fileoverview Tests for check() — it runs the (mocked) engine, then classifies the
- * raw diagnostics against the baseline and tallies them into a CheckResult.
+ * @fileoverview Tests for check() — it resolves the active rule set, runs the
+ * (mocked) engine, then classifies the raw diagnostics against the baseline and
+ * tallies them into a CheckResult.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Diagnostic } from '#foundation/types/index.js';
@@ -12,10 +13,15 @@ vi.mock('#platform/engine/index.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 
+const getActiveRulesMock = vi.fn();
+vi.mock('#rules/index.js', () => ({
+  getActiveRules: (...args: unknown[]): unknown => getActiveRulesMock(...args),
+}));
+
 const { check } = await import('./check.js');
 
-/** The engine is mocked, so the inputs are an opaque value forwarded to it. */
-const inputs = {} as CheckInputs;
+/** The engine and rule registry are mocked, so the inputs are an opaque forwarded value. */
+const inputs = { config: { kind: 'config-sentinel' } } as unknown as CheckInputs;
 
 /** A raw diagnostic — `check` is responsible for assigning its baseline status. */
 function diagnostic(over: Partial<Diagnostic> = {}): Diagnostic {
@@ -90,15 +96,25 @@ describe('check', () => {
     expect(result.exitCode).toBe(0);
   });
 
-  it('forwards the rule filter to runEngine', () => {
+  it('resolves the active rule set for the supplied rule filter', () => {
+    getActiveRulesMock.mockReturnValueOnce([]);
     runEngineMock.mockReturnValueOnce([]);
     check(inputs, ['layer-boundary']);
-    expect(runEngineMock).toHaveBeenCalledWith(inputs, ['layer-boundary']);
+    expect(getActiveRulesMock).toHaveBeenCalledWith(inputs.config, ['layer-boundary']);
   });
 
-  it('runs the engine with no rule filter when none is supplied', () => {
+  it('resolves the active rule set with no filter when none is supplied', () => {
+    getActiveRulesMock.mockReturnValueOnce([]);
     runEngineMock.mockReturnValueOnce([]);
     check(inputs);
-    expect(runEngineMock).toHaveBeenCalledWith(inputs, undefined);
+    expect(getActiveRulesMock).toHaveBeenCalledWith(inputs.config, undefined);
+  });
+
+  it('passes the resolved active rules to runEngine', () => {
+    const rules = [{ id: 'layer-boundary' }];
+    getActiveRulesMock.mockReturnValueOnce(rules);
+    runEngineMock.mockReturnValueOnce([]);
+    check(inputs);
+    expect(runEngineMock).toHaveBeenCalledWith(inputs, rules);
   });
 });

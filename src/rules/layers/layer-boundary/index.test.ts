@@ -1,5 +1,7 @@
 /**
- * @fileoverview Tests for the layer-boundary rule.
+ * @fileoverview Tests for the layer-boundary rule. Layer keys are written
+ * relative to the sourceRoot — the production convention — while graph edge
+ * ids carry the sourceRoot prefix; layerOf bridges the two.
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
@@ -10,7 +12,7 @@ import { only } from '#rules/test-support/only.js';
 import { layerBoundaryRule } from './index.js';
 
 function cfg(layers: ResolvedConfig['layers']): ResolvedConfig {
-  return { layers } as ResolvedConfig;
+  return { layers, project: { sourceRoot: 'src' } } as ResolvedConfig;
 }
 
 const ctx = makeContext('layer-boundary', { severity: 'error' });
@@ -31,7 +33,7 @@ describe('layerBoundaryRule', () => {
       typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
-    const config = cfg({ 'src/App': { canImport: ['src/lib'] }, 'src/lib': { canImport: [] } });
+    const config = cfg({ App: { canImport: ['lib'] }, lib: { canImport: [] } });
     expect(layerBoundaryRule.check(g, config, ctx)).toEqual([]);
   });
 
@@ -43,7 +45,7 @@ describe('layerBoundaryRule', () => {
       typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
-    expect(layerBoundaryRule.check(g, cfg({ 'src/App': { canImport: [] } }), ctx)).toEqual([]);
+    expect(layerBoundaryRule.check(g, cfg({ App: { canImport: [] } }), ctx)).toEqual([]);
   });
 
   it('emits nothing for an intra-layer edge', () => {
@@ -54,7 +56,7 @@ describe('layerBoundaryRule', () => {
       typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
-    expect(layerBoundaryRule.check(g, cfg({ 'src/App': { canImport: [] } }), ctx)).toEqual([]);
+    expect(layerBoundaryRule.check(g, cfg({ App: { canImport: [] } }), ctx)).toEqual([]);
   });
 });
 
@@ -67,7 +69,7 @@ describe('layerBoundaryRule violations', () => {
       typeOnly: false,
     };
     const g = makeGraph({ edges: [edge] });
-    const config = cfg({ 'src/App': { canImport: [] }, 'src/api': { canImport: [] } });
+    const config = cfg({ App: { canImport: [] }, api: { canImport: [] } });
     const out = layerBoundaryRule.check(g, config, ctx);
     const d = only(out);
     expect(d.ruleId).toBe('layer-boundary');
@@ -90,7 +92,7 @@ describe('layerBoundaryRule violations', () => {
       typeOnly: false,
     };
     const g = makeGraph({ edges: [e1, e2] });
-    const config = cfg({ 'src/App': { canImport: [] }, 'src/api': { canImport: [] } });
+    const config = cfg({ App: { canImport: [] }, api: { canImport: [] } });
     expect(layerBoundaryRule.check(g, config, ctx)).toHaveLength(1);
   });
 });
@@ -105,8 +107,8 @@ describe('layerBoundaryRule sideEffectOnly', () => {
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({
-      'src/main.tsx': { canImport: ['src/tokens'], sideEffectOnly: ['src/tokens'] },
-      'src/tokens': { canImport: [] },
+      'main.tsx': { canImport: ['tokens'], sideEffectOnly: ['tokens'] },
+      tokens: { canImport: [] },
     });
     expect(layerBoundaryRule.check(g, config, ctx)).toEqual([]);
   });
@@ -120,8 +122,8 @@ describe('layerBoundaryRule sideEffectOnly', () => {
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({
-      'src/main.tsx': { canImport: ['src/tokens'], sideEffectOnly: ['src/tokens'] },
-      'src/tokens': { canImport: [] },
+      'main.tsx': { canImport: ['tokens'], sideEffectOnly: ['tokens'] },
+      tokens: { canImport: [] },
     });
     const out = layerBoundaryRule.check(g, config, ctx);
     expect(only(out).reason).toContain('side-effect');
@@ -136,8 +138,8 @@ describe('layerBoundaryRule sideEffectOnly', () => {
     };
     const g = makeGraph({ edges: [edge] });
     const config = cfg({
-      'src/main.tsx': { canImport: ['src/tokens'], sideEffectOnly: ['src/api'] },
-      'src/api': { canImport: [] },
+      'main.tsx': { canImport: ['tokens'], sideEffectOnly: ['api'] },
+      api: { canImport: [] },
     });
     expect(() => layerBoundaryRule.check(g, config, ctx)).toThrow(/sideEffectOnly/);
   });

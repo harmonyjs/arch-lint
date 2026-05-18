@@ -92,6 +92,7 @@ function resolvedConfig(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
     },
     report: { cli: {} },
     packs: [],
+    plugins: [],
     units: {},
     ...over,
   } as ResolvedConfig;

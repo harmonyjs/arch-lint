@@ -87,7 +87,7 @@ export function makeRenderNode(id: string, mint: IdMint, ctx: ProjectionContext)
   return {
     ...baseNode(mint.next(), id, baseNameOf(id)),
     role: node !== undefined ? roleFromTree(id, node, ctx) : 'plain-file',
-    layer: layerOf(id, ctx.config.layers),
+    layer: layerOf(id, ctx.config.layers, ctx.root),
     placement: node?.placementMode ?? 'reactive',
     cluster: node?.cluster ?? null,
     fileoverview: node?.kind === 'file' ? (ctx.fileoverviews.get(id) ?? null) : null,

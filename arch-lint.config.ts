@@ -78,6 +78,7 @@ export default defineConfig({
         'rules/hygiene',
         'rules/layers',
         'rules/meta',
+        'rules/structure',
         'rules/view',
       ],
     },

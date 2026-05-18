@@ -7,10 +7,12 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import { EngineError } from '#foundation/errors/index.js';
 import { NullLogger, NullTelemetry, RecordingTelemetry } from '#foundation/logger/index.js';
+import type { Diagnostic } from '#foundation/types/index.js';
 import type { Rule } from '#platform/engine/types.js';
+import { getActiveRules } from '#rules/index.js';
 import { makeSuppressIndex } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
-import { runEngine } from './run.js';
+import { type EngineInputs, runEngine } from './run.js';
 
 function cfg(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
   return {
@@ -45,9 +47,14 @@ const strayGraph = makeGraph({
   entityConsumers: { 'src/App/Stray': ['src/App/Deep/A', 'src/App/Deep/B'] },
 });
 
+/** Resolve the active rule set from config, then run the engine — the runner's two-step. */
+function run(inputs: EngineInputs, ruleFilter?: readonly string[]): readonly Diagnostic[] {
+  return runEngine(inputs, getActiveRules(inputs.config, ruleFilter));
+}
+
 describe('runEngine pipeline steps 1-2', () => {
   it('collects diagnostics from active rules', () => {
-    const result = runEngine({
+    const result = run({
       graph: strayGraph,
       config: cfg(),
       suppress: makeSuppressIndex(),
@@ -61,7 +68,7 @@ describe('runEngine pipeline steps 1-2', () => {
 
   it('drops diagnostics suppressed by the suppress index', () => {
     const suppress = makeSuppressIndex({ suppressed: ['src/App/Stray'] });
-    const result = runEngine({
+    const result = run({
       graph: strayGraph,
       config: cfg(),
       suppress,
@@ -74,7 +81,7 @@ describe('runEngine pipeline steps 1-2', () => {
   });
 
   it('runs nothing for an empty graph', () => {
-    const result = runEngine({
+    const result = run({
       graph: makeGraph({}),
       config: cfg(),
       suppress: makeSuppressIndex(),
@@ -98,7 +105,7 @@ describe('runEngine pipeline steps 1-2', () => {
         return [];
       },
     };
-    runEngine({
+    run({
       graph: makeGraph({}),
       config: cfg({ packs: ['hygiene'], plugins: [manifestProbe] }),
       suppress: makeSuppressIndex(),
@@ -122,7 +129,7 @@ describe('runEngine pipeline steps 1-2', () => {
         return [];
       },
     };
-    runEngine({
+    run({
       graph: makeGraph({}),
       config: cfg({ packs: ['structure'], plugins: [censusProbe] }),
       suppress: makeSuppressIndex(),
@@ -144,7 +151,7 @@ describe('runEngine pipeline steps 1-2', () => {
     };
     const graph = makeGraph({ nodes: { 'src/missing.ts': { kind: 'file' } } });
     expect(() =>
-      runEngine({
+      run({
         graph,
         config: cfg({ packs: ['layers'], plugins: [syntacticProbe] }),
         suppress: makeSuppressIndex(),
@@ -159,7 +166,7 @@ describe('runEngine pipeline steps 1-2', () => {
   it('does not assert graph/project consistency when no syntactic rule is active', () => {
     const graph = makeGraph({ nodes: { 'src/missing.ts': { kind: 'file' } } });
     expect(() =>
-      runEngine({
+      run({
         graph,
         config: cfg({ packs: ['placement'] }),
         suppress: makeSuppressIndex(),
@@ -184,7 +191,7 @@ describe('runEngine pipeline steps 1-2', () => {
       },
     };
     const project = new Project({ useInMemoryFileSystem: true });
-    runEngine({
+    run({
       graph: makeGraph({}),
       config: cfg({ packs: ['layers'], plugins: [probe] }),
       suppress: makeSuppressIndex(),
@@ -231,7 +238,7 @@ describe('runEngine pipeline steps 3-4', () => {
     };
     const config = cfg({ packs: ['layers'], plugins: [collidingRule] });
     expect(() =>
-      runEngine({
+      run({
         graph: makeGraph({}),
         config,
         suppress: makeSuppressIndex(),
@@ -245,7 +252,7 @@ describe('runEngine pipeline steps 3-4', () => {
 
   it('does not throw for well-formed unique diagnostics', () => {
     expect(() =>
-      runEngine({
+      run({
         graph: strayGraph,
         config: cfg(),
         suppress: makeSuppressIndex(),
@@ -260,7 +267,7 @@ describe('runEngine pipeline steps 3-4', () => {
 
 describe('runEngine — rule filter', () => {
   it('honors the ruleFilter argument', () => {
-    const result = runEngine(
+    const result = run(
       {
         graph: strayGraph,
         config: cfg(),
@@ -276,7 +283,7 @@ describe('runEngine — rule filter', () => {
   });
 
   it('runs every active rule when no ruleFilter is given', () => {
-    const result = runEngine({
+    const result = run({
       graph: strayGraph,
       config: cfg(),
       suppress: makeSuppressIndex(),
@@ -289,10 +296,39 @@ describe('runEngine — rule filter', () => {
   });
 });
 
+describe('runEngine — explicit rule set', () => {
+  it('runs exactly the rules it is given, ignoring config packs', () => {
+    let ran = false;
+    const probe: Rule = {
+      id: 'probe',
+      pack: 'meta',
+      engine: 'graph',
+      defaultSeverity: 'error',
+      check: () => {
+        ran = true;
+        return [];
+      },
+    };
+    runEngine(
+      {
+        graph: makeGraph({}),
+        config: cfg({ packs: [] }),
+        suppress: makeSuppressIndex(),
+        project: emptyProject,
+        census: [],
+        logger: new NullLogger(),
+        telemetry: new NullTelemetry(),
+      },
+      [probe],
+    );
+    expect(ran).toBe(true);
+  });
+});
+
 describe('runEngine — telemetry', () => {
   it('wraps each rule in a telemetry span keyed by rule id', () => {
     const telemetry = new RecordingTelemetry();
-    runEngine(
+    run(
       {
         graph: strayGraph,
         config: cfg(),

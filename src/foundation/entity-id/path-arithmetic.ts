@@ -94,3 +94,13 @@ export function firstSegment(id: string): string {
 export function folderOf(id: string): string {
   return segmentsOf(id).slice(0, -1).join('/');
 }
+
+/**
+ * `id` taken relative to the directory `root` — the leading `root/` segment is
+ * dropped when present, otherwise `id` is returned unchanged. Lets a config key
+ * written relative to the sourceRoot match a sourceRoot-prefixed entity id.
+ */
+export function relativeToRoot(id: string, root: string): string {
+  const prefix = `${root}/`;
+  return id.startsWith(prefix) ? id.slice(prefix.length) : id;
+}

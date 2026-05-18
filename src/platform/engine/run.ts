@@ -9,7 +9,6 @@ import type { Diagnostic } from '#foundation/types/index.js';
 import { assertGraphProjectConsistent } from '#platform/ast/index.js';
 import type { ManifestBundle, Rule } from '#platform/engine/types.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
-import { getActiveRules } from '#rules/index.js';
 import {
   buildCensusContext,
   buildGraphContext,
@@ -71,15 +70,12 @@ export interface EngineInputs {
  * rules see the project manifests parsed once — then drop suppressed diagnostics, dedup
  * placement verdicts and run the runtime self-check. Returns the raw diagnostics;
  * baseline classification and summarisation are the runner's concern. Free of file I/O.
- * An absent `ruleFilter` runs every active rule.
+ * Runs exactly the `rules` it is given — resolving the active rule set from config is
+ * the caller's concern.
  */
-export function runEngine(
-  inputs: EngineInputs,
-  ruleFilter?: readonly string[],
-): readonly Diagnostic[] {
+export function runEngine(inputs: EngineInputs, rules: readonly Rule[]): readonly Diagnostic[] {
   const { graph, config, suppress, project, census, logger, telemetry } = inputs;
-  const activeRules = getActiveRules(config, ruleFilter);
-  if (activeRules.some((r) => r.engine === 'syntactic')) {
+  if (rules.some((r) => r.engine === 'syntactic')) {
     assertGraphProjectConsistent(graph, project);
   }
   const env: DispatchEnv = {
@@ -92,7 +88,7 @@ export function runEngine(
     cwd: config.project.cwd,
     logger,
   };
-  let diagnostics: Diagnostic[] = activeRules.flatMap((rule) =>
+  let diagnostics: Diagnostic[] = rules.flatMap((rule) =>
     telemetry.withSpan(rule.id, () => dispatchRule(rule, env)),
   );
   diagnostics = diagnostics.filter((d) => !suppress.isSuppressed(d));

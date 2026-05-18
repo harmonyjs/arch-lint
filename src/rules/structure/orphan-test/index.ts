@@ -3,10 +3,15 @@
  * `<name>` source sibling, a test co-located with nothing it tests.
  */
 
-import { baseNameOf, dirOf, dropExtension, isUnderSegment } from '#foundation/entity-id/index.js';
+import {
+  baseNameOf,
+  dirOf,
+  dropExtension,
+  isTestFile,
+  isUnderSegment,
+} from '#foundation/entity-id/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { CensusRule, CensusRuleContext } from '#platform/engine/types.js';
-import { isTestFile } from '#rules/structure/support/test-file.js';
 
 /** Tunable options of the orphan-test rule. */
 interface Options {

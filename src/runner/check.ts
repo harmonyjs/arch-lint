@@ -21,6 +21,7 @@ import { loadSourceFiles, type SourceFileSet } from '#platform/graph/discover-so
 import { buildGraphFromSources, graphEntityResolver } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 import { formatReport } from '#report/index.js';
+import { getActiveRules } from '#rules/index.js';
 import { classifyDiagnostics, parseBaselineFile } from '#runner/baseline/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
@@ -95,7 +96,8 @@ export function check(
   ruleFilter?: readonly string[],
   baseline?: BaselineFile | null,
 ): CheckResult {
-  return buildCheckResult(runEngine(inputs, ruleFilter), baseline ?? null);
+  const rules = getActiveRules(inputs.config, ruleFilter);
+  return buildCheckResult(runEngine(inputs, rules), baseline ?? null);
 }
 
 /** Options that steer baseline resolution. */

@@ -50,6 +50,11 @@ vi.mock('#platform/engine/index.js', () => ({
   runEngine: (...args: unknown[]): unknown => runEngineMock(...args),
 }));
 
+const getActiveRulesMock = vi.fn();
+vi.mock('#rules/index.js', () => ({
+  getActiveRules: (...args: unknown[]): unknown => getActiveRulesMock(...args),
+}));
+
 const formatReportMock = vi.fn();
 vi.mock('#report/index.js', () => ({
   formatReport: (...args: unknown[]): unknown => formatReportMock(...args),
@@ -129,6 +134,7 @@ function arrange(opts: {
     isSuppressed: () => false,
     findExpired: () => [],
   });
+  getActiveRulesMock.mockReturnValue([]);
   runEngineMock.mockReturnValue(opts.diagnostics);
   formatReportMock.mockReturnValue('report-text');
 }
@@ -152,8 +158,8 @@ describe('runCheckCommand', () => {
     expect(loadConfigMock.mock.calls[0]?.slice(0, 2)).toEqual(['/repo', undefined]);
     // changed-only off — the git base is never consulted.
     expect(getChangedFilesMock).not.toHaveBeenCalled();
-    // No rule filter — runEngine receives undefined as its rule-filter argument.
-    expect(only(runEngineMock.mock.calls)[1]).toBeUndefined();
+    // No rule filter — getActiveRules resolves the set with an undefined filter.
+    expect(only(getActiveRulesMock.mock.calls)[1]).toBeUndefined();
     expect(outcome).toEqual({ stdout: 'report-text', stderr: [], exitCode: 0 });
   });
 
@@ -178,8 +184,8 @@ describe('runCheckCommand', () => {
     ]);
     // changed-only on — the git base is consulted with the supplied ref.
     expect(getChangedFilesMock).toHaveBeenCalledWith('/repo', 'origin/main');
-    // The rule filter reaches the engine.
-    expect(only(runEngineMock.mock.calls)[1]).toEqual(['layer-boundary']);
+    // The rule filter reaches rule resolution.
+    expect(only(getActiveRulesMock.mock.calls)[1]).toEqual(['layer-boundary']);
     // preCommit verdict does not fail on violations, so a new violation is exit 0.
     expect(outcome.stdout).toBe('report-text');
     expect(outcome.stderr).toEqual([

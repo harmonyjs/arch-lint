@@ -61,7 +61,7 @@ describe('analyzePlacement gate', () => {
       },
       entityConsumers: { 'src/App/X': ['src/api/Caller'] },
     });
-    const config = cfg({ layers: { 'src/App': { canImport: [] }, 'src/api': { canImport: [] } } });
+    const config = cfg({ layers: { App: { canImport: [] }, api: { canImport: [] } } });
     expect(analyzePlacement(g, config).has('src/App/X')).toBe(false);
   });
 });
@@ -173,7 +173,7 @@ describe('analyzePlacement lca-placement — universal locality invariant', () =
       },
       entityConsumers: { 'src/App/Stray': ['src/App/A', 'src/App/B'] },
     });
-    const config = cfg({ layers: { 'src/App': { canImport: [] } } });
+    const config = cfg({ layers: { App: { canImport: [] } } });
     // LCA(A, B) = null -> layer root `src/App`; Stray is inside it, so it abstains.
     expect(analyzePlacement(g, config).has('src/App/Stray')).toBe(false);
   });

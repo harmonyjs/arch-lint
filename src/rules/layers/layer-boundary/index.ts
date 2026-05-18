@@ -31,9 +31,9 @@ interface Crossing {
 }
 
 /** Classify an edge; null when it stays in-layer, is unmapped, or is permitted. */
-function classifyEdge(edge: Edge, layers: LayersConfig): Crossing | null {
-  const consumerLayer = layerOf(edge.consumer, layers);
-  const producerLayer = layerOf(edge.producer, layers);
+function classifyEdge(edge: Edge, layers: LayersConfig, sourceRoot: string): Crossing | null {
+  const consumerLayer = layerOf(edge.consumer, layers, sourceRoot);
+  const producerLayer = layerOf(edge.producer, layers, sourceRoot);
   if (consumerLayer === null || producerLayer === null) return null;
   if (consumerLayer === producerLayer) return null;
   // `layerOf` only ever returns a key present in `layers`.
@@ -84,7 +84,7 @@ export const layerBoundaryRule: GraphRule = {
     const seen = new Set<string>();
     const out: Diagnostic[] = [];
     for (const edge of graph.edges) {
-      const crossing = classifyEdge(edge, config.layers);
+      const crossing = classifyEdge(edge, config.layers, config.project.sourceRoot);
       if (crossing === null) continue;
       const fingerprint = `${edge.consumer}#${edge.producer}`;
       if (seen.has(fingerprint)) continue;

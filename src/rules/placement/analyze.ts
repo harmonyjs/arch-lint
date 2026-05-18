@@ -212,10 +212,13 @@ function gatedConsumers(
   if (!hasExplicitLayers) {
     return { consumers, layerRoot: config.project.sourceRoot };
   }
-  const layer = layerOf(entity, config.layers);
+  const sourceRoot = config.project.sourceRoot;
+  const layer = layerOf(entity, config.layers, sourceRoot);
   if (layer === null) return null;
-  if (!consumers.every((c) => layerOf(c, config.layers) === layer)) return null;
-  return { consumers, layerRoot: layer };
+  if (!consumers.every((c) => layerOf(c, config.layers, sourceRoot) === layer)) return null;
+  // `layer` is the sourceRoot-relative layer key; the layer root is its directory
+  // path, which must carry the sourceRoot prefix to compare against entity ids.
+  return { consumers, layerRoot: `${sourceRoot}/${layer}` };
 }
 
 const cache = new WeakMap<ConsumerGraph, ReadonlyMap<string, PlacementVerdict>>();

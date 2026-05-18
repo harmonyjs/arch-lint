@@ -256,14 +256,14 @@ describe('buildGraphDoc', () => {
     const config = cfg();
     const withLayers = {
       ...config,
-      layers: { 'src/domain': { canImport: [] } },
+      layers: { domain: { canImport: [] } },
     } as ResolvedConfig;
     const graph = makeGraph({ nodes: { 'src/domain/x.ts': { isEntity: true } } });
     const doc = buildGraphDoc(graph, new Map(), withLayers);
     const node = doc.sections
       .flatMap((s) => s.diagram.nodes)
       .find((n) => n.path === 'src/domain/x.ts');
-    expect(node?.layer).toBe('src/domain');
+    expect(node?.layer).toBe('domain');
   });
 
   it('renders a root-level file directly under the source root', () => {

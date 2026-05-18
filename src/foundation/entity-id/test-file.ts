@@ -1,7 +1,7 @@
 /**
- * @fileoverview The structure pack's test-file predicate. Not path arithmetic —
- * a structure-pack-local convention check, so it stays in the structure pack
- * rather than moving into `src/entity-id/`.
+ * @fileoverview The test-file predicate — classifies a file basename as a test
+ * file. A filename-level convention check shared by the structure rules and by
+ * source-file discovery, which excludes test files from the import graph.
  */
 
 /**

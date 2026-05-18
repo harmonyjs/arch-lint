@@ -12,6 +12,7 @@ import {
   isAtOrUnderPrefix,
   isStrictlyUnderPrefix,
   isUnderSegment,
+  relativeToRoot,
   segmentsOf,
   stemOf,
 } from './path-arithmetic.js';
@@ -171,5 +172,23 @@ describe('folderOf', () => {
 
   it('returns an empty string for a top-level id', () => {
     expect(folderOf('index.ts')).toBe('');
+  });
+});
+
+describe('relativeToRoot', () => {
+  it('drops the leading root segment when present', () => {
+    expect(relativeToRoot('src/platform/run.ts', 'src')).toBe('platform/run.ts');
+  });
+
+  it('returns the id unchanged when it lacks the root prefix', () => {
+    expect(relativeToRoot('platform/run.ts', 'src')).toBe('platform/run.ts');
+  });
+
+  it('honours a non-default root', () => {
+    expect(relativeToRoot('lib/a/b.ts', 'lib')).toBe('a/b.ts');
+  });
+
+  it('does not strip a partial segment match', () => {
+    expect(relativeToRoot('source/x.ts', 'src')).toBe('source/x.ts');
   });
 });
