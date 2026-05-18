@@ -3,7 +3,7 @@
  * once; the family's membership stays a placement implementation detail.
  */
 import type { GraphRule } from '#rules/types.js';
-import { placementRuleDescriptors } from './rules.js';
+import { placementRuleDescriptors } from './family.js';
 import { makeThinPlacementRule } from './thin-rule.js';
 
 /** Every placement Rule, projected from the family descriptors. */

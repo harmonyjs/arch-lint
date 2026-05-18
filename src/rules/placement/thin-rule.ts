@@ -5,7 +5,7 @@
 import type { GraphRule } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 import { analyzePlacement } from './analyze.js';
-import type { PlacementRuleDescriptor } from './rules.js';
+import type { PlacementRuleDescriptor } from './family.js';
 import { verdictToDiagnostic } from './verdict-to-diagnostic.js';
 
 /**

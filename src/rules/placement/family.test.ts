@@ -8,8 +8,8 @@ import { makeContext } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { only } from '#rules/test-support/only.js';
 import type { GraphRule } from '#rules/types.js';
+import { placementRuleDescriptors } from './family.js';
 import { registerPlacementRules } from './register.js';
-import { placementRuleDescriptors } from './rules.js';
 
 function cfg(): ResolvedConfig {
   return {
