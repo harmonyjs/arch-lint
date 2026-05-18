@@ -89,6 +89,8 @@ function resolvedConfig(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
       ci: { failOnViolations: true },
     },
     report: { cli: {} },
+    packs: [],
+    units: {},
     ...over,
   } as ResolvedConfig;
 }

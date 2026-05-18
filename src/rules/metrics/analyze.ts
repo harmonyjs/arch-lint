@@ -13,6 +13,11 @@ export interface UnitMetrics {
   readonly ca: number;
   readonly ce: number;
   readonly instability: number;
+  /**
+   * Abstractness proxy — the type-only fraction of this unit's inbound edges.
+   * Measures how the unit is *consumed* (mostly `import type` ⇒ abstract), not
+   * Martin's abstract-type ratio.
+   */
   readonly abstractness: number;
   readonly inboundUnits: ReadonlySet<string>;
   readonly outboundUnits: ReadonlySet<string>;

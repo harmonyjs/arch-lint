@@ -8,11 +8,11 @@ const verdict: MetricsVerdict = {
   ruleId: 'afferent-coupling',
   entity: 'src/graph',
   fingerprint: 'afferent-coupling#graph',
-  message: 'subsystem graph is depended on by many subsystems',
-  expected: '≤ 1 inbound subsystem dependencies',
+  message: 'unit graph is depended on by many units',
+  expected: '≤ 1 inbound unit dependencies',
   actual: '2 (report, runner)',
-  reason: 'a widely-depended-on subsystem is a high-blast-radius change point',
-  suggestion: 'confirm this is a deliberate shared subsystem; if not, split it by client',
+  reason: 'a widely-depended-on unit is a high-blast-radius change point',
+  suggestion: 'confirm this is a deliberate shared unit; if not, split it by client',
 };
 
 describe('verdictToDiagnostic', () => {
@@ -22,10 +22,10 @@ describe('verdictToDiagnostic', () => {
     expect(d.severity).toBe('info');
     expect(d.entity).toBe('src/graph');
     expect(d.fingerprint).toBe('afferent-coupling#graph');
-    expect(d.message).toBe('subsystem graph is depended on by many subsystems');
-    expect(d.expected).toBe('≤ 1 inbound subsystem dependencies');
+    expect(d.message).toBe('unit graph is depended on by many units');
+    expect(d.expected).toBe('≤ 1 inbound unit dependencies');
     expect(d.actual).toBe('2 (report, runner)');
-    expect(d.reason).toBe('a widely-depended-on subsystem is a high-blast-radius change point');
+    expect(d.reason).toBe('a widely-depended-on unit is a high-blast-radius change point');
     expect(d.suggestions).toEqual([{ action: 'custom', rationale: verdict.suggestion }]);
     expect(d.location).toEqual({ file: 'src/graph', line: 1, column: 1 });
   });

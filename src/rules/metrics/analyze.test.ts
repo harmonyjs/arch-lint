@@ -15,7 +15,7 @@ function cfg(units: UnitsConfig = {}): ResolvedConfig {
 }
 
 describe('analyzeMetrics', () => {
-  it('computes Ca, Ce and instability per subsystem', () => {
+  it('computes Ca, Ce and instability per unit', () => {
     const graph = makeGraph({
       nodes: {
         'src/runner/cli.ts': { kind: 'file' },
