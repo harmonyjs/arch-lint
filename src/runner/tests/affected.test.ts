@@ -4,8 +4,8 @@
 import { describe, expect, it } from 'vitest';
 import type { ConsumerGraph, Edge } from '#graph/types.js';
 import { only } from '#rules/test-support/only.js';
+import { affectedEntities, filterToAffected } from '#runner/changed-files.js';
 import type { Diagnostic } from '#types.js';
-import { affectedEntities, filterToAffected } from './changed-files.js';
 
 function edge(consumer: string, producer: string): Edge {
   return { consumer, producer, symbol: 'X', typeOnly: false };

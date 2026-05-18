@@ -2,7 +2,7 @@
  * @fileoverview Golden tests for OSC8 terminal hyperlink rendering.
  */
 import { describe, expect, it } from 'vitest';
-import { osc8 } from './format.js';
+import { osc8 } from '#report/format.js';
 
 const ESC = '\x1b';
 const BEL = '\x07';

@@ -7,7 +7,12 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#config/types.js';
 import { makeSuppressIndex } from '#rules/test-support/make-context.js';
 import type { GraphRule, ManifestBundle } from '#rules/types.js';
-import { buildGraphContext, buildManifestContext, buildSyntacticContext } from './build-context.js';
+import {
+  buildCensusContext,
+  buildGraphContext,
+  buildManifestContext,
+  buildSyntacticContext,
+} from './build-context.js';
 
 const rule: GraphRule = {
   id: 'lca-placement',
@@ -85,5 +90,22 @@ describe('buildManifestContext', () => {
     const ctx = buildManifestContext(rule, config, EMPTY_BUNDLE, '/tmp/project');
     expect(ctx.severity).toBe('error');
     expect(ctx.options).toEqual({ requiredKeys: ['node'] });
+  });
+});
+
+describe('buildCensusContext', () => {
+  it('carries the census, not a suppress index or project', () => {
+    const ctx = buildCensusContext(rule, cfg({}), ['src/a.ts', 'src/a.test.ts']);
+    expect(ctx.census).toEqual(['src/a.ts', 'src/a.test.ts']);
+    expect('suppress' in ctx).toBe(false);
+    expect('project' in ctx).toBe(false);
+    expect('manifests' in ctx).toBe(false);
+  });
+
+  it('resolves severity and strips the severity option', () => {
+    const config = cfg({ 'lca-placement': { severity: 'error', testFolder: 'tests' } });
+    const ctx = buildCensusContext(rule, config, []);
+    expect(ctx.severity).toBe('error');
+    expect(ctx.options).toEqual({ testFolder: 'tests' });
   });
 });

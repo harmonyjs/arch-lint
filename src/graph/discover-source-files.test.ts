@@ -63,6 +63,27 @@ describe('loadSourceFiles', () => {
   });
 });
 
+describe('loadSourceFiles census', () => {
+  it('exposes a census of every ignore-surviving file, test files included', async () => {
+    writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}');
+    const set = await loadSourceFiles({
+      project: {
+        tsconfig: './tsconfig.json',
+        sourceRoot: 'src',
+        cwd: dir,
+        includeOutOfRoot: false,
+      },
+      resolve: { extensions: ['.ts', '.tsx'] },
+      ignore: ['src/legacy/**'],
+    } as never);
+    expect([...set.census].sort()).toEqual([
+      'src/App/App.test.ts',
+      'src/App/App.tsx',
+      'src/App/util.ts',
+    ]);
+  });
+});
+
 describe('fileIdOf / moduleResolutionContextOf', () => {
   it('converts an absolute path back to a cwd-relative POSIX file id', async () => {
     writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}');

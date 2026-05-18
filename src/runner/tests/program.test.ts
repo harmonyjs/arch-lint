@@ -5,7 +5,7 @@
  */
 import type { Command } from 'commander';
 import { describe, expect, it } from 'vitest';
-import { buildProgram, parseRuleList } from './cli.js';
+import { buildProgram, parseRuleList } from '#runner/cli.js';
 
 describe('parseRuleList', () => {
   it('splits a comma list, trimming each id', () => {

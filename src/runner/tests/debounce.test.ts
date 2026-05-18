@@ -3,7 +3,7 @@
  * once after a quiet period, with every new event restarting the timer.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createDebouncer } from './watch.js';
+import { createDebouncer } from '#runner/watch.js';
 
 describe('createDebouncer', () => {
   beforeEach(() => {

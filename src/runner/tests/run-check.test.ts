@@ -56,15 +56,15 @@ vi.mock('#report/index.js', () => ({
 }));
 
 const getChangedFilesMock = vi.fn();
-vi.mock('./changed-files.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./changed-files.js')>();
+vi.mock('#runner/changed-files.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('#runner/changed-files.js')>();
   return {
     ...actual,
     getChangedFiles: (...args: unknown[]): unknown => getChangedFilesMock(...args),
   };
 });
 
-const { runCheck } = await import('./check.js');
+const { runCheck } = await import('#runner/check.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -120,6 +120,7 @@ function arrange(opts: {
   loadSourceFilesMock.mockResolvedValue({
     project: new TsProject({ useInMemoryFileSystem: true }),
     files: new Map(),
+    census: [],
     rootDir: '/repo/src',
     cwd: '/repo',
   });

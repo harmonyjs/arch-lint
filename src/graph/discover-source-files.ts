@@ -7,6 +7,8 @@ import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '#config/types.js';
+import { baseNameOf } from '#entity-id.js';
+import { isTestFile } from '#rules/structure/support/test-file.js';
 import type { ModuleResolutionContext } from './module-resolution.js';
 
 export interface DiscoverOptions {
@@ -39,6 +41,12 @@ export async function discoverSourceFilePaths(options: DiscoverOptions): Promise
 export interface SourceFileSet {
   readonly project: Project;
   readonly files: ReadonlyMap<string, SourceFile>;
+  /**
+   * The FileCensus — every file under `sourceRoot` matching `resolve.extensions`,
+   * filtered only by the `ignore` globs. Unlike `files`, the census includes test
+   * files: they are excluded from the import graph structurally, not from existence.
+   */
+  readonly census: readonly string[];
   readonly rootDir: string;
   readonly cwd: string;
 }
@@ -57,17 +65,18 @@ export async function loadSourceFiles(config: ResolvedConfig): Promise<SourceFil
     skipFileDependencyResolution: true,
     skipLoadingLibFiles: true,
   });
-  const paths = await discoverSourceFilePaths({
+  const census = await discoverSourceFilePaths({
     cwd,
     sourceRoot: config.project.sourceRoot,
     extensions: config.resolve.extensions,
     ignore: config.ignore,
   });
   const files = new Map<string, SourceFile>();
-  for (const id of paths) {
+  for (const id of census) {
+    if (isTestFile(baseNameOf(id))) continue;
     files.set(id, project.addSourceFileAtPath(resolve(cwd, id)));
   }
-  return { project, files, rootDir: join(cwd, config.project.sourceRoot), cwd };
+  return { project, files, census, rootDir: join(cwd, config.project.sourceRoot), cwd };
 }
 
 /** Converts an absolute file path to its POSIX file id relative to the set's cwd. */

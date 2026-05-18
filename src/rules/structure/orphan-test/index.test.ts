@@ -2,26 +2,21 @@
  * @fileoverview Tests for the orphan-test rule.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#config/types.js';
-import { makeContext } from '#rules/test-support/make-context.js';
-import { makeGraph } from '#rules/test-support/make-graph.js';
+import { makeCensusContext } from '#rules/test-support/make-context.js';
 import { only } from '#rules/test-support/only.js';
 import { orphanTest } from './index.js';
-
-const cfg = {} as ResolvedConfig;
 
 describe('orphanTest', () => {
   it('has the canonical metadata', () => {
     expect(orphanTest.id).toBe('orphan-test');
     expect(orphanTest.pack).toBe('structure');
-    expect(orphanTest.engine).toBe('graph');
+    expect(orphanTest.engine).toBe('census');
     expect(orphanTest.defaultSeverity).toBe('warning');
   });
 
   it('flags a test file with no source sibling', () => {
-    const g = makeGraph({ nodes: { 'src/a/widget.test.ts': {} } });
-    const out = orphanTest.check(g, cfg, makeContext('orphan-test'));
-    const d = only(out);
+    const ctx = makeCensusContext('orphan-test', { census: ['src/a/widget.test.ts'] });
+    const d = only(orphanTest.check(ctx));
     expect(d.entity).toBe('src/a/widget.test.ts');
     expect(d.fingerprint).toBe('orphan-test#src/a/widget.test.ts');
     expect(d.message).toBe('test file src/a/widget.test.ts has no local subject');
@@ -29,46 +24,47 @@ describe('orphanTest', () => {
   });
 
   it('does not flag a test with a same-name .ts source sibling', () => {
-    const g = makeGraph({
-      nodes: { 'src/a/widget.ts': {}, 'src/a/widget.test.ts': {} },
+    const ctx = makeCensusContext('orphan-test', {
+      census: ['src/a/widget.ts', 'src/a/widget.test.ts'],
     });
-    expect(orphanTest.check(g, cfg, makeContext('orphan-test'))).toEqual([]);
+    expect(orphanTest.check(ctx)).toEqual([]);
   });
 
   it('does not flag a test with a same-name .tsx source sibling', () => {
-    const g = makeGraph({
-      nodes: { 'src/a/Widget.tsx': {}, 'src/a/Widget.test.tsx': {} },
+    const ctx = makeCensusContext('orphan-test', {
+      census: ['src/a/Widget.tsx', 'src/a/Widget.test.tsx'],
     });
-    expect(orphanTest.check(g, cfg, makeContext('orphan-test'))).toEqual([]);
+    expect(orphanTest.check(ctx)).toEqual([]);
   });
 
   it('exempts a test that already lives inside the testFolder', () => {
-    const g = makeGraph({ nodes: { 'src/tests/widget.test.ts': {} } });
-    expect(orphanTest.check(g, cfg, makeContext('orphan-test'))).toEqual([]);
+    const ctx = makeCensusContext('orphan-test', { census: ['src/tests/widget.test.ts'] });
+    expect(orphanTest.check(ctx)).toEqual([]);
   });
 
   it('respects a custom testFolder option', () => {
-    const g = makeGraph({ nodes: { 'src/__tests__/widget.test.ts': {} } });
-    const ctx = makeContext('orphan-test', { options: { testFolder: '__tests__' } });
-    expect(orphanTest.check(g, cfg, ctx)).toEqual([]);
+    const ctx = makeCensusContext('orphan-test', {
+      census: ['src/__tests__/widget.test.ts'],
+      options: { testFolder: '__tests__' },
+    });
+    expect(orphanTest.check(ctx)).toEqual([]);
   });
 
   it('does not treat a sibling test file as a source for another test', () => {
-    const g = makeGraph({
-      nodes: { 'src/a/Widget.test.ts': {}, 'src/a/Widget.test.tsx': {} },
+    const ctx = makeCensusContext('orphan-test', {
+      census: ['src/a/Widget.test.ts', 'src/a/Widget.test.tsx'],
     });
-    expect(orphanTest.check(g, cfg, makeContext('orphan-test'))).toHaveLength(2);
+    expect(orphanTest.check(ctx)).toHaveLength(2);
   });
 
   it('requires the source sibling to be in the same directory', () => {
-    const g = makeGraph({
-      nodes: { 'src/a/widget.ts': {}, 'src/b/widget.test.ts': {} },
+    const ctx = makeCensusContext('orphan-test', {
+      census: ['src/a/widget.ts', 'src/b/widget.test.ts'],
     });
-    const out = orphanTest.check(g, cfg, makeContext('orphan-test'));
-    expect(only(out).entity).toBe('src/b/widget.test.ts');
+    expect(only(orphanTest.check(ctx)).entity).toBe('src/b/widget.test.ts');
   });
 
-  it('emits nothing for an empty graph', () => {
-    expect(orphanTest.check(makeGraph({}), cfg, makeContext('orphan-test'))).toEqual([]);
+  it('emits nothing for an empty census', () => {
+    expect(orphanTest.check(makeCensusContext('orphan-test'))).toEqual([]);
   });
 });

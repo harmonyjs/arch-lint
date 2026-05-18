@@ -2,7 +2,7 @@
  * @fileoverview Golden tests for the rule-group header line.
  */
 import { describe, expect, it } from 'vitest';
-import { groupHeader } from './format.js';
+import { groupHeader } from '#report/format.js';
 
 describe('groupHeader', () => {
   it('renders rule id and severity inside a divider line', () => {

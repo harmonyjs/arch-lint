@@ -51,13 +51,20 @@ describe('runEngine pipeline steps 1-2', () => {
       config: cfg(),
       suppress: makeSuppressIndex(),
       project: emptyProject,
+      census: [],
     });
     expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });
 
   it('drops diagnostics suppressed by the suppress index', () => {
     const suppress = makeSuppressIndex({ suppressed: ['src/App/Stray'] });
-    const result = runEngine({ graph: strayGraph, config: cfg(), suppress, project: emptyProject });
+    const result = runEngine({
+      graph: strayGraph,
+      config: cfg(),
+      suppress,
+      project: emptyProject,
+      census: [],
+    });
     expect(result.some((d) => d.entity === 'src/App/Stray')).toBe(false);
   });
 
@@ -67,6 +74,7 @@ describe('runEngine pipeline steps 1-2', () => {
       config: cfg(),
       suppress: makeSuppressIndex(),
       project: emptyProject,
+      census: [],
     });
     expect(result).toEqual([]);
   });
@@ -88,8 +96,31 @@ describe('runEngine pipeline steps 1-2', () => {
       config: cfg({ packs: ['hygiene'], plugins: [manifestProbe] }),
       suppress: makeSuppressIndex(),
       project: emptyProject,
+      census: [],
     });
     expect(sawContext).toBe(true);
+  });
+
+  it('dispatches a census rule with only its census context', () => {
+    let seenCensus: readonly string[] | null = null;
+    const censusProbe: Rule = {
+      id: 'orphan-test',
+      pack: 'structure',
+      engine: 'census',
+      defaultSeverity: 'warning',
+      check: (context) => {
+        seenCensus = context.census;
+        return [];
+      },
+    };
+    runEngine({
+      graph: makeGraph({}),
+      config: cfg({ packs: ['structure'], plugins: [censusProbe] }),
+      suppress: makeSuppressIndex(),
+      project: emptyProject,
+      census: ['src/a.ts', 'src/a.test.ts'],
+    });
+    expect(seenCensus).toEqual(['src/a.ts', 'src/a.test.ts']);
   });
 
   it('throws when a syntactic rule runs against a graph/project inconsistency', () => {
@@ -107,6 +138,7 @@ describe('runEngine pipeline steps 1-2', () => {
         config: cfg({ packs: ['layers'], plugins: [syntacticProbe] }),
         suppress: makeSuppressIndex(),
         project: emptyProject,
+        census: [],
       }),
     ).toThrow(/src\/missing\.ts/);
   });
@@ -119,6 +151,7 @@ describe('runEngine pipeline steps 1-2', () => {
         config: cfg({ packs: ['placement'] }),
         suppress: makeSuppressIndex(),
         project: emptyProject,
+        census: [],
       }),
     ).not.toThrow();
   });
@@ -141,6 +174,7 @@ describe('runEngine pipeline steps 1-2', () => {
       config: cfg({ packs: ['layers'], plugins: [probe] }),
       suppress: makeSuppressIndex(),
       project,
+      census: [],
     });
     expect(seen).toBe(project);
   });
@@ -185,6 +219,7 @@ describe('runEngine pipeline steps 3-4', () => {
         config,
         suppress: makeSuppressIndex(),
         project: emptyProject,
+        census: [],
       }),
     ).toThrow(EngineError);
   });
@@ -196,6 +231,7 @@ describe('runEngine pipeline steps 3-4', () => {
         config: cfg(),
         suppress: makeSuppressIndex(),
         project: emptyProject,
+        census: [],
       }),
     ).not.toThrow();
   });
@@ -204,7 +240,13 @@ describe('runEngine pipeline steps 3-4', () => {
 describe('runEngine — rule filter', () => {
   it('honors the ruleFilter argument', () => {
     const result = runEngine(
-      { graph: strayGraph, config: cfg(), suppress: makeSuppressIndex(), project: emptyProject },
+      {
+        graph: strayGraph,
+        config: cfg(),
+        suppress: makeSuppressIndex(),
+        project: emptyProject,
+        census: [],
+      },
       ['layer-boundary'],
     );
     expect(result).toEqual([]);
@@ -216,6 +258,7 @@ describe('runEngine — rule filter', () => {
       config: cfg(),
       suppress: makeSuppressIndex(),
       project: emptyProject,
+      census: [],
     });
     expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });

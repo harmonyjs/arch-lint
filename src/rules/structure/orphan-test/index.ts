@@ -5,8 +5,7 @@
 
 import { baseNameOf, dirOf, stemOf } from '#entity-id.js';
 import { isTestFile } from '#rules/structure/support/test-file.js';
-import { fileNodeIds } from '#rules/syntactic-support/find-source-file.js';
-import type { GraphRule, GraphRuleContext } from '#rules/types.js';
+import type { CensusRule, CensusRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
 /** Tunable options of the orphan-test rule. */
@@ -18,17 +17,17 @@ interface Options {
 const DEFAULTS: Options = { testFolder: 'tests' };
 
 /** Rule: a `*.test.*` file with no same-stem source sibling is an orphaned test. */
-export const orphanTest: GraphRule = {
+export const orphanTest: CensusRule = {
   id: 'orphan-test',
   pack: 'structure',
-  engine: 'graph',
+  engine: 'census',
   defaultSeverity: 'warning',
-  check: (graph, _config, context: GraphRuleContext): Diagnostic[] => {
+  check: (context: CensusRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     // directory → stems of its non-test source files
     const sourceStems = new Map<string, Set<string>>();
     const testFiles: string[] = [];
-    for (const fileId of fileNodeIds(graph)) {
+    for (const fileId of context.census) {
       const base = baseNameOf(fileId);
       if (isTestFile(base)) {
         testFiles.push(fileId);

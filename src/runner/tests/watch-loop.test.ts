@@ -44,8 +44,8 @@ vi.mock('#report/index.js', () => ({
 
 const checkMock = vi.fn();
 const resolveBaselineMock = vi.fn();
-vi.mock('./check.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./check.js')>();
+vi.mock('#runner/check.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('#runner/check.js')>();
   return {
     ...actual,
     check: (...args: unknown[]): unknown => checkMock(...args),
@@ -53,7 +53,7 @@ vi.mock('./check.js', async (importOriginal) => {
   };
 });
 
-const { runWatch } = await import('./watch.js');
+const { runWatch } = await import('#runner/watch.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

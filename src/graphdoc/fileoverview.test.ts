@@ -56,7 +56,13 @@ describe('extractFileoverviews', () => {
       ['src/documented.ts', documented],
       ['src/undocumented.ts', undocumented],
     ]);
-    const set: SourceFileSet = { project, files, rootDir: 'src', cwd: '.' };
+    const set: SourceFileSet = {
+      project,
+      files,
+      census: [...files.keys()],
+      rootDir: 'src',
+      cwd: '.',
+    };
 
     const result = extractFileoverviews(set);
 

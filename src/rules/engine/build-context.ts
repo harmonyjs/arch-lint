@@ -6,6 +6,7 @@
 import type { Project } from 'ts-morph';
 import type { ResolvedConfig } from '#config/types.js';
 import type {
+  CensusRuleContext,
   GraphRuleContext,
   ManifestBundle,
   ManifestRuleContext,
@@ -58,4 +59,13 @@ export function buildManifestContext(
   cwd: string,
 ): ManifestRuleContext {
   return { ...baseContext(rule, config), manifests, cwd };
+}
+
+/** Build the CensusRuleContext for `rule`: severity, options and the FileCensus. */
+export function buildCensusContext(
+  rule: Rule,
+  config: ResolvedConfig,
+  census: readonly string[],
+): CensusRuleContext {
+  return { ...baseContext(rule, config), census };
 }

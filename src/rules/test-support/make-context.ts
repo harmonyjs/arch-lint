@@ -3,7 +3,12 @@
  * rule tests — every context carries an in-memory ts-morph Project (decision D9).
  */
 import { Project } from 'ts-morph';
-import type { ManifestBundle, ManifestRuleContext, SyntacticRuleContext } from '#rules/types.js';
+import type {
+  CensusRuleContext,
+  ManifestBundle,
+  ManifestRuleContext,
+  SyntacticRuleContext,
+} from '#rules/types.js';
 import type { ParsedSuppress, SuppressIndex } from '#suppress/types.js';
 import type { ActiveSeverity, Diagnostic } from '#types.js';
 
@@ -64,5 +69,24 @@ export function makeManifestContext<TOptions = Record<string, unknown>>(
     options: (spec.options ?? {}) as TOptions,
     manifests: spec.manifests ?? EMPTY_BUNDLE,
     cwd: spec.cwd ?? process.cwd(),
+  };
+}
+
+interface CensusContextSpec<TOptions> {
+  readonly severity?: ActiveSeverity;
+  readonly options?: TOptions;
+  readonly census?: readonly string[];
+}
+
+/** Builds a mock CensusRuleContext for `ruleId`, applying any severity/options/census overrides. */
+export function makeCensusContext<TOptions = Record<string, unknown>>(
+  ruleId: string,
+  spec: CensusContextSpec<TOptions> = {},
+): CensusRuleContext<TOptions> {
+  return {
+    ruleId,
+    severity: spec.severity ?? 'warning',
+    options: (spec.options ?? {}) as TOptions,
+    census: spec.census ?? [],
   };
 }

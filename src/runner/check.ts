@@ -43,6 +43,8 @@ export interface CheckInputs {
   readonly suppress: SuppressIndex;
   /** The ts-morph Project the graph was built from. */
   readonly project: Project;
+  /** The FileCensus — the project file list census rules check placement against. */
+  readonly census: readonly string[];
 }
 
 /**
@@ -196,7 +198,7 @@ export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcom
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
   const result = check(
-    { graph, config, suppress, project: sources.project },
+    { graph, config, suppress, project: sources.project, census: sources.census },
     options.ruleFilter,
     baseline,
   );

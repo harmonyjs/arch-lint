@@ -13,7 +13,7 @@ import type { PackageJsonDoc } from './hygiene/support/package-json.js';
 import type { EffectiveTsconfig } from './hygiene/support/tsconfig-effective.js';
 
 /** How a rule computes — an axis orthogonal to its pack. */
-export type RuleEngine = 'graph' | 'syntactic' | 'manifest';
+export type RuleEngine = 'graph' | 'syntactic' | 'manifest' | 'census';
 
 /** The three project manifests, each parsed once per run; null when absent on disk. */
 export interface ManifestBundle {
@@ -56,11 +56,18 @@ export interface ManifestRule<TOptions = unknown> extends RuleBase<TOptions> {
   readonly check: (context: ManifestRuleContext<TOptions>) => Diagnostic[];
 }
 
+/** A rule that reads the FileCensus — the project file list — and nothing else. */
+export interface CensusRule<TOptions = unknown> extends RuleBase<TOptions> {
+  readonly engine: 'census';
+  readonly check: (context: CensusRuleContext<TOptions>) => Diagnostic[];
+}
+
 /** A rule — a discriminated union over `engine`. */
 export type Rule<TOptions = unknown> =
   | GraphRule<TOptions>
   | SyntacticRule<TOptions>
-  | ManifestRule<TOptions>;
+  | ManifestRule<TOptions>
+  | CensusRule<TOptions>;
 
 /** Fields shared by every rule-context variant. */
 interface RuleContextBase<TOptions = unknown> {
@@ -89,6 +96,16 @@ export interface SyntacticRuleContext<TOptions = unknown> extends RuleContextBas
 export interface ManifestRuleContext<TOptions = unknown> extends RuleContextBase<TOptions> {
   readonly manifests: ManifestBundle;
   readonly cwd: string;
+}
+
+/** Context threaded into a CensusRule — carries the FileCensus and nothing else. */
+export interface CensusRuleContext<TOptions = unknown> extends RuleContextBase<TOptions> {
+  /**
+   * The FileCensus — every project file surviving the `ignore` globs, test files
+   * included. A census rule checks file *placement*, so it needs the file list,
+   * not the import graph or parsed AST.
+   */
+  readonly census: readonly string[];
 }
 
 /** The default RuleContext alias — the syntactic variant, used by test-support factories. */

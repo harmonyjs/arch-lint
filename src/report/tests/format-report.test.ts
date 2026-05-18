@@ -3,9 +3,9 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#config/types.js';
+import { formatReport } from '#report/format.js';
 import type { CheckResult } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
-import { formatReport } from './format.js';
 
 function cfg(): ResolvedConfig {
   return {

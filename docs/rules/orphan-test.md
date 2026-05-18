@@ -1,6 +1,6 @@
 # orphan-test
 
-Pack `structure` · engine `graph` · default `warning`.
+Pack `structure` · engine `census` · default `warning`.
 
 A test file `<name>.test.<ext>` whose directory holds no `<name>` source file is
 an orphan — it is co-located with nothing it tests. A co-located test is paired
@@ -16,6 +16,9 @@ is already where orphaned tests belong.
 Option: `testFolder` (string, default `'tests'`) — the directory orphaned tests
 are relocated into, and inside which they are exempt.
 
-The rule only sees test files that reach the import graph. A project that
-`ignore`s its test files — as arch-lint itself does — gets zero diagnostics from
-this rule; that is correct, not a miss.
+The rule runs on the `census` engine: it reads the FileCensus — every project
+file surviving the `ignore` globs — so it sees test files even though they are
+excluded from the import graph. Test files are kept out of the import graph
+structurally (by the `.test.` infix), not via `ignore`. A project that genuinely
+wants its test files outside arch-lint's view entirely can still add
+`**/*.test.ts` back to `ignore` — that is an explicit opt-out, not the default.

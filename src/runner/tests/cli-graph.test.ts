@@ -2,7 +2,7 @@
  * @fileoverview Tests that the CLI program registers the `graph` command.
  */
 import { describe, expect, it } from 'vitest';
-import { buildProgram } from './cli.js';
+import { buildProgram } from '#runner/cli.js';
 
 describe('buildProgram — graph command', () => {
   it('registers a `graph` subcommand', () => {

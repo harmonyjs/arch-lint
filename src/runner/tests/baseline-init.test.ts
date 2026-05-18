@@ -20,7 +20,7 @@ vi.mock('#config/resolve-defaults.js', () => ({
 
 const runCheckMock = vi.fn();
 const resolveBaselineMock = vi.fn();
-vi.mock('./check.js', () => ({
+vi.mock('#runner/check.js', () => ({
   runCheck: (...args: unknown[]): unknown => runCheckMock(...args),
   resolveBaseline: (...args: unknown[]): unknown => resolveBaselineMock(...args),
 }));
@@ -34,7 +34,7 @@ vi.mock('#baseline/index.js', () => ({
   writeBaseline: (...args: unknown[]): unknown => writeBaselineMock(...args),
 }));
 
-const { runBaselineInit } = await import('./baseline.js');
+const { runBaselineInit } = await import('#runner/baseline.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

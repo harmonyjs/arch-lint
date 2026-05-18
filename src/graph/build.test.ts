@@ -100,6 +100,18 @@ describe('buildGraph', () => {
     expect(graph.edges.some((e) => e.consumer === 'src/keep.test.ts')).toBe(false);
   });
 
+  it('excludes test files from the graph node set even when ignore is empty', async () => {
+    write('src/App/widget.ts', 'export const widget = 1;');
+    write(
+      'src/App/widget.test.ts',
+      "import { widget } from './widget.js'; export const t = widget;",
+    );
+    const graph = await buildGraph({ ...makeConfig(), ignore: [] });
+    const fileIds = [...graph.nodes.values()].filter((n) => n.kind === 'file').map((n) => n.id);
+    expect(fileIds).toContain('src/App/widget.ts');
+    expect(fileIds).not.toContain('src/App/widget.test.ts');
+  });
+
   it('reports an unresolved internal import in graph.unresolved', async () => {
     write('src/app.ts', "import { Gone } from './missing.js'; export const u = Gone;");
     const graph = await buildGraph(makeConfig());

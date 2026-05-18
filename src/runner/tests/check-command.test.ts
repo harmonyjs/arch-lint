@@ -56,15 +56,15 @@ vi.mock('#report/index.js', () => ({
 }));
 
 const getChangedFilesMock = vi.fn();
-vi.mock('./changed-files.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./changed-files.js')>();
+vi.mock('#runner/changed-files.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('#runner/changed-files.js')>();
   return {
     ...actual,
     getChangedFiles: (...args: unknown[]): unknown => getChangedFilesMock(...args),
   };
 });
 
-const { runCheckCommand } = await import('./check.js');
+const { runCheckCommand } = await import('#runner/check.js');
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

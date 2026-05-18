@@ -7,6 +7,7 @@ import type { ConsumerGraph } from '#graph/types.js';
 import type { SuppressIndex } from '#suppress/types.js';
 import type { Diagnostic } from '#types.js';
 import {
+  buildCensusContext,
   buildGraphContext,
   buildManifestBundle,
   buildManifestContext,
@@ -25,12 +26,13 @@ interface DispatchEnv {
   readonly suppress: SuppressIndex;
   readonly project: Project;
   readonly manifests: ManifestBundle;
+  readonly census: readonly string[];
   readonly cwd: string;
 }
 
 /** Run one rule against the slice of the environment its engine consumes. */
 function dispatchRule(rule: Rule, env: DispatchEnv): Diagnostic[] {
-  const { graph, config, suppress, project, manifests, cwd } = env;
+  const { graph, config, suppress, project, manifests, census, cwd } = env;
   switch (rule.engine) {
     case 'graph':
       return rule.check(graph, config, buildGraphContext(rule, config, suppress));
@@ -38,6 +40,8 @@ function dispatchRule(rule: Rule, env: DispatchEnv): Diagnostic[] {
       return rule.check(graph, config, buildSyntacticContext(rule, config, suppress, project));
     case 'manifest':
       return rule.check(buildManifestContext(rule, config, manifests, cwd));
+    case 'census':
+      return rule.check(buildCensusContext(rule, config, census));
   }
 }
 
@@ -47,6 +51,8 @@ export interface EngineInputs {
   readonly config: ResolvedConfig;
   readonly suppress: SuppressIndex;
   readonly project: Project;
+  /** The FileCensus — the project file list census rules check placement against. */
+  readonly census: readonly string[];
 }
 
 /**
@@ -61,7 +67,7 @@ export function runEngine(
   inputs: EngineInputs,
   ruleFilter?: readonly string[],
 ): readonly Diagnostic[] {
-  const { graph, config, suppress, project } = inputs;
+  const { graph, config, suppress, project, census } = inputs;
   const activeRules = getActiveRules(config, ruleFilter);
   if (activeRules.some((r) => r.engine === 'syntactic')) {
     assertGraphProjectConsistent(graph, project);
@@ -72,6 +78,7 @@ export function runEngine(
     suppress,
     project,
     manifests: buildManifestBundle(config),
+    census,
     cwd: config.project.cwd,
   };
   let diagnostics: Diagnostic[] = activeRules.flatMap((rule) => dispatchRule(rule, env));

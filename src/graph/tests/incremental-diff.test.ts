@@ -2,7 +2,7 @@
  * @fileoverview Tests for the pure change-set normalization of warm builds.
  */
 import { describe, expect, it } from 'vitest';
-import { normalizeChanges } from './incremental.js';
+import { normalizeChanges } from '#graph/incremental.js';
 
 describe('normalizeChanges', () => {
   it('keeps a change set with disjoint added/removed/modified', () => {

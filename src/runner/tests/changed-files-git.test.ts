@@ -7,7 +7,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { getChangedFiles } from './changed-files.js';
+import { getChangedFiles } from '#runner/changed-files.js';
 
 let repo: string;
 const g = (...a: string[]): void => {

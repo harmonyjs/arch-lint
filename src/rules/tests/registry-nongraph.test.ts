@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { allRules } from './index.js';
+import { allRules } from '#rules/index.js';
 
 describe('registry — non-graph packs', () => {
   it('includes all 8 perfile rules', () => {

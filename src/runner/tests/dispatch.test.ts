@@ -9,30 +9,30 @@ import { GraphBuildError } from '#errors/index.js';
 import { only } from '#rules/test-support/only.js';
 
 const runCheckCommandMock = vi.fn();
-vi.mock('./check.js', () => ({
+vi.mock('#runner/check.js', () => ({
   runCheckCommand: (...args: unknown[]): unknown => runCheckCommandMock(...args),
 }));
 
 const runWatchMock = vi.fn();
-vi.mock('./watch.js', () => ({
+vi.mock('#runner/watch.js', () => ({
   runWatch: (...args: unknown[]): unknown => runWatchMock(...args),
 }));
 
 const runExplainMock = vi.fn();
-vi.mock('./explain.js', () => ({
+vi.mock('#runner/explain.js', () => ({
   runExplain: (...args: unknown[]): unknown => runExplainMock(...args),
 }));
 
 const runBaselineInitMock = vi.fn();
 const runBaselineDiffMock = vi.fn();
 const runBaselinePruneMock = vi.fn();
-vi.mock('./baseline.js', () => ({
+vi.mock('#runner/baseline.js', () => ({
   runBaselineInit: (...args: unknown[]): unknown => runBaselineInitMock(...args),
   runBaselineDiff: (...args: unknown[]): unknown => runBaselineDiffMock(...args),
   runBaselinePrune: (...args: unknown[]): unknown => runBaselinePruneMock(...args),
 }));
 
-const { runCli } = await import('./cli.js');
+const { runCli } = await import('#runner/cli.js');
 
 /** A node-style argv with the two leading `[node, script]` placeholders. */
 function argv(...args: string[]): readonly string[] {

@@ -154,7 +154,11 @@ function render(
 ): void {
   const { graph, sources } = rebuilt;
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
-  const result = check({ graph, config, suppress, project: sources.project }, undefined, baseline);
+  const result = check(
+    { graph, config, suppress, project: sources.project, census: sources.census },
+    undefined,
+    baseline,
+  );
   if (config.runMode.watch.clearOnRerun) opts.clearScreen();
   opts.print(formatReport(result, config));
 }
