@@ -3,7 +3,8 @@
  * other subsystems. High efferent coupling makes a subsystem hard to extract.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { subsystemCoupling } from '#graph/index.js';
+import { analyzeMetrics } from '#rules/metrics/analyze.js';
+import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 import type { GraphRule, GraphRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
@@ -27,29 +28,27 @@ export const efferentCoupling: GraphRule = {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const root = config.project.sourceRoot;
     const allow = new Set(opts.allow);
-    const coupling = subsystemCoupling(graph, root);
+    const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];
-    for (const [subsystem, info] of coupling) {
-      if (allow.has(subsystem) || info.ce <= opts.max) continue;
-      const outbound = [...info.outboundSubsystems].sort().join(', ');
-      out.push({
-        ruleId: 'efferent-coupling',
-        severity: context.severity,
-        entity: `${root}/${subsystem}`,
-        fingerprint: `efferent-coupling#${subsystem}`,
-        message: `subsystem ${subsystem} depends on too many other subsystems`,
-        expected: `≤ ${opts.max} outbound subsystem dependencies`,
-        actual: `${info.ce} (${outbound})`,
-        reason:
-          'high efferent coupling makes the subsystem hard to extract and reason about in isolation',
-        suggestions: [
+    for (const [subsystem, m] of report) {
+      if (allow.has(subsystem) || m.ce <= opts.max) continue;
+      const outbound = [...m.outboundSubsystems].sort().join(', ');
+      out.push(
+        verdictToDiagnostic(
           {
-            action: 'custom',
-            rationale: 'reduce the dependency fan-out — invert a dependency or merge a leaf',
+            ruleId: 'efferent-coupling',
+            entity: `${root}/${subsystem}`,
+            fingerprint: `efferent-coupling#${subsystem}`,
+            message: `subsystem ${subsystem} depends on too many other subsystems`,
+            expected: `≤ ${opts.max} outbound subsystem dependencies`,
+            actual: `${m.ce} (${outbound})`,
+            reason:
+              'high efferent coupling makes the subsystem hard to extract and reason about in isolation',
+            suggestion: 'reduce the dependency fan-out — invert a dependency or merge a leaf',
           },
-        ],
-        location: { file: `${root}/${subsystem}`, line: 1, column: 1 },
-      });
+          context.severity,
+        ),
+      );
     }
     return out;
   },

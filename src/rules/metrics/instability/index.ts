@@ -3,7 +3,8 @@
  * unstable. Instability I = Ce/(Ca+Ce); a foundational subsystem should be stable.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { subsystemCoupling } from '#graph/index.js';
+import { analyzeMetrics } from '#rules/metrics/analyze.js';
+import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 import type { GraphRule, GraphRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
@@ -27,32 +28,28 @@ export const instability: GraphRule = {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     if (opts.leafSubsystems.length === 0) return [];
     const root = config.project.sourceRoot;
-    const coupling = subsystemCoupling(graph, root);
+    const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];
     for (const subsystem of opts.leafSubsystems) {
-      const info = coupling.get(subsystem);
-      if (info === undefined) continue;
-      const total = info.ca + info.ce;
-      const i = total === 0 ? 0 : info.ce / total;
-      if (i <= opts.maxForLeafSubsystems) continue;
-      out.push({
-        ruleId: 'instability',
-        severity: context.severity,
-        entity: `${root}/${subsystem}`,
-        fingerprint: `instability#${subsystem}`,
-        message: `subsystem ${subsystem} is declared a leaf but is unstable`,
-        expected: `instability I ≤ ${opts.maxForLeafSubsystems}`,
-        actual: `I = ${i.toFixed(2)} (Ca=${info.ca}, Ce=${info.ce})`,
-        reason: 'a foundational subsystem should be stable — many depend on it, it depends on few',
-        suggestions: [
+      const m = report.get(subsystem);
+      if (m === undefined || m.instability <= opts.maxForLeafSubsystems) continue;
+      out.push(
+        verdictToDiagnostic(
           {
-            action: 'custom',
-            rationale:
+            ruleId: 'instability',
+            entity: `${root}/${subsystem}`,
+            fingerprint: `instability#${subsystem}`,
+            message: `subsystem ${subsystem} is declared a leaf but is unstable`,
+            expected: `instability I ≤ ${opts.maxForLeafSubsystems}`,
+            actual: `I = ${m.instability.toFixed(2)} (Ca=${m.ca}, Ce=${m.ce})`,
+            reason:
+              'a foundational subsystem should be stable — many depend on it, it depends on few',
+            suggestion:
               'move the outbound dependencies out of this subsystem, or drop it from leafSubsystems',
           },
-        ],
-        location: { file: `${root}/${subsystem}`, line: 1, column: 1 },
-      });
+          context.severity,
+        ),
+      );
     }
     return out;
   },

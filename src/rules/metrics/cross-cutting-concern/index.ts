@@ -4,6 +4,7 @@
  */
 import type { ResolvedConfig } from '#config/types.js';
 import { subsystemOf } from '#graph/index.js';
+import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 import type { GraphRule, GraphRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
@@ -39,25 +40,23 @@ export const crossCuttingConcern: GraphRule = {
       }
       if (importingSubsystems.size < opts.maxSubsystems) continue;
       const sorted = [...importingSubsystems].sort().join(', ');
-      out.push({
-        ruleId: 'cross-cutting-concern',
-        severity: context.severity,
-        entity: node.id,
-        fingerprint: `cross-cutting-concern#${node.id}`,
-        message: `${node.id} is imported across many subsystems`,
-        expected: `imported from < ${opts.maxSubsystems} subsystems, or listed in metrics rule \`allow\``,
-        actual: `${importingSubsystems.size} subsystems (${sorted})`,
-        reason:
-          'a file pulled into many subsystems is either shared lexicon or a leak — name it explicitly',
-        suggestions: [
+      out.push(
+        verdictToDiagnostic(
           {
-            action: 'custom',
-            rationale:
+            ruleId: 'cross-cutting-concern',
+            entity: node.id,
+            fingerprint: `cross-cutting-concern#${node.id}`,
+            message: `${node.id} is imported across many subsystems`,
+            expected: `imported from < ${opts.maxSubsystems} subsystems, or listed in metrics rule \`allow\``,
+            actual: `${importingSubsystems.size} subsystems (${sorted})`,
+            reason:
+              'a file pulled into many subsystems is either shared lexicon or a leak — name it explicitly',
+            suggestion:
               'if this is intentional shared lexicon, add it to the rule allow list; otherwise narrow its consumers',
           },
-        ],
-        location: { file: node.id, line: 1, column: 1 },
-      });
+          context.severity,
+        ),
+      );
     }
     return out;
   },

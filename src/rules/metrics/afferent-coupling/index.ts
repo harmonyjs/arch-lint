@@ -3,7 +3,8 @@
  * depend on. A widely-depended-on subsystem is a high-blast-radius change point.
  */
 import type { ResolvedConfig } from '#config/types.js';
-import { subsystemCoupling } from '#graph/index.js';
+import { analyzeMetrics } from '#rules/metrics/analyze.js';
+import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 import type { GraphRule, GraphRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
@@ -24,29 +25,27 @@ export const afferentCoupling: GraphRule = {
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const root = config.project.sourceRoot;
-    const coupling = subsystemCoupling(graph, root);
+    const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];
-    for (const [subsystem, info] of coupling) {
-      if (info.ca <= opts.max) continue;
-      const inbound = [...info.inboundSubsystems].sort().join(', ');
-      out.push({
-        ruleId: 'afferent-coupling',
-        severity: context.severity,
-        entity: `${root}/${subsystem}`,
-        fingerprint: `afferent-coupling#${subsystem}`,
-        message: `subsystem ${subsystem} is depended on by many subsystems`,
-        expected: `≤ ${opts.max} inbound subsystem dependencies`,
-        actual: `${info.ca} (${inbound})`,
-        reason:
-          'a widely-depended-on subsystem is a high-blast-radius change point — keep its surface stable and small',
-        suggestions: [
+    for (const [subsystem, m] of report) {
+      if (m.ca <= opts.max) continue;
+      const inbound = [...m.inboundSubsystems].sort().join(', ');
+      out.push(
+        verdictToDiagnostic(
           {
-            action: 'custom',
-            rationale: 'confirm this is a deliberate shared subsystem; if not, split it by client',
+            ruleId: 'afferent-coupling',
+            entity: `${root}/${subsystem}`,
+            fingerprint: `afferent-coupling#${subsystem}`,
+            message: `subsystem ${subsystem} is depended on by many subsystems`,
+            expected: `≤ ${opts.max} inbound subsystem dependencies`,
+            actual: `${m.ca} (${inbound})`,
+            reason:
+              'a widely-depended-on subsystem is a high-blast-radius change point — keep its surface stable and small',
+            suggestion: 'confirm this is a deliberate shared subsystem; if not, split it by client',
           },
-        ],
-        location: { file: `${root}/${subsystem}`, line: 1, column: 1 },
-      });
+          context.severity,
+        ),
+      );
     }
     return out;
   },
