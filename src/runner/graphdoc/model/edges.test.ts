@@ -117,7 +117,7 @@ describe('aggregateSubsystemEdges', () => {
       ['a', subsystemNode('n0', 'a')],
       ['b', subsystemNode('n1', 'b')],
     ]);
-    const edges = aggregateSubsystemEdges(graph, 'src', {}, byName);
+    const edges = aggregateSubsystemEdges(graph, 'src', byName);
     const back = edges.filter((e) => e.back);
     expect(back.length).toBe(1);
     expect(back[0]?.fromId).toBe('n1');
@@ -137,7 +137,7 @@ describe('aggregateSubsystemEdges', () => {
       ['a', subsystemNode('n0', 'a')],
       ['b', subsystemNode('n1', 'b')],
     ]);
-    const edges = aggregateSubsystemEdges(graph, 'src', {}, byName);
+    const edges = aggregateSubsystemEdges(graph, 'src', byName);
     const back = edges.filter((e) => e.back);
     expect(back.length).toBe(1);
     expect(back[0]?.fromId).toBe('n1');

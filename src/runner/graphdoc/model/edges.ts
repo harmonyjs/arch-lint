@@ -144,24 +144,31 @@ function markBackEdges(
 }
 
 /**
- * The Overview bucket key of a file: its unit name, or the file id itself for a
- * file that belongs to no unit.
+ * graphdoc groups its Overview by top-level folder, independent of the metrics
+ * `units`. Empty units make `unitOf` / `unitCoupling` fall back to first-segment
+ * grouping, which is what keeps the bucket key aligned with the folder-keyed
+ * Overview nodes — declared sub-folder units would name buckets the nodes lack.
  */
-function bucketOf(fileId: string, root: string, units: UnitsConfig): string {
-  return unitOf(fileId, root, units) ?? fileId;
+export const FOLDER_UNITS: UnitsConfig = Object.freeze({});
+
+/**
+ * The Overview bucket key of a file: its top-level folder, or the file id
+ * itself for a root-level file directly under the source root.
+ */
+function bucketOf(fileId: string, root: string): string {
+  return unitOf(fileId, root, FOLDER_UNITS) ?? fileId;
 }
 
-/** Aggregates the graph edges into subsystem→subsystem weighted edges. */
+/** Aggregates the graph edges into folder→folder weighted Overview edges. */
 export function aggregateSubsystemEdges(
   graph: ConsumerGraph,
   root: string,
-  units: UnitsConfig,
   byName: ReadonlyMap<string, RenderNode>,
 ): RenderEdge[] {
   const counts = new Map<string, { from: string; to: string; n: number }>();
   for (const edge of graph.edges) {
-    const from = bucketOf(edge.consumer, root, units);
-    const to = bucketOf(edge.producer, root, units);
+    const from = bucketOf(edge.consumer, root);
+    const to = bucketOf(edge.producer, root);
     if (from === to) continue;
     const fromNode = byName.get(from);
     const toNode = byName.get(to);
@@ -188,7 +195,7 @@ export function overviewSubsystemNodes(
     byName.set(child.name, makeGroupNode(child, mint, ctx));
   }
   for (const file of tree.files) {
-    byName.set(bucketOf(file, ctx.root, ctx.config.units), makeRenderNode(file, mint, ctx));
+    byName.set(bucketOf(file, ctx.root), makeRenderNode(file, mint, ctx));
   }
   return byName;
 }

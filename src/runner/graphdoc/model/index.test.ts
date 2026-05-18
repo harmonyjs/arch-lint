@@ -122,6 +122,29 @@ describe('buildGraphDoc', () => {
     expect(badge?.instability).toBe(1);
   });
 
+  it('groups the Overview by top-level folder when sub-folder units are declared', () => {
+    const graph = makeGraph({
+      nodes: { 'src/a/sub/x.ts': {}, 'src/b/sub/y.ts': {} },
+      edges: [
+        { consumer: 'src/a/sub/x.ts', producer: 'src/b/sub/y.ts', symbol: 'Y', typeOnly: false },
+      ],
+    });
+    const config = {
+      ...cfg(),
+      units: { 'a/sub': 'a/sub/**', 'b/sub': 'b/sub/**' },
+    } as ResolvedConfig;
+    const doc = buildGraphDoc(graph, new Map(), config);
+    const overview = doc.sections.find((s) => s.slug === 'overview');
+    const aNode = overview?.diagram.nodes.find((n) => n.path === 'src/a');
+    const bNode = overview?.diagram.nodes.find((n) => n.path === 'src/b');
+    expect(aNode).toBeDefined();
+    expect(bNode).toBeDefined();
+    expect(
+      overview?.diagram.edges.some((e) => e.fromId === aNode?.id && e.toId === bNode?.id),
+    ).toBe(true);
+    expect(overview?.diagram.coupling.get(aNode?.id ?? '')?.ce).toBe(1);
+  });
+
   it('gives the lower-weight direction of an Overview cycle a back edge', () => {
     const graph = makeGraph({
       nodes: { 'src/a/x.ts': {}, 'src/a/x2.ts': {}, 'src/b/y.ts': {} },

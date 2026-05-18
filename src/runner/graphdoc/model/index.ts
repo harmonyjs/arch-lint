@@ -11,6 +11,7 @@ import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types
 import {
   aggregateSubsystemEdges,
   badgeOf,
+  FOLDER_UNITS,
   overviewSubsystemNodes,
   projectFileEdges,
   projectUnresolved,
@@ -47,7 +48,7 @@ function buildFileSection(folder: FolderTree, ctx: ProjectionContext): DocSectio
 /** Builds the Overview section: one node per subsystem, weighted edges, coupling. */
 function buildOverviewSection(ctx: ProjectionContext, tree: FolderTree): DocSection {
   const mint = new IdMint();
-  const coupling = unitCoupling(ctx.graph, ctx.root, ctx.config.units);
+  const coupling = unitCoupling(ctx.graph, ctx.root, FOLDER_UNITS);
   const badges = new Map<string, CouplingBadge>();
   const byName = overviewSubsystemNodes(tree, mint, ctx);
   const nodes = [...byName.values()];
@@ -55,7 +56,7 @@ function buildOverviewSection(ctx: ProjectionContext, tree: FolderTree): DocSect
     const c = coupling.get(name);
     if (c !== undefined) badges.set(node.id, badgeOf(c.ce, c.ca));
   }
-  const edges = aggregateSubsystemEdges(ctx.graph, ctx.root, ctx.config.units, byName);
+  const edges = aggregateSubsystemEdges(ctx.graph, ctx.root, byName);
   return {
     title: 'Overview',
     slug: 'overview',
