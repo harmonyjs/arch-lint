@@ -1,0 +1,7 @@
+{
+  "name": "fx-engines",
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  }
+}
