@@ -160,6 +160,8 @@ export interface RunCheckOptions {
   readonly ruleFilter?: readonly string[];
   /** Record per-rule timing spans and log a slowest-first summary after the run. */
   readonly telemetry?: boolean;
+  /** Diagnostic-output sink; absent falls back to a fresh ConsoleLogger. */
+  readonly logger?: Logger;
 }
 
 /**
@@ -167,7 +169,9 @@ export interface RunCheckOptions {
  * sorted slowest-first. Durations are reported in milliseconds.
  */
 function logTelemetrySummary(logger: Logger, telemetry: RecordingTelemetry): void {
-  const rows = [...telemetry.timings.entries()].sort(([, a], [, b]) => b - a);
+  const rows = [...telemetry.timings.entries()].sort(
+    ([idA, a], [idB, b]) => b - a || idA.localeCompare(idB),
+  );
   logger.info('telemetry — per-rule timings (slowest first):');
   for (const [ruleId, ms] of rows) {
     logger.info(`  ${ruleId}: ${ms.toFixed(2)}ms`);
@@ -213,7 +217,7 @@ async function buildGraphAndSources(
  * narrows only the reported diagnostics and the exit code.
  */
 export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcome> {
-  const logger = new ConsoleLogger();
+  const logger = options.logger ?? new ConsoleLogger();
   const config = resolveConfig(await loadConfig(options.cwd, options.configPath, logger));
   const { graph, sources } = await buildGraphAndSources(config);
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
@@ -267,6 +271,8 @@ export interface CheckCommandFlags {
   readonly ruleFilter?: readonly string[];
   /** Record per-rule timing spans and log a slowest-first summary (`--telemetry`). */
   readonly telemetry: boolean;
+  /** Diagnostic-output sink; absent falls back to a fresh ConsoleLogger. */
+  readonly logger?: Logger;
 }
 
 /**
@@ -300,6 +306,7 @@ export async function runCheckCommand(flags: CheckCommandFlags): Promise<CheckCo
     ...(flags.configPath !== undefined ? { configPath: flags.configPath } : {}),
     ...(flags.base !== undefined ? { base: flags.base } : {}),
     ...(flags.ruleFilter !== undefined ? { ruleFilter: flags.ruleFilter } : {}),
+    ...(flags.logger !== undefined ? { logger: flags.logger } : {}),
   };
 
   const outcome = await runCheck(options);

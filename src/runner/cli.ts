@@ -92,6 +92,7 @@ function registerCheckCommand(program: Command, logger: Logger): void {
         changedOnly: globals.changedOnly === true,
         telemetry: globals.telemetry === true,
         noBaseline: noBaselineFrom(globals),
+        logger,
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
         ...(globals.base !== undefined ? { base: globals.base } : {}),
         ...(ruleFilter !== undefined ? { ruleFilter } : {}),
@@ -103,7 +104,7 @@ function registerCheckCommand(program: Command, logger: Logger): void {
 }
 
 /** Registers the `watch` command — re-runs the check on every file change. */
-function registerWatchCommand(program: Command): void {
+function registerWatchCommand(program: Command, logger: Logger): void {
   program
     .command('watch')
     .description('watch the project and re-run the check on every change')
@@ -111,19 +112,18 @@ function registerWatchCommand(program: Command): void {
       const globals = cmd.optsWithGlobals() as GlobalOptions;
       const session = await runWatch({
         cwd: process.cwd(),
+        logger,
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
         createWatcher: (sourceRoot) => chokidar.watch(sourceRoot, { ignoreInitial: true }),
         print: (text) => void process.stdout.write(`${text}\n`),
         clearScreen: () => void process.stdout.write(CLEAR_SCREEN),
       });
-      process.once('SIGINT', () => {
-        void session.close().then(() => process.exit(0));
-      });
+      process.once('SIGINT', () => void session.close().then(() => process.exit(0)));
     });
 }
 
 /** Registers the `baseline` command and its `init`/`diff`/`prune` subcommands. */
-function registerBaselineCommand(program: Command): void {
+function registerBaselineCommand(program: Command, logger: Logger): void {
   const baseline = program
     .command('baseline')
     .description('manage the baseline file of pre-existing violations');
@@ -135,6 +135,7 @@ function registerBaselineCommand(program: Command): void {
       const globals = cmd.optsWithGlobals() as GlobalOptions;
       const outcome = await runBaselineInit({
         cwd: process.cwd(),
+        logger,
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
       });
       process.stdout.write(`${outcome.stdout}\n`);
@@ -148,6 +149,7 @@ function registerBaselineCommand(program: Command): void {
       const globals = cmd.optsWithGlobals() as GlobalOptions;
       const outcome = await runBaselineDiff({
         cwd: process.cwd(),
+        logger,
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
       });
       process.stdout.write(`${outcome.stdout}\n`);
@@ -167,6 +169,7 @@ function registerBaselineCommand(program: Command): void {
         cwd: process.cwd(),
         yes: globals.yes === true,
         confirm: confirmPrune,
+        logger,
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
       });
       process.stdout.write(`${outcome.stdout}\n`);
@@ -195,10 +198,7 @@ function registerGraphCommand(program: Command, logger: Logger): void {
     .option('--out <path>', 'write the document to a file instead of stdout')
     .option('--subsystem <name>', 'limit the document to one subsystem')
     .action(async (_local: unknown, cmd: Command) => {
-      const globals = cmd.optsWithGlobals() as GlobalOptions & {
-        out?: string;
-        subsystem?: string;
-      };
+      const globals = cmd.optsWithGlobals() as GlobalOptions & { out?: string; subsystem?: string };
       const outcome = await runGraphCommand({
         cwd: process.cwd(),
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
@@ -230,8 +230,8 @@ export function buildProgram(logger: Logger = new ConsoleLogger()): Command {
     .option('--debug', 'enable verbose diagnostic output');
 
   registerCheckCommand(program, logger);
-  registerWatchCommand(program);
-  registerBaselineCommand(program);
+  registerWatchCommand(program, logger);
+  registerBaselineCommand(program, logger);
   registerExplainCommand(program);
   registerGraphCommand(program, logger);
 

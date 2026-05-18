@@ -71,6 +71,8 @@ export interface WatchOptions {
   readonly print: (text: string) => void;
   /** Clears the terminal before a redraw; a no-op in tests. */
   readonly clearScreen: () => void;
+  /** Diagnostic-output sink; absent falls back to a fresh ConsoleLogger. */
+  readonly logger?: Logger;
 }
 
 /** A running watch session — no verdict exit code, only a teardown hook. */
@@ -86,7 +88,7 @@ export interface WatchSession {
  * render failure is reported and the session keeps watching.
  */
 export async function runWatch(opts: WatchOptions): Promise<WatchSession> {
-  const logger = new ConsoleLogger();
+  const logger = opts.logger ?? new ConsoleLogger();
   const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath, logger));
   const baseline = await resolveBaseline(config, { noBaseline: false });
   const renderContext: RenderContext = { config, baseline, opts, logger };

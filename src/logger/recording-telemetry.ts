@@ -17,6 +17,10 @@ export class RecordingTelemetry implements Telemetry {
     }
   }
 
+  /**
+   * Records `ms` against `name`. Repeated calls with the same `name` accumulate:
+   * the new duration is added to the prior total, never replacing it.
+   */
   recordTiming(name: string, ms: number): void {
     this.timings.set(name, (this.timings.get(name) ?? 0) + ms);
   }
