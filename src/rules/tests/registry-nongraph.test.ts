@@ -46,7 +46,7 @@ describe('registry — non-graph packs', () => {
       'cross-cutting-concern',
       'efferent-coupling',
       'instability',
-      'subsystem-cohesion',
+      'unit-cohesion',
     ]);
   });
 

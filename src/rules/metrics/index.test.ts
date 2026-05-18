@@ -11,7 +11,7 @@ describe('metricsRules', () => {
       'cross-cutting-concern',
       'efferent-coupling',
       'instability',
-      'subsystem-cohesion',
+      'unit-cohesion',
     ]);
   });
 
