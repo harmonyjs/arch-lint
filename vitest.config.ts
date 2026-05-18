@@ -1,12 +1,13 @@
 /**
  * @fileoverview Vitest configuration — test discovery and the 90% coverage gate.
  */
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: { conditions: ['development'] },
   test: {
     include: ['src/**/*.test.ts'],
+    exclude: [...configDefaults.exclude, 'src/**/fixtures/**'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
