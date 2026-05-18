@@ -12,9 +12,11 @@ import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 interface Options {
   /** Maximum tolerated inbound unit dependencies. */
   readonly max: number;
+  /** Unit names exempt from the check — high fan-in is correct by role. */
+  readonly allow: readonly string[];
 }
 
-const DEFAULTS: Options = { max: 6 };
+const DEFAULTS: Options = { max: 6, allow: [] };
 
 /** Rule: a unit with Ca above `max` inbound unit dependencies is flagged. */
 export const afferentCoupling: GraphRule = {
@@ -25,10 +27,11 @@ export const afferentCoupling: GraphRule = {
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     if (Object.keys(config.units).length === 0) return [];
+    const allow = new Set(opts.allow);
     const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];
     for (const [unit, m] of report) {
-      if (m.ca <= opts.max) continue;
+      if (allow.has(unit) || m.ca <= opts.max) continue;
       const inbound = [...m.inboundUnits].sort().join(', ');
       out.push(
         verdictToDiagnostic(

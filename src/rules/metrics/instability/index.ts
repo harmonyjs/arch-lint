@@ -63,8 +63,7 @@ export const instability: GraphRule = {
             message: `unit ${unit} is declared a leaf but is unstable`,
             expected: `instability I ≤ ${opts.maxForLeafUnits}`,
             actual: `I = ${m.instability.toFixed(2)} (Ca=${m.ca}, Ce=${m.ce})`,
-            reason:
-              'a foundational unit should be stable — many depend on it, it depends on few',
+            reason: 'a foundational unit should be stable — many depend on it, it depends on few',
             suggestion:
               'move the outbound dependencies out of this unit, or drop it from leafUnits',
           },

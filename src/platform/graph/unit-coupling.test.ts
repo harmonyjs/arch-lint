@@ -72,7 +72,10 @@ describe('unitCoupling', () => {
         'src/report/b.ts': { kind: 'file' },
         'src/graph/a.ts': { kind: 'file' },
       },
-      edges: [edge('src/runner/cli.ts', 'src/graph/a.ts'), edge('src/report/b.ts', 'src/graph/a.ts')],
+      edges: [
+        edge('src/runner/cli.ts', 'src/graph/a.ts'),
+        edge('src/report/b.ts', 'src/graph/a.ts'),
+      ],
     });
     const coupling = unitCoupling(graph, 'src', units);
     expect(coupling.get('graph')?.ca).toBe(2);

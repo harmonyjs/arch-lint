@@ -5,9 +5,10 @@
  * no declared units `unitOf` falls back to the first path segment so graphdoc
  * keeps grouping its diagram zero-config.
  */
+
+import picomatch from 'picomatch';
 import type { UnitsConfig } from '#foundation/config/types.js';
 import { firstSegment } from '#foundation/entity-id/index.js';
-import picomatch from 'picomatch';
 import type { ConsumerGraph } from './types.js';
 
 /** Per-unit coupling figures folded from the file-level ConsumerGraph. */

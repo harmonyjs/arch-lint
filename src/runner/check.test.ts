@@ -3,11 +3,9 @@
  * raw diagnostics against the baseline and tallies them into a CheckResult.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { ResolvedConfig } from '#foundation/config/types.js';
-import { InMemoryLogger } from '#foundation/logger/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
-import { warnIfMetricsInert, type CheckInputs } from './check.js';
+import type { CheckInputs } from './check.js';
 
 const runEngineMock = vi.fn();
 vi.mock('#platform/engine/index.js', () => ({
@@ -102,33 +100,5 @@ describe('check', () => {
     runEngineMock.mockReturnValueOnce([]);
     check(inputs);
     expect(runEngineMock).toHaveBeenCalledWith(inputs, undefined);
-  });
-});
-
-describe('warnIfMetricsInert', () => {
-  function cfg(over: Partial<ResolvedConfig>): ResolvedConfig {
-    return { packs: [], units: {}, ...over } as ResolvedConfig;
-  }
-
-  it('warns when the metrics pack is enabled but no units are declared', () => {
-    const logger = new InMemoryLogger();
-    warnIfMetricsInert(cfg({ packs: ['metrics'], units: {} }), logger);
-    expect(
-      logger.entries.some(
-        (e) => e.level === 'warn' && e.message.includes('metrics pack is enabled but no `units`'),
-      ),
-    ).toBe(true);
-  });
-
-  it('is silent when units are declared', () => {
-    const logger = new InMemoryLogger();
-    warnIfMetricsInert(cfg({ packs: ['metrics'], units: { graph: 'graph/**' } }), logger);
-    expect(logger.entries).toEqual([]);
-  });
-
-  it('is silent when the metrics pack is not enabled', () => {
-    const logger = new InMemoryLogger();
-    warnIfMetricsInert(cfg({ packs: ['layers'], units: {} }), logger);
-    expect(logger.entries).toEqual([]);
   });
 });

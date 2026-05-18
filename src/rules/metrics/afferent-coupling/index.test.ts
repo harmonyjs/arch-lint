@@ -82,6 +82,26 @@ describe('afferentCoupling — check', () => {
     expect(d.location).toEqual({ file: 'graph', line: 1, column: 1 });
   });
 
+  it('skips a unit listed in allow', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/runner/cli.ts': { kind: 'file' },
+        'src/report/b.ts': { kind: 'file' },
+        'src/graph/a.ts': { kind: 'file' },
+      },
+      edges: [
+        edge('src/runner/cli.ts', 'src/graph/a.ts'),
+        edge('src/report/b.ts', 'src/graph/a.ts'),
+      ],
+    });
+    const units = { graph: 'graph/**', runner: 'runner/**', report: 'report/**' };
+    const ctx = makeContext('afferent-coupling', {
+      severity: 'info',
+      options: { max: 1, allow: ['graph'] },
+    });
+    expect(afferentCoupling.check(graph, cfg(units), ctx)).toEqual([]);
+  });
+
   it('defaults max to 6', () => {
     const nodes: Record<string, { kind: 'file' }> = { 'src/graph/a.ts': { kind: 'file' } };
     const edges: Edge[] = [];
