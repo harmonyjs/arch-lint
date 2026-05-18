@@ -7,8 +7,6 @@ import * as support from './index.js';
 describe('syntactic-support barrel', () => {
   it('re-exports every public helper', () => {
     expect(typeof support.dedupByFingerprint).toBe('function');
-    expect(typeof support.segmentsOf).toBe('function');
-    expect(typeof support.isUnderSegment).toBe('function');
     expect(typeof support.enforceForSegmentsMatches).toBe('function');
     expect(typeof support.sourceFileFor).toBe('function');
     expect(typeof support.fileNodeIds).toBe('function');

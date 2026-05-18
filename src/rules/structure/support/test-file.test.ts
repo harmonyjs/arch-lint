@@ -16,4 +16,12 @@ describe('isTestFile', () => {
   it('is false for a name that merely contains "test" without the dotted infix', () => {
     expect(isTestFile('tester.ts')).toBe(false);
   });
+
+  it('is false for a bare ".test.ts" dotfile (empty name segment)', () => {
+    expect(isTestFile('.test.ts')).toBe(false);
+  });
+
+  it('is true when a non-empty name segment precedes ".test."', () => {
+    expect(isTestFile('a.test.ts')).toBe(true);
+  });
 });

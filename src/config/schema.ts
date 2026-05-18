@@ -162,7 +162,7 @@ const pluginRuleSchema = z.object({
 /**
  * The full arch-lint config schema. rules and perFileRules are records keyed by
  * rule id (plugin ids allowed) — keys are not fixed by the schema; each value is
- * a ruleSettingSchema covering the per-rule options of all 27 rules.
+ * a ruleSettingSchema covering the per-rule options of every rule.
  *
  * Cast to z.ZodType<Config>: Zod types optionals as `?: T | undefined` and
  * validates plugin rules shallowly, so the inferred shape does not assign to the

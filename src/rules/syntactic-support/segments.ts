@@ -1,11 +1,9 @@
 /**
  * @fileoverview The enforceForSegments predicate (D7). Path-segment splitting and
- * the under-segment test now live in `src/entity-id/`; they are re-exported here
- * so the barrels and view packs keep importing them from one place.
+ * the under-segment test live in `src/entity-id/`; this module only adds the
+ * setting-aware predicate on top of them.
  */
-import { isUnderSegment, segmentsOf } from '#entity-id.js';
-
-export { isUnderSegment, segmentsOf };
+import { isUnderSegment } from '#entity-id.js';
 
 /**
  * The enforceForSegments predicate (D7): `'all'` matches any path; an array

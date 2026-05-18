@@ -11,4 +11,4 @@ export {
   isComponentFolderEntry,
   roleFolderSegment,
 } from './node-helpers.js';
-export { enforceForSegmentsMatches, isUnderSegment, segmentsOf } from './segments.js';
+export { enforceForSegmentsMatches } from './segments.js';
