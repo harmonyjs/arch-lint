@@ -118,6 +118,7 @@ export const hooksFolderRequired: SyntacticRule<HooksFolderRequiredOptions> = {
     const diagnostics: Diagnostic[] = [];
     for (const node of graph.nodes.values()) {
       if (node.kind !== 'file') continue;
+      if (node.region !== 'view') continue;
       const facts: FileBoundaryFacts = {
         fileId: node.id,
         isHookName: hookRe.test(baseNameOf(node.id)),

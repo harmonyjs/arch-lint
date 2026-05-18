@@ -129,7 +129,7 @@ describe('ui-cluster-membership', () => {
     expect(diags[0]?.entity).toBe('src/App/ui.tsx');
   });
 
-  it('skips a file outside the view region', () => {
+  it('with explicit mustLiveIn, region is ignored — a non-region file outside the cluster is flagged', () => {
     const graph = makeGraph({
       nodes: { 'src/Widget/Widget.tsx': { kind: 'file', isEntity: true } },
       files: { 'src/Widget/Widget.tsx': `import { useButton } from '@react-aria/button';` },
@@ -143,7 +143,9 @@ describe('ui-cluster-membership', () => {
         project: graph.project,
       }),
     );
-    expect(diags).toEqual([]);
+    // An explicit mustLiveIn is a path-prefix cluster — region plays no part.
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.expected).toBe('src/App/ui');
   });
 
   it('with empty mustLiveIn, a view-region file with a trigger import is not flagged', () => {
@@ -163,7 +165,7 @@ describe('ui-cluster-membership', () => {
     expect(diags).toEqual([]);
   });
 
-  it('with empty mustLiveIn, a non-region file with a trigger import is skipped', () => {
+  it('with empty mustLiveIn, a non-region file with a trigger import is flagged', () => {
     const graph = makeGraph({
       nodes: { 'src/lib/Widget.tsx': { kind: 'file', isEntity: true } },
       files: { 'src/lib/Widget.tsx': `import { useButton } from '@react-aria/button';` },
@@ -177,8 +179,11 @@ describe('ui-cluster-membership', () => {
         project: graph.project,
       }),
     );
-    // Region scoping wins first: a non-region node never reaches the cluster check.
-    expect(diags).toEqual([]);
+    // Auto mode: the cluster is the view region, so a trigger importer outside
+    // it (region !== 'view') is exactly the violation the rule must catch.
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.entity).toBe('src/lib/Widget.tsx');
+    expect(diags[0]?.expected).toBe('a file inside the view region');
   });
 
   it('with explicit mustLiveIn, an in-region file outside the cluster carries the prefix label', () => {

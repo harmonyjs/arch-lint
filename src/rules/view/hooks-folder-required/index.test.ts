@@ -36,6 +36,15 @@ function graphOf(fileIds: readonly string[]) {
   });
 }
 
+/** Like graphOf but stamps every file node with region 'view'. */
+function viewGraphOf(fileIds: readonly string[]) {
+  return makeGraph({
+    nodes: Object.fromEntries(
+      fileIds.map((id) => [id, { kind: 'file' as const, region: 'view' as const }]),
+    ),
+  });
+}
+
 describe('hooks-folder-required', () => {
   it('has the canonical metadata', () => {
     expect(hooksFolderRequired.pack).toBe('view');
@@ -44,7 +53,7 @@ describe('hooks-folder-required', () => {
   });
 
   it('flags a use-* file outside hooks/', () => {
-    const diags = hooksFolderRequired.check(graphOf(['src/App/use-toggle.ts']), config, ctx());
+    const diags = hooksFolderRequired.check(viewGraphOf(['src/App/use-toggle.ts']), config, ctx());
     expect(diags).toHaveLength(1);
     expect(diags[0]).toMatchObject({
       ruleId: 'hooks-folder-required',
@@ -65,7 +74,11 @@ describe('hooks-folder-required', () => {
   });
 
   it('strictCheck:true flags a non-hook file inside hooks/', () => {
-    const diags = hooksFolderRequired.check(graphOf(['src/App/hooks/helper.ts']), config, ctx());
+    const diags = hooksFolderRequired.check(
+      viewGraphOf(['src/App/hooks/helper.ts']),
+      config,
+      ctx(),
+    );
     expect(diags).toHaveLength(1);
     expect(diags[0]?.message).toContain('does not match the hook pattern');
   });
@@ -88,7 +101,7 @@ describe('hooks-folder-required', () => {
 
   it('uses a custom hookFilePattern for the Preact style', () => {
     const diags = hooksFolderRequired.check(
-      graphOf(['src/App/useToggle.ts']),
+      viewGraphOf(['src/App/useToggle.ts']),
       config,
       ctx({ hookFilePattern: '^use[A-Z][A-Za-z0-9]*\\.tsx?$' }),
     );
@@ -98,12 +111,27 @@ describe('hooks-folder-required', () => {
 
   it('flags several use-* files outside hooks/', () => {
     expect(
-      hooksFolderRequired.check(graphOf(['src/App/use-a.ts', 'src/App/use-b.tsx']), config, ctx()),
+      hooksFolderRequired.check(
+        viewGraphOf(['src/App/use-a.ts', 'src/App/use-b.tsx']),
+        config,
+        ctx(),
+      ),
     ).toHaveLength(2);
   });
 
+  it('skips a misplaced use-* file outside the view region', () => {
+    const diags = hooksFolderRequired.check(graphOf(['src/lib/use-toggle.ts']), config, ctx());
+    expect(diags).toEqual([]);
+  });
+
+  it('flags a misplaced use-* file inside the view region', () => {
+    const diags = hooksFolderRequired.check(viewGraphOf(['src/ui/use-toggle.ts']), config, ctx());
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.entity).toBe('src/ui/use-toggle.ts');
+  });
+
   it('applies its option defaults when the context carries no options', () => {
-    const graph = graphOf(['src/App/use-toggle.ts']);
+    const graph = viewGraphOf(['src/App/use-toggle.ts']);
     const emptyCtx = makeContext<HooksFolderRequiredOptions>('hooks-folder-required', {
       severity: 'error',
     });

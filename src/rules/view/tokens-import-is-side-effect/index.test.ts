@@ -9,15 +9,18 @@ import { type TokensImportIsSideEffectOptions, tokensImportIsSideEffect } from '
 
 const config = {} as unknown as ResolvedConfig;
 
-function graphFor(files: Record<string, string>) {
+/** Builds a mock graph whose file nodes are all stamped with region 'view'. */
+function viewGraphFor(files: Record<string, string>) {
   return makeGraph({
-    nodes: Object.fromEntries(Object.keys(files).map((id) => [id, { kind: 'file' as const }])),
+    nodes: Object.fromEntries(
+      Object.keys(files).map((id) => [id, { kind: 'file' as const, region: 'view' as const }]),
+    ),
     files,
   });
 }
 
 function run(files: Record<string, string>, opts: Partial<TokensImportIsSideEffectOptions> = {}) {
-  const graph = graphFor(files);
+  const graph = viewGraphFor(files);
   return tokensImportIsSideEffect.check(
     graph,
     config,
@@ -99,8 +102,41 @@ describe('tokens-import-is-side-effect', () => {
     ).toHaveLength(2);
   });
 
+  it('skips a tokens value-import outside the view region', () => {
+    const graph = makeGraph({
+      nodes: { 'src/lib/setup.ts': { kind: 'file' } },
+      files: { 'src/lib/setup.ts': `import { color } from '../tokens/colors';` },
+    });
+    const diags = tokensImportIsSideEffect.check(
+      graph,
+      config,
+      makeContext<TokensImportIsSideEffectOptions>('tokens-import-is-side-effect', {
+        severity: 'warning',
+        options: { allowedImporters: [], requiredForm: 'side-effect' },
+        project: graph.project,
+      }),
+    );
+    expect(diags).toEqual([]);
+  });
+
+  it('flags a tokens value-import inside the view region', () => {
+    const graph = viewGraphFor({
+      'src/ui/App.tsx': `import { color } from '../tokens/colors';`,
+    });
+    const diags = tokensImportIsSideEffect.check(
+      graph,
+      config,
+      makeContext<TokensImportIsSideEffectOptions>('tokens-import-is-side-effect', {
+        severity: 'warning',
+        options: { allowedImporters: [], requiredForm: 'side-effect' },
+        project: graph.project,
+      }),
+    );
+    expect(diags).toHaveLength(1);
+  });
+
   it('applies its option defaults when the context carries no options', () => {
-    const graph = graphFor({ 'src/App/App.tsx': `import { a } from '../tokens/x';` });
+    const graph = viewGraphFor({ 'src/App/App.tsx': `import { a } from '../tokens/x';` });
     const emptyCtx = makeContext<TokensImportIsSideEffectOptions>('tokens-import-is-side-effect', {
       severity: 'warning',
       project: graph.project,

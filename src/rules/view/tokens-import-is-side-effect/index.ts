@@ -3,11 +3,12 @@
  * side-effects only. Reads AST from the RuleContext project (decision D9).
  */
 
+import type { SourceFile } from 'ts-morph';
 import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
-import { fileNodeIds, sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
+import { sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
 import { type ImportInfo, importsOf } from '#rules/syntactic-support/import-info.js';
 import { segmentsOf } from '#rules/syntactic-support/segments.js';
-import type { SyntacticRule } from '#rules/types.js';
+import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
 /** The fixed segment name of the design-tokens folder. */
@@ -67,6 +68,20 @@ function tokensDiagnostic(
   };
 }
 
+/** Collects the non-side-effect tokens imports of one file into `diagnostics`. */
+function collectFileDiagnostics(
+  fileId: string,
+  sf: SourceFile,
+  context: SyntacticRuleContext<TokensImportIsSideEffectOptions>,
+  diagnostics: Diagnostic[],
+): void {
+  for (const imp of importsOf(sf)) {
+    if (imp.kind !== 'import' || !specifierTargetsTokens(imp.specifier)) continue;
+    if (imp.sideEffectOnly) continue;
+    diagnostics.push(tokensDiagnostic(fileId, imp, context.ruleId, context.severity));
+  }
+}
+
 /** Rule: tokens/* is imported as a side-effect only; allowedImporters are exempt. */
 export const tokensImportIsSideEffect: SyntacticRule<TokensImportIsSideEffectOptions> = {
   id: 'tokens-import-is-side-effect',
@@ -79,15 +94,12 @@ export const tokensImportIsSideEffect: SyntacticRule<TokensImportIsSideEffectOpt
       ...(context.options as Partial<TokensImportIsSideEffectOptions>),
     };
     const diagnostics: Diagnostic[] = [];
-    for (const fileId of fileNodeIds(graph)) {
-      if (isAllowedImporter(fileId, allowedImporters)) continue;
-      const sf = sourceFileFor(context.project, fileId);
+    for (const node of graph.nodes.values()) {
+      if (node.kind !== 'file' || node.region !== 'view') continue;
+      if (isAllowedImporter(node.id, allowedImporters)) continue;
+      const sf = sourceFileFor(context.project, node.id);
       if (sf === undefined) continue;
-      for (const imp of importsOf(sf)) {
-        if (imp.kind !== 'import' || !specifierTargetsTokens(imp.specifier)) continue;
-        if (imp.sideEffectOnly) continue;
-        diagnostics.push(tokensDiagnostic(fileId, imp, context.ruleId, context.severity));
-      }
+      collectFileDiagnostics(node.id, sf, context, diagnostics);
     }
     return dedupByFingerprint(diagnostics);
   },

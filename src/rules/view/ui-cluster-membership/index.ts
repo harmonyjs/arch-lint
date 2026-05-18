@@ -50,7 +50,11 @@ interface DiagnosticIdentity {
   readonly severity: Diagnostic['severity'];
 }
 
-/** Builds the cluster-membership diagnostic for one file. */
+/**
+ * Builds the cluster-membership diagnostic for one file. With an explicit
+ * `mustLiveIn` the cluster is that path prefix; with an empty `mustLiveIn` the
+ * cluster is the auto-detected view region (#26) and the suggestion is generic.
+ */
 function membershipDiagnostic(
   fileId: string,
   triggers: readonly string[],
@@ -58,20 +62,27 @@ function membershipDiagnostic(
   identity: DiagnosticIdentity,
 ): Diagnostic {
   const list = triggers.join(', ');
+  const auto = mustLiveIn === '';
+  const cluster = auto ? 'the view region' : `the UI cluster '${mustLiveIn}'`;
   return {
     ruleId: identity.ruleId,
     severity: identity.severity,
     entity: fileId,
-    message: `File imports trigger package(s) ${list} but lives outside the UI cluster '${mustLiveIn}'`,
+    message: `File imports trigger package(s) ${list} but lives outside ${cluster}`,
     actual: fileId,
-    expected: mustLiveIn,
-    reason: `Files coupled to ${list} are primitives and belong in the UI cluster`,
+    expected: auto ? 'a file inside the view region' : mustLiveIn,
+    reason: `Files coupled to ${list} are UI primitives and belong in ${cluster}`,
     suggestions: [
-      {
-        action: 'move',
-        target: mustLiveIn,
-        rationale: `Extract the primitive into '${mustLiveIn}' and keep a thin wrapper here if needed`,
-      },
+      auto
+        ? {
+            action: 'custom',
+            rationale: `Move this file into the view region (a folder tree containing JSX components), or drop the ${list} import`,
+          }
+        : {
+            action: 'move',
+            target: mustLiveIn,
+            rationale: `Extract the primitive into '${mustLiveIn}' and keep a thin wrapper here if needed`,
+          },
     ],
     location: { file: fileId, line: 1, column: 1 },
   };
@@ -89,11 +100,9 @@ export const uiClusterMembership: SyntacticRule<UiClusterMembershipOptions> = {
       ...(context.options as Partial<UiClusterMembershipOptions>),
     };
     const matchesTrigger = triggerPackageMatcher(triggerPackages);
-    const clusterLabel = mustLiveIn === '' ? 'view region' : mustLiveIn;
     const diagnostics: Diagnostic[] = [];
     for (const node of graph.nodes.values()) {
       if (node.kind !== 'file') continue;
-      if (node.region !== 'view') continue;
       if (satisfiesCluster(node, mustLiveIn)) continue;
       const sf = sourceFileFor(context.project, node.id);
       if (sf === undefined) continue;
@@ -106,7 +115,7 @@ export const uiClusterMembership: SyntacticRule<UiClusterMembershipOptions> = {
       ];
       if (triggers.length === 0) continue;
       diagnostics.push(
-        membershipDiagnostic(node.id, triggers, clusterLabel, {
+        membershipDiagnostic(node.id, triggers, mustLiveIn, {
           ruleId: context.ruleId,
           severity: context.severity,
         }),
