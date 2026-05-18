@@ -7,7 +7,7 @@
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
-import { analyzeMetrics } from '#rules/metrics/analyze.js';
+import { analyzeMetrics, hasDeclaredUnits } from '#rules/metrics/analyze.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
 /** Tunable options of the cross-cutting-concern rule. */
@@ -43,7 +43,7 @@ export const crossCuttingConcern: GraphRule = {
   defaultSeverity: 'info',
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    if (Object.keys(config.units).length === 0) return [];
+    if (!hasDeclaredUnits(config)) return [];
     const allow = new Set(opts.allow);
     const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];

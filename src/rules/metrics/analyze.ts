@@ -98,3 +98,8 @@ export function analyzeMetrics(graph: ConsumerGraph, config: ResolvedConfig): Me
   const units = config.units;
   return reportCache.get(graph, units, root, () => computeReport(graph, root, units));
 }
+
+/** True when the config declares at least one unit — the metrics pack is inert otherwise. */
+export function hasDeclaredUnits(config: ResolvedConfig): boolean {
+  return Object.keys(config.units).length > 0;
+}

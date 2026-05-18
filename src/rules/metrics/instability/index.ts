@@ -5,7 +5,7 @@
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
-import { analyzeMetrics } from '#rules/metrics/analyze.js';
+import { analyzeMetrics, hasDeclaredUnits } from '#rules/metrics/analyze.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
 /** Tunable options of the instability rule. */
@@ -26,15 +26,15 @@ export const instability: GraphRule = {
   defaultSeverity: 'info',
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    if (Object.keys(config.units).length === 0 || opts.leafUnits.length === 0) return [];
+    if (!hasDeclaredUnits(config) || opts.leafUnits.length === 0) return [];
     const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];
     for (const unit of opts.leafUnits) {
       const m = report.get(unit);
       if (m === undefined) continue;
       if (m.ca === 0) {
-        // Degenerate boundary: a leaf nothing depends on is not a foundation,
-        // so its instability is a boundary artifact, not a signal. Always info.
+        // Emitted as info regardless of context.severity: Ca = 0 is a
+        // degenerate boundary, not a real instability signal to escalate.
         out.push(
           verdictToDiagnostic(
             {

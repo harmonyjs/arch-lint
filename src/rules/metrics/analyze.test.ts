@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig, UnitsConfig } from '#foundation/config/types.js';
 import type { Edge } from '#platform/graph/types.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
-import { analyzeMetrics } from './analyze.js';
+import { analyzeMetrics, hasDeclaredUnits } from './analyze.js';
 
 function edge(consumer: string, producer: string): Edge {
   return { consumer, producer, symbol: 'x', typeOnly: false };
@@ -68,6 +68,16 @@ describe('analyzeMetrics', () => {
     // No units → positional first-segment → one `foundation` unit.
     const flat = analyzeMetrics(graph, cfg());
     expect([...flat.keys()]).toEqual(['foundation']);
+  });
+});
+
+describe('hasDeclaredUnits', () => {
+  it('is false when no units are declared', () => {
+    expect(hasDeclaredUnits(cfg())).toBe(false);
+  });
+
+  it('is true when at least one unit is declared', () => {
+    expect(hasDeclaredUnits(cfg({ graph: 'graph/**' }))).toBe(true);
   });
 });
 
