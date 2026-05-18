@@ -32,7 +32,7 @@ export const efferentCoupling: GraphRule = {
     const out: Diagnostic[] = [];
     for (const [subsystem, m] of report) {
       if (allow.has(subsystem) || m.ce <= opts.max) continue;
-      const outbound = [...m.outboundSubsystems].sort().join(', ');
+      const outbound = [...m.outboundUnits].sort().join(', ');
       out.push(
         verdictToDiagnostic(
           {

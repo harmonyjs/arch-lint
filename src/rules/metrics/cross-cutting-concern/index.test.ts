@@ -2,7 +2,7 @@
  * @fileoverview Tests for the cross-cutting-concern metrics rule.
  */
 import { describe, expect, it } from 'vitest';
-import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { ResolvedConfig, UnitsConfig } from '#foundation/config/types.js';
 import type { Edge } from '#platform/graph/types.js';
 import { makeContext } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
@@ -13,8 +13,8 @@ function edge(consumer: string, producer: string): Edge {
   return { consumer, producer, symbol: 'x', typeOnly: false };
 }
 
-function cfg(): ResolvedConfig {
-  return { project: { sourceRoot: 'src' }, units: {} } as ResolvedConfig;
+function cfg(units: UnitsConfig = {}): ResolvedConfig {
+  return { project: { sourceRoot: 'src' }, units } as ResolvedConfig;
 }
 
 /** A graph where `src/types.ts` is imported from N distinct other subsystems. */

@@ -1,33 +1,27 @@
 /**
- * @fileoverview analyzeMetrics — computes every per-subsystem metric in one
- * pass: afferent/efferent coupling, instability and internal cohesion.
- * Memoized per (graph, units, sourceRoot) so the metrics rules share one
- * computation.
+ * @fileoverview analyzeMetrics — computes every per-unit metric in one
+ * pass: afferent/efferent coupling, instability, abstractness and internal
+ * cohesion. Memoized per (graph, units, sourceRoot) so the metrics rules share
+ * one computation.
  */
 import type { ResolvedConfig, UnitsConfig } from '#foundation/config/types.js';
 import { type UnitCoupling, unitCoupling, unitOf } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 
-/** Every metric arch-lint measures for one subsystem. */
-export interface SubsystemMetrics {
+/** Every metric arch-lint measures for one unit. */
+export interface UnitMetrics {
   readonly ca: number;
   readonly ce: number;
   readonly instability: number;
-  readonly inboundSubsystems: ReadonlySet<string>;
-  readonly outboundSubsystems: ReadonlySet<string>;
+  readonly abstractness: number;
+  readonly inboundUnits: ReadonlySet<string>;
+  readonly outboundUnits: ReadonlySet<string>;
   readonly cohesiveEntityFiles: number;
   readonly entityFiles: number;
 }
 
-/** Per-subsystem metrics for one run, keyed by subsystem name. */
-export type MetricsReport = ReadonlyMap<string, SubsystemMetrics>;
-
-/**
- * The default `units` value — a single shared frozen object so callers whose
- * config carries no `units` share one stable cache identity and a valid WeakMap
- * key.
- */
-const NO_UNITS: UnitsConfig = Object.freeze({});
+/** Per-unit metrics for one run, keyed by unit name. */
+export type MetricsReport = ReadonlyMap<string, UnitMetrics>;
 
 /**
  * Cache keyed on the `(graph, units, sourceRoot)` triple — mirrors
@@ -60,7 +54,7 @@ function metricsOf(
   graph: ConsumerGraph,
   info: UnitCoupling,
   cohesive: ReadonlySet<string>,
-): SubsystemMetrics {
+): UnitMetrics {
   const total = info.ca + info.ce;
   let entityFiles = 0;
   let cohesiveEntityFiles = 0;
@@ -73,8 +67,9 @@ function metricsOf(
     ca: info.ca,
     ce: info.ce,
     instability: total === 0 ? 0 : info.ce / total,
-    inboundSubsystems: info.inboundUnits,
-    outboundSubsystems: info.outboundUnits,
+    abstractness: info.inboundEdges === 0 ? 1 : info.inboundTypeOnlyEdges / info.inboundEdges,
+    inboundUnits: info.inboundUnits,
+    outboundUnits: info.outboundUnits,
     cohesiveEntityFiles,
     entityFiles,
   };
@@ -83,21 +78,20 @@ function metricsOf(
 function computeReport(graph: ConsumerGraph, root: string, units: UnitsConfig): MetricsReport {
   const coupling = unitCoupling(graph, root, units);
   const cohesive = cohesiveFilesOf(graph, root, units);
-  const report = new Map<string, SubsystemMetrics>();
-  for (const [subsystem, info] of coupling) {
-    report.set(subsystem, metricsOf(graph, info, cohesive));
+  const report = new Map<string, UnitMetrics>();
+  for (const [unit, info] of coupling) {
+    report.set(unit, metricsOf(graph, info, cohesive));
   }
   return report;
 }
 
 /**
- * Every per-subsystem metric for the run, memoized on (graph, units,
- * sourceRoot) so the metrics rules trigger a single computation — mirrors
- * `unitCoupling`.
+ * Every per-unit metric for the run, memoized on (graph, units, sourceRoot) so
+ * the metrics rules trigger a single computation — mirrors `unitCoupling`.
  */
 export function analyzeMetrics(graph: ConsumerGraph, config: ResolvedConfig): MetricsReport {
   const root = config.project.sourceRoot;
-  const units = config.units ?? NO_UNITS;
+  const units = config.units;
   let byUnits = reportCache.get(graph);
   if (byUnits === undefined) {
     byUnits = new WeakMap();

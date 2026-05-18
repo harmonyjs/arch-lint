@@ -29,7 +29,7 @@ export const afferentCoupling: GraphRule = {
     const out: Diagnostic[] = [];
     for (const [subsystem, m] of report) {
       if (m.ca <= opts.max) continue;
-      const inbound = [...m.inboundSubsystems].sort().join(', ');
+      const inbound = [...m.inboundUnits].sort().join(', ');
       out.push(
         verdictToDiagnostic(
           {
