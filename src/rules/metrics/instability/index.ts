@@ -1,6 +1,6 @@
 /**
- * @fileoverview instability rule — flags a subsystem declared a leaf yet measured
- * unstable. Instability I = Ce/(Ca+Ce); a foundational subsystem should be stable.
+ * @fileoverview instability rule — flags a unit declared a leaf yet measured
+ * unstable. Instability I = Ce/(Ca+Ce); a foundational unit should be stable.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
@@ -10,15 +10,15 @@ import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
 /** Tunable options of the instability rule. */
 interface Options {
-  /** Highest instability tolerated for a subsystem declared a leaf. */
-  readonly maxForLeafSubsystems: number;
-  /** Subsystem names asserted to be foundational leaves. */
-  readonly leafSubsystems: readonly string[];
+  /** Highest instability tolerated for a unit declared a leaf. */
+  readonly maxForLeafUnits: number;
+  /** Unit names asserted to be foundational leaves. */
+  readonly leafUnits: readonly string[];
 }
 
-const DEFAULTS: Options = { maxForLeafSubsystems: 0.5, leafSubsystems: [] };
+const DEFAULTS: Options = { maxForLeafUnits: 0.5, leafUnits: [] };
 
-/** Rule: a subsystem named in `leafSubsystems` whose instability exceeds the max is flagged. */
+/** Rule: a unit named in `leafUnits` whose instability exceeds the max is flagged. */
 export const instability: GraphRule = {
   id: 'instability',
   pack: 'metrics',
@@ -26,26 +26,47 @@ export const instability: GraphRule = {
   defaultSeverity: 'info',
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    if (opts.leafSubsystems.length === 0) return [];
-    const root = config.project.sourceRoot;
+    if (Object.keys(config.units).length === 0 || opts.leafUnits.length === 0) return [];
     const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];
-    for (const subsystem of opts.leafSubsystems) {
-      const m = report.get(subsystem);
-      if (m === undefined || m.instability <= opts.maxForLeafSubsystems) continue;
+    for (const unit of opts.leafUnits) {
+      const m = report.get(unit);
+      if (m === undefined) continue;
+      if (m.ca === 0) {
+        // Degenerate boundary: a leaf nothing depends on is not a foundation,
+        // so its instability is a boundary artifact, not a signal. Always info.
+        out.push(
+          verdictToDiagnostic(
+            {
+              ruleId: 'instability',
+              entity: unit,
+              fingerprint: `instability#${unit}`,
+              message: `leaf unit ${unit} has no inbound dependencies`,
+              expected: 'a foundational leaf is depended on by other units',
+              actual: 'Ca = 0 — nothing imports this unit',
+              reason:
+                'a unit nothing depends on is not a foundation; its instability is a boundary artifact, not a signal',
+              suggestion: 'drop it from leafUnits, or wire the units that should depend on it',
+            },
+            'info',
+          ),
+        );
+        continue;
+      }
+      if (m.instability <= opts.maxForLeafUnits) continue;
       out.push(
         verdictToDiagnostic(
           {
             ruleId: 'instability',
-            entity: `${root}/${subsystem}`,
-            fingerprint: `instability#${subsystem}`,
-            message: `subsystem ${subsystem} is declared a leaf but is unstable`,
-            expected: `instability I ≤ ${opts.maxForLeafSubsystems}`,
+            entity: unit,
+            fingerprint: `instability#${unit}`,
+            message: `unit ${unit} is declared a leaf but is unstable`,
+            expected: `instability I ≤ ${opts.maxForLeafUnits}`,
             actual: `I = ${m.instability.toFixed(2)} (Ca=${m.ca}, Ce=${m.ce})`,
             reason:
-              'a foundational subsystem should be stable — many depend on it, it depends on few',
+              'a foundational unit should be stable — many depend on it, it depends on few',
             suggestion:
-              'move the outbound dependencies out of this subsystem, or drop it from leafSubsystems',
+              'move the outbound dependencies out of this unit, or drop it from leafUnits',
           },
           context.severity,
         ),
