@@ -1,24 +1,41 @@
 /**
- * @fileoverview cross-cutting-concern rule — flags a file pulled into many distinct
- * subsystems. Such a file is either shared lexicon or a leak; it should be named.
+ * @fileoverview cross-cutting-concern rule — flags a unit that is a god-module:
+ * high afferent coupling AND high efferent coupling AND low internal cohesion
+ * AND low abstractness. The four-signal conjunction separates a god-module from
+ * a legitimate shared kernel (a types module trips Ca but not Ce/abstractness).
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
-import { unitOf } from '#platform/graph/index.js';
+import { analyzeMetrics } from '#rules/metrics/analyze.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
 /** Tunable options of the cross-cutting-concern rule. */
 interface Options {
-  /** Highest distinct-importing-subsystem count tolerated before a file is flagged. */
-  readonly maxSubsystems: number;
-  /** File ids exempt from the check — deliberate shared lexicon. */
+  /** Lowest afferent coupling (Ca) that counts as "high". */
+  readonly minCa: number;
+  /** Lowest efferent coupling (Ce) that counts as "high". */
+  readonly minCe: number;
+  /** Highest internal cohesion that counts as "low". */
+  readonly maxCohesion: number;
+  /** Highest abstractness that counts as "low" (concrete, not a contracts module). */
+  readonly maxAbstractness: number;
+  /** Unit names exempt from the check — deliberate shared kernels. */
   readonly allow: readonly string[];
 }
 
-const DEFAULTS: Options = { maxSubsystems: 5, allow: [] };
+const DEFAULTS: Options = {
+  minCa: 5,
+  minCe: 4,
+  maxCohesion: 0.3,
+  maxAbstractness: 0.5,
+  allow: [],
+};
 
-/** Rule: a file imported from `maxSubsystems` or more distinct other subsystems is flagged. */
+/**
+ * Rule: a unit is flagged when it trips all four signals at once — high Ca,
+ * high Ce, low cohesion and low abstractness.
+ */
 export const crossCuttingConcern: GraphRule = {
   id: 'cross-cutting-concern',
   pack: 'metrics',
@@ -26,34 +43,35 @@ export const crossCuttingConcern: GraphRule = {
   defaultSeverity: 'info',
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
-    const root = config.project.sourceRoot;
-    const units = config.units;
+    if (Object.keys(config.units).length === 0) return [];
     const allow = new Set(opts.allow);
+    const report = analyzeMetrics(graph, config);
     const out: Diagnostic[] = [];
-    for (const node of graph.nodes.values()) {
-      if (node.kind !== 'file' || allow.has(node.id)) continue;
-      const ownSubsystem = unitOf(node.id, root, units);
-      const importingSubsystems = new Set<string>();
-      for (const edge of graph.consumersOf.get(node.id) ?? []) {
-        const consumerSubsystem = unitOf(edge.consumer, root, units);
-        if (consumerSubsystem === null || consumerSubsystem === ownSubsystem) continue;
-        importingSubsystems.add(consumerSubsystem);
-      }
-      if (importingSubsystems.size < opts.maxSubsystems) continue;
-      const sorted = [...importingSubsystems].sort().join(', ');
+    for (const [unit, m] of report) {
+      if (allow.has(unit)) continue;
+      const cohesion = m.entityFiles === 0 ? 1 : m.cohesiveEntityFiles / m.entityFiles;
+      if (m.ca < opts.minCa) continue;
+      if (m.ce < opts.minCe) continue;
+      if (cohesion > opts.maxCohesion) continue;
+      if (m.abstractness > opts.maxAbstractness) continue;
       out.push(
         verdictToDiagnostic(
           {
             ruleId: 'cross-cutting-concern',
-            entity: node.id,
-            fingerprint: `cross-cutting-concern#${node.id}`,
-            message: `${node.id} is imported across many subsystems`,
-            expected: `imported from < ${opts.maxSubsystems} subsystems, or listed in metrics rule \`allow\``,
-            actual: `${importingSubsystems.size} subsystems (${sorted})`,
+            entity: unit,
+            fingerprint: `cross-cutting-concern#${unit}`,
+            message: `unit ${unit} is a cross-cutting concern`,
+            expected:
+              `not all of: Ca ≥ ${opts.minCa}, Ce ≥ ${opts.minCe}, ` +
+              `cohesion ≤ ${opts.maxCohesion}, abstractness ≤ ${opts.maxAbstractness}` +
+              ', or listed in the rule `allow`',
+            actual:
+              `Ca=${m.ca}, Ce=${m.ce}, cohesion=${cohesion.toFixed(2)}, ` +
+              `abstractness=${m.abstractness.toFixed(2)}`,
             reason:
-              'a file pulled into many subsystems is either shared lexicon or a leak — name it explicitly',
+              'a unit that is widely depended on, depends widely, is internally incoherent and concrete is a god-module — not a shared kernel',
             suggestion:
-              'if this is intentional shared lexicon, add it to the rule allow list; otherwise narrow its consumers',
+              'split the unit by responsibility, or — if it is a deliberate shared kernel — add it to the rule allow list',
           },
           context.severity,
         ),

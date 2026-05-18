@@ -1,5 +1,6 @@
 /**
- * @fileoverview Tests for the cross-cutting-concern metrics rule.
+ * @fileoverview Tests for the cross-cutting-concern metrics rule — the per-unit
+ * four-signal conjunction (high Ca, high Ce, low cohesion, low abstractness).
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig, UnitsConfig } from '#foundation/config/types.js';
@@ -9,24 +10,54 @@ import { makeGraph } from '#rules/test-support/make-graph.js';
 import { only } from '#rules/test-support/only.js';
 import { crossCuttingConcern } from './index.js';
 
-function edge(consumer: string, producer: string): Edge {
-  return { consumer, producer, symbol: 'x', typeOnly: false };
+function edge(consumer: string, producer: string, typeOnly = false): Edge {
+  return { consumer, producer, symbol: 'x', typeOnly };
 }
 
 function cfg(units: UnitsConfig = {}): ResolvedConfig {
   return { project: { sourceRoot: 'src' }, units } as ResolvedConfig;
 }
 
-/** A graph where `src/types.ts` is imported from N distinct other subsystems. */
-function fanInGraph(subsystems: readonly string[]) {
-  const nodes: Record<string, { kind: 'file' }> = { 'src/types.ts': { kind: 'file' } };
-  const edges: Edge[] = [];
-  for (const name of subsystems) {
-    nodes[`src/${name}/x.ts`] = { kind: 'file' };
-    edges.push(edge(`src/${name}/x.ts`, 'src/types.ts'));
-  }
-  return makeGraph({ nodes, edges });
+/**
+ * A graph where unit `god` trips all four signals: 3 units import it (Ca=3),
+ * it imports 3 units (Ce=3), its 3 entity files never reference a sibling
+ * (cohesion 0), and every inbound edge is a value import (abstractness 0).
+ */
+function godUnitGraph() {
+  return makeGraph({
+    nodes: {
+      'src/god/a.ts': { kind: 'file', isEntity: true },
+      'src/god/b.ts': { kind: 'file', isEntity: true },
+      'src/god/c.ts': { kind: 'file', isEntity: true },
+      'src/in1/x.ts': { kind: 'file' },
+      'src/in2/x.ts': { kind: 'file' },
+      'src/in3/x.ts': { kind: 'file' },
+      'src/out1/y.ts': { kind: 'file' },
+      'src/out2/y.ts': { kind: 'file' },
+      'src/out3/y.ts': { kind: 'file' },
+    },
+    edges: [
+      edge('src/in1/x.ts', 'src/god/a.ts'),
+      edge('src/in2/x.ts', 'src/god/b.ts'),
+      edge('src/in3/x.ts', 'src/god/c.ts'),
+      edge('src/god/a.ts', 'src/out1/y.ts'),
+      edge('src/god/b.ts', 'src/out2/y.ts'),
+      edge('src/god/c.ts', 'src/out3/y.ts'),
+    ],
+  });
 }
+
+const ALL_UNITS: UnitsConfig = {
+  god: 'god/**',
+  in1: 'in1/**',
+  in2: 'in2/**',
+  in3: 'in3/**',
+  out1: 'out1/**',
+  out2: 'out2/**',
+  out3: 'out3/**',
+};
+
+const LOOSE = { minCa: 3, minCe: 3, maxCohesion: 0.5, maxAbstractness: 0.5 };
 
 describe('crossCuttingConcern — metadata', () => {
   it('has the canonical metadata', () => {
@@ -38,90 +69,79 @@ describe('crossCuttingConcern — metadata', () => {
 });
 
 describe('crossCuttingConcern — check', () => {
-  it('emits nothing below the maxSubsystems threshold', () => {
-    const graph = fanInGraph(['a', 'b']);
-    const ctx = makeContext('cross-cutting-concern', {
-      severity: 'info',
-      options: { maxSubsystems: 3 },
-    });
-    expect(crossCuttingConcern.check(graph, cfg(), ctx)).toEqual([]);
+  it('is inert when no units are declared', () => {
+    const ctx = makeContext('cross-cutting-concern', { severity: 'info', options: LOOSE });
+    expect(crossCuttingConcern.check(godUnitGraph(), cfg(), ctx)).toEqual([]);
   });
 
-  it('flags a file imported from many subsystems', () => {
-    const graph = fanInGraph(['a', 'b', 'c']);
-    const ctx = makeContext('cross-cutting-concern', {
-      severity: 'info',
-      options: { maxSubsystems: 3 },
-    });
-    const d = only(crossCuttingConcern.check(graph, cfg(), ctx));
+  it('flags a unit that trips all four signals', () => {
+    const ctx = makeContext('cross-cutting-concern', { severity: 'info', options: LOOSE });
+    const d = only(crossCuttingConcern.check(godUnitGraph(), cfg(ALL_UNITS), ctx));
     expect(d.ruleId).toBe('cross-cutting-concern');
-    expect(d.entity).toBe('src/types.ts');
-    expect(d.fingerprint).toBe('cross-cutting-concern#src/types.ts');
-    expect(d.message).toBe('src/types.ts is imported across many subsystems');
-    expect(d.actual).toBe('3 subsystems (a, b, c)');
-    expect(d.location).toEqual({ file: 'src/types.ts', line: 1, column: 1 });
+    expect(d.entity).toBe('god');
+    expect(d.fingerprint).toBe('cross-cutting-concern#god');
+    expect(d.message).toBe('unit god is a cross-cutting concern');
+    expect(d.actual).toBe('Ca=3, Ce=3, cohesion=0.00, abstractness=0.00');
   });
 
-  it('skips a file listed in allow', () => {
-    const graph = fanInGraph(['a', 'b', 'c']);
-    const ctx = makeContext('cross-cutting-concern', {
-      severity: 'info',
-      options: { maxSubsystems: 3, allow: ['src/types.ts'] },
-    });
-    expect(crossCuttingConcern.check(graph, cfg(), ctx)).toEqual([]);
-  });
-
-  it('does not count a root-level file as an importing subsystem', () => {
+  it('does not flag when the high-Ce signal is absent', () => {
+    // Same as the god graph but with the outbound edges removed → Ce = 0.
     const graph = makeGraph({
       nodes: {
-        'src/types.ts': { kind: 'file' },
-        'src/errors.ts': { kind: 'file' },
-        'src/a/x.ts': { kind: 'file' },
-        'src/b/x.ts': { kind: 'file' },
-        'src/c/x.ts': { kind: 'file' },
+        'src/god/a.ts': { kind: 'file', isEntity: true },
+        'src/god/b.ts': { kind: 'file', isEntity: true },
+        'src/god/c.ts': { kind: 'file', isEntity: true },
+        'src/in1/x.ts': { kind: 'file' },
+        'src/in2/x.ts': { kind: 'file' },
+        'src/in3/x.ts': { kind: 'file' },
       },
       edges: [
-        edge('src/errors.ts', 'src/types.ts'),
-        edge('src/a/x.ts', 'src/types.ts'),
-        edge('src/b/x.ts', 'src/types.ts'),
-        edge('src/c/x.ts', 'src/types.ts'),
+        edge('src/in1/x.ts', 'src/god/a.ts'),
+        edge('src/in2/x.ts', 'src/god/b.ts'),
+        edge('src/in3/x.ts', 'src/god/c.ts'),
       ],
     });
-    const ctx = makeContext('cross-cutting-concern', {
-      severity: 'info',
-      options: { maxSubsystems: 3 },
-    });
-    const d = only(crossCuttingConcern.check(graph, cfg(), ctx));
-    expect(d.actual).toBe('3 subsystems (a, b, c)');
+    const units: UnitsConfig = { god: 'god/**', in1: 'in1/**', in2: 'in2/**', in3: 'in3/**' };
+    const ctx = makeContext('cross-cutting-concern', { severity: 'info', options: LOOSE });
+    expect(crossCuttingConcern.check(graph, cfg(units), ctx)).toEqual([]);
   });
 
-  it('still measures a root-level file imported across many subsystems', () => {
+  it('exonerates a unit imported predominantly via type-only edges', () => {
     const graph = makeGraph({
       nodes: {
-        'src/errors.ts': { kind: 'file' },
-        'src/a/x.ts': { kind: 'file' },
-        'src/b/x.ts': { kind: 'file' },
-        'src/c/x.ts': { kind: 'file' },
+        'src/god/a.ts': { kind: 'file', isEntity: true },
+        'src/god/b.ts': { kind: 'file', isEntity: true },
+        'src/god/c.ts': { kind: 'file', isEntity: true },
+        'src/in1/x.ts': { kind: 'file' },
+        'src/in2/x.ts': { kind: 'file' },
+        'src/in3/x.ts': { kind: 'file' },
+        'src/out1/y.ts': { kind: 'file' },
+        'src/out2/y.ts': { kind: 'file' },
+        'src/out3/y.ts': { kind: 'file' },
       },
       edges: [
-        edge('src/a/x.ts', 'src/errors.ts'),
-        edge('src/b/x.ts', 'src/errors.ts'),
-        edge('src/c/x.ts', 'src/errors.ts'),
+        edge('src/in1/x.ts', 'src/god/a.ts', true),
+        edge('src/in2/x.ts', 'src/god/b.ts', true),
+        edge('src/in3/x.ts', 'src/god/c.ts', true),
+        edge('src/god/a.ts', 'src/out1/y.ts'),
+        edge('src/god/b.ts', 'src/out2/y.ts'),
+        edge('src/god/c.ts', 'src/out3/y.ts'),
       ],
     });
-    const ctx = makeContext('cross-cutting-concern', {
-      severity: 'info',
-      options: { maxSubsystems: 3 },
-    });
-    const d = only(crossCuttingConcern.check(graph, cfg(), ctx));
-    expect(d.entity).toBe('src/errors.ts');
-    expect(d.actual).toBe('3 subsystems (a, b, c)');
+    const ctx = makeContext('cross-cutting-concern', { severity: 'info', options: LOOSE });
+    expect(crossCuttingConcern.check(graph, cfg(ALL_UNITS), ctx)).toEqual([]);
   });
 
-  it('defaults maxSubsystems to 5', () => {
+  it('skips a unit listed in allow', () => {
+    const ctx = makeContext('cross-cutting-concern', {
+      severity: 'info',
+      options: { ...LOOSE, allow: ['god'] },
+    });
+    expect(crossCuttingConcern.check(godUnitGraph(), cfg(ALL_UNITS), ctx)).toEqual([]);
+  });
+
+  it('does not flag below the default thresholds', () => {
     const ctx = makeContext('cross-cutting-concern', { severity: 'info' });
-    expect(crossCuttingConcern.check(fanInGraph(['a', 'b', 'c', 'd']), cfg(), ctx)).toEqual([]);
-    const d = only(crossCuttingConcern.check(fanInGraph(['a', 'b', 'c', 'd', 'e']), cfg(), ctx));
-    expect(d.actual).toBe('5 subsystems (a, b, c, d, e)');
+    expect(crossCuttingConcern.check(godUnitGraph(), cfg(ALL_UNITS), ctx)).toEqual([]);
   });
 });
