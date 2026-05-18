@@ -25,7 +25,7 @@ export type MetricsReport = ReadonlyMap<string, SubsystemMetrics>;
 /**
  * The default `units` value — a single shared frozen object so callers whose
  * config carries no `units` share one stable cache identity and a valid WeakMap
- * key. Removed in Task 3 once every metrics test fixture supplies `units`.
+ * key.
  */
 const NO_UNITS: UnitsConfig = Object.freeze({});
 

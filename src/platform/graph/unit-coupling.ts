@@ -6,6 +6,7 @@
  * keeps grouping its diagram zero-config.
  */
 import type { UnitsConfig } from '#foundation/config/types.js';
+import { firstSegment } from '#foundation/entity-id/index.js';
 import picomatch from 'picomatch';
 import type { ConsumerGraph } from './types.js';
 
@@ -42,6 +43,39 @@ function literalPrefixLength(glob: string): number {
   return star === -1 ? glob.length : star;
 }
 
+/** A unit's glob precompiled into a matcher plus its overlap-resolution specificity. */
+interface CompiledGlob {
+  readonly matches: (path: string) => boolean;
+  readonly prefixLength: number;
+}
+
+/**
+ * Per-`units` compiled matchers. `picomatch.isMatch` recompiles its glob on
+ * every call, and `unitOf` runs once per node and twice per edge, so each glob
+ * is compiled once per declared `units` object and reused. `units` is frozen
+ * and stable for the run, so a WeakMap is a safe, auto-clearing key.
+ */
+const compiledCache = new WeakMap<UnitsConfig, ReadonlyMap<string, readonly CompiledGlob[]>>();
+
+/** Compiles every unit's glob(s) once, memoized on the `units` object. */
+function compiledGlobsFor(units: UnitsConfig): ReadonlyMap<string, readonly CompiledGlob[]> {
+  const cached = compiledCache.get(units);
+  if (cached !== undefined) return cached;
+  const compiled = new Map<string, readonly CompiledGlob[]>();
+  for (const [name, value] of Object.entries(units)) {
+    const globs = typeof value === 'string' ? [value] : value;
+    compiled.set(
+      name,
+      globs.map((glob) => ({
+        matches: picomatch(glob, { dot: true }),
+        prefixLength: literalPrefixLength(glob),
+      })),
+    );
+  }
+  compiledCache.set(units, compiled);
+  return compiled;
+}
+
 /**
  * The unit a file id belongs to. With declared `units`, the file id (relative to
  * `sourceRoot`) is matched against every unit's glob(s); the most specific match
@@ -53,21 +87,17 @@ function literalPrefixLength(glob: string): number {
 export function unitOf(fileId: string, sourceRoot: string, units: UnitsConfig): string | null {
   const prefix = `${sourceRoot}/`;
   const rest = fileId.startsWith(prefix) ? fileId.slice(prefix.length) : fileId;
-  const names = Object.keys(units);
-  if (names.length === 0) {
-    const slash = rest.indexOf('/');
-    return slash === -1 ? null : rest.slice(0, slash);
+  const compiled = compiledGlobsFor(units);
+  if (compiled.size === 0) {
+    return rest.includes('/') ? firstSegment(rest) : null;
   }
   let best: string | null = null;
   let bestPrefixLength = -1;
-  for (const name of names) {
-    const value = units[name];
-    const globs = typeof value === 'string' ? [value] : (value ?? []);
+  for (const [name, globs] of compiled) {
     for (const glob of globs) {
-      if (!picomatch.isMatch(rest, glob, { dot: true })) continue;
-      const length = literalPrefixLength(glob);
-      if (length > bestPrefixLength) {
-        bestPrefixLength = length;
+      if (!glob.matches(rest)) continue;
+      if (glob.prefixLength > bestPrefixLength) {
+        bestPrefixLength = glob.prefixLength;
         best = name;
       }
     }
