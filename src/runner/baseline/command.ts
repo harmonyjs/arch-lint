@@ -61,19 +61,21 @@ async function generatorVersion(): Promise<string> {
 /**
  * Runs a full check and returns its `CheckResult`. `withBaseline` selects
  * whether diagnostics are classified against the configured baseline (`diff`,
- * `prune`) or treated as all-new (`init`).
+ * `prune`) or treated as all-new (`init`). The already-resolved `logger` is
+ * forwarded so the whole baseline operation runs on a single logger instance.
  */
 async function runFullCheck(
   opts: BaselineCommandOptions,
   withBaseline: boolean,
+  logger: Logger,
 ): Promise<CheckResult> {
   const runOptions: RunCheckOptions = {
     cwd: opts.cwd,
     mode: 'ci',
     noBaseline: !withBaseline,
     changedOnly: false,
+    logger,
     ...(opts.configPath !== undefined ? { configPath: opts.configPath } : {}),
-    ...(opts.logger !== undefined ? { logger: opts.logger } : {}),
   };
   const outcome = await runCheck(runOptions);
   return outcome.result;
@@ -89,7 +91,7 @@ export async function runBaselineInit(opts: BaselineCommandOptions): Promise<Bas
   const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath, logger));
   const path = baselinePath(config);
 
-  const result = await runFullCheck(opts, false);
+  const result = await runFullCheck(opts, false, logger);
 
   const file = snapshotBaseline(result.diagnostics, await generatorVersion());
   await writeBaseline(path, file);
@@ -111,7 +113,7 @@ export async function runBaselineDiff(opts: BaselineCommandOptions): Promise<Bas
   const path = baselinePath(config);
 
   const baseline = await resolveBaseline(config, { noBaseline: false });
-  const result = await runFullCheck(opts, true);
+  const result = await runFullCheck(opts, true, logger);
 
   const diff = diffBaseline(baseline, result.diagnostics);
   const lines = [
@@ -141,7 +143,7 @@ export async function runBaselinePrune(opts: BaselinePruneOptions): Promise<Base
     throw new ConfigError('baseline prune requires an existing baseline file');
   }
 
-  const result = await runFullCheck(opts, true);
+  const result = await runFullCheck(opts, true, logger);
 
   const pruned: BaselineFile = pruneBaseline(
     baseline,

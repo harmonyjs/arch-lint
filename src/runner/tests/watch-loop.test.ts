@@ -7,6 +7,7 @@ import { EventEmitter } from 'node:events';
 import type { FSWatcher } from 'chokidar';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
+import { InMemoryLogger } from '#foundation/logger/index.js';
 import type { CheckResult } from '#platform/engine/types.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 
@@ -168,12 +169,14 @@ describe('runWatch', () => {
   it('reports a rebuild failure and keeps the session alive for the next event', async () => {
     const { watcher } = arrange();
     const print = vi.fn();
+    const logger = new InMemoryLogger();
 
     await runWatch({
       cwd: '/repo',
       createWatcher: () => watcher as unknown as FSWatcher,
       print,
       clearScreen: vi.fn(),
+      logger,
     });
 
     // A transient parse error on the next rebuild — the loop must not die.
@@ -181,14 +184,19 @@ describe('runWatch', () => {
     watcher.emit('change', '/repo/src/a.ts');
     await vi.advanceTimersByTimeAsync(200);
 
-    expect(print).toHaveBeenCalledTimes(2);
-    expect(print).toHaveBeenLastCalledWith('Watch rebuild failed: parse blew up');
+    // The failure is a diagnostic — it lands on the logger's error channel,
+    // not the report sink, so `print` is untouched by the failed rebuild.
+    expect(print).toHaveBeenCalledTimes(1);
+    expect(logger.entries).toContainEqual({
+      level: 'error',
+      message: 'Watch rebuild failed: parse blew up',
+    });
 
     // A subsequent event still triggers a rebuild + render: the session lives.
     watcher.emit('change', '/repo/src/b.ts');
     await vi.advanceTimersByTimeAsync(200);
 
-    expect(print).toHaveBeenCalledTimes(3);
+    expect(print).toHaveBeenCalledTimes(2);
     expect(print).toHaveBeenLastCalledWith('report-text');
   });
 });

@@ -103,7 +103,7 @@ export async function runWatch(opts: WatchOptions): Promise<WatchSession> {
         render(next, renderContext);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        opts.print(`Watch rebuild failed: ${message}`);
+        logger.error(`Watch rebuild failed: ${message}`);
       }
     })();
   });

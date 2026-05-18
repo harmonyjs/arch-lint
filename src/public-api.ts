@@ -56,6 +56,6 @@ export type {
   UnresolvedReason,
 } from '#platform/graph/types.js';
 // Types — baseline module
-export type { BaselineFile, BaselineRecord } from './runner/baseline/types.js';
+export type { BaselineFile, BaselineRecord } from '#runner/baseline/types.js';
 // Function — check runner
-export { check } from './runner/index.js';
+export { check } from '#runner/index.js';
