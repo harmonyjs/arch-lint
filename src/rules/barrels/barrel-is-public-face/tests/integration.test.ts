@@ -22,7 +22,9 @@ describe('barrel-is-public-face — integration', () => {
         },
       },
     });
-    expect(diags.length).toBeGreaterThanOrEqual(1);
-    expect(diags.some((d) => d.message.includes('bypassing the barrel'))).toBe(true);
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.entity).toBe('src/App/main.tsx');
+    expect(diags[0]?.fingerprint).toBe('src/App/main.tsx#src/App/Card/internal.ts');
+    expect(diags[0]?.message).toContain('bypassing the barrel');
   });
 });

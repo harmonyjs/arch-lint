@@ -39,7 +39,12 @@ describe('expired-suppress — integration', () => {
     expect(diags.some((d) => d.ruleId === 'expired-suppress')).toBe(true);
     // Once the foundation fix lands, drop `.fails` and tighten to the exact emission:
     //   expect(diags).toHaveLength(1);
-    //   expect(diags[0]?.fingerprint?.startsWith('layer-boundary#')).toBe(true);
-    //   expect(diags[0]?.entity).toBe(`${fixtureRoot}/src/feature/widget.ts`);
+    //   expect(diags[0]?.ruleId).toBe('expired-suppress');
+    //   // the directive suppresses `layer-boundary`, so its fingerprint is
+    //   // `layer-boundary#<hash>` — confirm the exact value against real output.
+    //   expect(diags[0]?.fingerprint).toMatch(/^layer-boundary#/);
+    //   // `entity` is `suppress.location.file`; whether that is absolute or
+    //   // sourceRoot-relative is exactly what the foundation fix decides — read
+    //   // it off the real output, do not hard-code a path here.
   });
 });

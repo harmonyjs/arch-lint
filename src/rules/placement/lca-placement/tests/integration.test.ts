@@ -10,8 +10,9 @@ const fixtureRoot = fileURLToPath(new URL('../fixtures/cousin-placement', import
 describe('lca-placement — integration', () => {
   it('flags a component placed away from its consumers LCA', async () => {
     const diags = await runRuleOnFixture({ fixtureRoot, ruleId: 'lca-placement' });
-    expect(diags.length).toBe(1);
+    expect(diags).toHaveLength(1);
     expect(diags[0]?.ruleId).toBe('lca-placement');
     expect(diags[0]?.entity).toBe('src/App/Right/Cousin');
+    expect(diags[0]?.fingerprint).toBeUndefined();
   });
 });
