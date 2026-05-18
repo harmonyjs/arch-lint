@@ -3,10 +3,10 @@
  * live in the UI cluster. Reads AST from the RuleContext project (decision D9).
  */
 
+import { isStrictlyUnderPrefix } from '#entity-id.js';
 import type { Node } from '#graph/types.js';
 import { sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
 import { importsOf } from '#rules/syntactic-support/import-info.js';
-import { segmentsOf } from '#rules/syntactic-support/segments.js';
 import type { SyntacticRule } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 import { triggerPackageMatcher } from './matcher.js';
@@ -26,21 +26,14 @@ const DEFAULTS: UiClusterMembershipOptions = {
   mustLiveIn: '',
 };
 
-/** True when a file lies under the cluster path (per-segment prefix). */
-function isInsideCluster(fileId: string, cluster: string): boolean {
-  const fileSegs = segmentsOf(fileId);
-  const clusterSegs = segmentsOf(cluster);
-  if (fileSegs.length <= clusterSegs.length) return false;
-  return clusterSegs.every((s, i) => fileSegs[i] === s);
-}
-
 /**
  * True when `node` satisfies cluster membership. With an explicit `mustLiveIn`
- * the today-behavior path prefix applies; with an empty `mustLiveIn` the auto
- * path applies — membership == the node carries `region: 'view'` (#26).
+ * the today-behavior path prefix applies — the node must live STRICTLY under the
+ * cluster path; with an empty `mustLiveIn` the auto path applies — membership ==
+ * the node carries `region: 'view'` (#26).
  */
 function satisfiesCluster(node: Node, mustLiveIn: string): boolean {
-  if (mustLiveIn !== '') return isInsideCluster(node.id, mustLiveIn);
+  if (mustLiveIn !== '') return isStrictlyUnderPrefix(node.id, mustLiveIn);
   return node.region === 'view';
 }
 

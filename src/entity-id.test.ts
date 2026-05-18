@@ -9,6 +9,8 @@ import {
   dropExtension,
   firstSegment,
   folderOf,
+  isAtOrUnderPrefix,
+  isStrictlyUnderPrefix,
   isUnderSegment,
   segmentsOf,
   stemOf,
@@ -105,6 +107,50 @@ describe('isUnderSegment', () => {
 
   it('is false when the segment is the last (file) segment itself', () => {
     expect(isUnderSegment('src/App/lib.ts', 'lib')).toBe(false);
+  });
+});
+
+describe('isStrictlyUnderPrefix', () => {
+  it('is true for a proper descendant', () => {
+    expect(isStrictlyUnderPrefix('src/ui/Button.tsx', 'src/ui')).toBe(true);
+  });
+
+  it('is false for the prefix itself (not strict)', () => {
+    expect(isStrictlyUnderPrefix('src/ui', 'src/ui')).toBe(false);
+  });
+
+  it('is false when the prefix matched only as a name substring', () => {
+    expect(isStrictlyUnderPrefix('src/uikit/Button.tsx', 'src/ui')).toBe(false);
+  });
+
+  it('is false when id is shorter than the prefix', () => {
+    expect(isStrictlyUnderPrefix('src', 'src/ui')).toBe(false);
+  });
+
+  it('matches per-segment, dropping the last segment extension', () => {
+    expect(isStrictlyUnderPrefix('src/ui/x.ts', 'src/ui')).toBe(true);
+  });
+});
+
+describe('isAtOrUnderPrefix', () => {
+  it('is true for the prefix itself', () => {
+    expect(isAtOrUnderPrefix('src/ui', 'src/ui')).toBe(true);
+  });
+
+  it('is true for a proper descendant', () => {
+    expect(isAtOrUnderPrefix('src/ui/Button.tsx', 'src/ui')).toBe(true);
+  });
+
+  it('is false when the prefix matched only as a name substring', () => {
+    expect(isAtOrUnderPrefix('src/uikit/Button.tsx', 'src/ui')).toBe(false);
+  });
+
+  it('is false when id is shorter than the prefix', () => {
+    expect(isAtOrUnderPrefix('src', 'src/ui')).toBe(false);
+  });
+
+  it('is true for a file id equal to a file prefix', () => {
+    expect(isAtOrUnderPrefix('src/main.tsx', 'src/main.tsx')).toBe(true);
   });
 });
 

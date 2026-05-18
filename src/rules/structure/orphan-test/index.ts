@@ -3,7 +3,7 @@
  * `<name>` source sibling, a test co-located with nothing it tests.
  */
 
-import { baseNameOf, dirOf, stemOf } from '#entity-id.js';
+import { baseNameOf, dirOf, isUnderSegment, stemOf } from '#entity-id.js';
 import { isTestFile } from '#rules/structure/support/test-file.js';
 import type { CensusRule, CensusRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
@@ -43,7 +43,7 @@ export const orphanTest: CensusRule = {
     }
     const out: Diagnostic[] = [];
     for (const testId of testFiles) {
-      if (testId.split('/').includes(opts.testFolder)) continue;
+      if (isUnderSegment(testId, opts.testFolder)) continue;
       const dir = dirOf(testId);
       const name = stemOf(baseNameOf(testId));
       if (sourceStems.get(dir)?.has(name)) continue;

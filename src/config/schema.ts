@@ -154,7 +154,7 @@ const runModeSchema = z
 const pluginRuleSchema = z.object({
   id: z.string(),
   pack: packSchema,
-  engine: z.enum(['graph', 'syntactic', 'manifest']),
+  engine: z.enum(['graph', 'syntactic', 'manifest', 'census']),
   defaultSeverity: z.enum(['info', 'warning', 'error']),
   check: z.custom<(...args: never[]) => unknown>((value) => typeof value === 'function'),
 });

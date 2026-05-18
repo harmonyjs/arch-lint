@@ -4,10 +4,10 @@
  */
 
 import type { SourceFile } from 'ts-morph';
+import { isAtOrUnderPrefix } from '#entity-id.js';
 import { dedupByFingerprint } from '#rules/syntactic-support/dedup.js';
 import { sourceFileFor } from '#rules/syntactic-support/find-source-file.js';
 import { type ImportInfo, importsOf } from '#rules/syntactic-support/import-info.js';
-import { segmentsOf } from '#rules/syntactic-support/segments.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#rules/types.js';
 import type { Diagnostic } from '#types.js';
 
@@ -32,14 +32,9 @@ function specifierTargetsTokens(specifier: string): boolean {
   return parts.includes(TOKENS_SEGMENT);
 }
 
-/** True when a file is exempt — listed verbatim or as a per-segment prefix. */
+/** True when a file is exempt — listed verbatim or as a per-segment prefix at-or-above it. */
 function isAllowedImporter(fileId: string, allowed: readonly string[]): boolean {
-  const fileSegs = segmentsOf(fileId);
-  return allowed.some((entry) => {
-    if (entry === fileId) return true;
-    const entrySegs = segmentsOf(entry);
-    return entrySegs.length < fileSegs.length && entrySegs.every((s, i) => fileSegs[i] === s);
-  });
+  return allowed.some((entry) => isAtOrUnderPrefix(fileId, entry));
 }
 
 /** Builds the diagnostic for one non-side-effect tokens import. */

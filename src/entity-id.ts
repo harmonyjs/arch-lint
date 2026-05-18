@@ -59,6 +59,30 @@ export function isUnderSegment(id: string, segment: string): boolean {
   return segs.slice(0, -1).includes(segment);
 }
 
+/**
+ * True when `id` lies STRICTLY below the directory `prefix` — `id` is a proper
+ * descendant of `prefix`, never `prefix` itself. Matching is per-segment, so
+ * 'src/ui' is strictly under 'src' but 'src/uikit' is not under 'src/ui'.
+ */
+export function isStrictlyUnderPrefix(id: string, prefix: string): boolean {
+  const idSegs = segmentsOf(id);
+  const prefixSegs = segmentsOf(prefix);
+  if (idSegs.length <= prefixSegs.length) return false;
+  return prefixSegs.every((segment, i) => idSegs[i] === segment);
+}
+
+/**
+ * True when `id` lies AT OR below the directory `prefix` — `prefix` itself and
+ * every proper descendant count. Matching is per-segment, so 'src/ui' contains
+ * 'src/ui' and 'src/ui/x.ts' but not 'src/uikit'.
+ */
+export function isAtOrUnderPrefix(id: string, prefix: string): boolean {
+  const idSegs = segmentsOf(id);
+  const prefixSegs = segmentsOf(prefix);
+  if (idSegs.length < prefixSegs.length) return false;
+  return prefixSegs.every((segment, i) => idSegs[i] === segment);
+}
+
 /** The first path segment of `id`. */
 export function firstSegment(id: string): string {
   const slash = id.indexOf('/');
