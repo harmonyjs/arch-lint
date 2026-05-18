@@ -64,6 +64,13 @@ export interface LayerConfig {
 
 export type LayersConfig = Readonly<Record<string, LayerConfig>>;
 
+/**
+ * units block — keyed by unit name (user-chosen, decoupled from the filesystem);
+ * each value is a glob, or a list of globs, matched against file ids relative to
+ * sourceRoot. The unit of measurement for the metrics pack.
+ */
+export type UnitsConfig = Readonly<Record<string, string | readonly string[]>>;
+
 export interface BaselineConfig {
   readonly file: string;
   readonly sortRecords: 'alphabetical';
@@ -139,6 +146,7 @@ export interface Config {
   explicitPlacement?: readonly ExplicitPlacementRule[];
   resolve?: Partial<ResolveConfig>;
   layers?: LayersConfig;
+  units?: UnitsConfig;
   view?: Partial<ViewConfig>;
   rules?: Readonly<Record<string, RuleSetting>>;
   perFileRules?: Readonly<Record<string, RuleSetting>>;
@@ -163,6 +171,7 @@ export interface ResolvedConfig {
   readonly explicitPlacement: readonly ExplicitPlacementRule[];
   readonly resolve: ResolveConfig;
   readonly layers: LayersConfig;
+  readonly units: UnitsConfig;
   readonly rules: Readonly<Record<string, ResolvedRuleSetting>>;
   readonly perFileRules: Readonly<Record<string, ResolvedRuleSetting>>;
   readonly ignore: readonly string[];

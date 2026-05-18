@@ -288,3 +288,27 @@ describe('validateConfig', () => {
     expect((caught as ConfigError).configPath).toBe('/proj/arch-lint.config.ts');
   });
 });
+
+describe('configSchema — units', () => {
+  it('accepts a units record of name to glob', () => {
+    const parsed = configSchema.parse({
+      project: { tsconfig: './tsconfig.json' },
+      units: { 'platform/graph': 'platform/graph/**' },
+    });
+    expect(parsed.units).toEqual({ 'platform/graph': 'platform/graph/**' });
+  });
+
+  it('accepts a units value that is a list of globs', () => {
+    const parsed = configSchema.parse({
+      project: { tsconfig: './tsconfig.json' },
+      units: { shared: ['foundation/config/**', 'foundation/types/**'] },
+    });
+    expect(parsed.units).toEqual({ shared: ['foundation/config/**', 'foundation/types/**'] });
+  });
+
+  it('rejects a units value that is a number', () => {
+    expect(() =>
+      configSchema.parse({ project: { tsconfig: './tsconfig.json' }, units: { x: 5 } }),
+    ).toThrow();
+  });
+});
