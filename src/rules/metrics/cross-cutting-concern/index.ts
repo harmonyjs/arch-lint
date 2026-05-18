@@ -27,14 +27,15 @@ export const crossCuttingConcern: GraphRule = {
   check: (graph, config: ResolvedConfig, context: GraphRuleContext): Diagnostic[] => {
     const opts = { ...DEFAULTS, ...(context.options as Partial<Options>) };
     const root = config.project.sourceRoot;
+    const layers = config.layers;
     const allow = new Set(opts.allow);
     const out: Diagnostic[] = [];
     for (const node of graph.nodes.values()) {
       if (node.kind !== 'file' || allow.has(node.id)) continue;
-      const ownSubsystem = subsystemOf(node.id, root);
+      const ownSubsystem = subsystemOf(node.id, root, layers);
       const importingSubsystems = new Set<string>();
       for (const edge of graph.consumersOf.get(node.id) ?? []) {
-        const consumerSubsystem = subsystemOf(edge.consumer, root);
+        const consumerSubsystem = subsystemOf(edge.consumer, root, layers);
         if (consumerSubsystem === null || consumerSubsystem === ownSubsystem) continue;
         importingSubsystems.add(consumerSubsystem);
       }

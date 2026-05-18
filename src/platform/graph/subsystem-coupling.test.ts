@@ -2,6 +2,7 @@
  * @fileoverview Tests for the subsystem-coupling helper — subsystemOf and subsystemCoupling.
  */
 import { describe, expect, it } from 'vitest';
+import type { LayersConfig } from '#foundation/config/types.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { subsystemCoupling, subsystemOf } from './subsystem-coupling.js';
 import type { Edge } from './types.js';
@@ -9,6 +10,15 @@ import type { Edge } from './types.js';
 function edge(consumer: string, producer: string): Edge {
   return { consumer, producer, symbol: 'x', typeOnly: false };
 }
+
+/** The arch-lint layer set, used to exercise the layer-aware branch. */
+const LAYERS: LayersConfig = {
+  foundation: { canImport: [] },
+  platform: { canImport: ['foundation'] },
+  rules: { canImport: ['foundation', 'platform'] },
+  report: { canImport: ['foundation', 'platform', 'rules'] },
+  runner: { canImport: ['foundation', 'platform', 'rules', 'report'] },
+};
 
 describe('subsystemOf', () => {
   it('takes the first path segment after the source root', () => {
@@ -19,6 +29,22 @@ describe('subsystemOf', () => {
   });
   it('returns null for a root-level file', () => {
     expect(subsystemOf('src/types.ts', 'src')).toBeNull();
+  });
+
+  it('descends one level when the first segment is a declared layer', () => {
+    expect(subsystemOf('src/foundation/config/types.ts', 'src', LAYERS)).toBe('foundation/config');
+  });
+  it('returns just the layer name for a file directly in a layer root', () => {
+    expect(subsystemOf('src/runner/check.ts', 'src', LAYERS)).toBe('runner');
+  });
+  it('still takes the first segment when it is not a declared layer', () => {
+    expect(subsystemOf('src/widgets/button.ts', 'src', LAYERS)).toBe('widgets');
+  });
+  it('behaves like the first-segment fallback when layers is empty', () => {
+    expect(subsystemOf('src/foundation/config/types.ts', 'src', {})).toBe('foundation');
+  });
+  it('returns null for a root-level file even with layers declared', () => {
+    expect(subsystemOf('src/public-api.ts', 'src', LAYERS)).toBeNull();
   });
 });
 
@@ -109,5 +135,18 @@ describe('subsystemCoupling', () => {
       edges: [edge('src/runner/cli.ts', 'src/graph/a.ts')],
     });
     expect(subsystemCoupling(graph, 'src')).toBe(subsystemCoupling(graph, 'src'));
+  });
+
+  it('folds layer-qualified subsystems when layers are declared', () => {
+    const graph = makeGraph({
+      nodes: {
+        'src/rules/metrics/analyze.ts': { kind: 'file' },
+        'src/platform/graph/build.ts': { kind: 'file' },
+      },
+      edges: [edge('src/rules/metrics/analyze.ts', 'src/platform/graph/build.ts')],
+    });
+    const c = subsystemCoupling(graph, 'src', LAYERS);
+    expect(c.get('rules/metrics')?.ce).toBe(1);
+    expect(c.get('platform/graph')?.ca).toBe(1);
   });
 });

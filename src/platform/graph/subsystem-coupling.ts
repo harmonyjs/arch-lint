@@ -1,8 +1,11 @@
 /**
  * @fileoverview Subsystem-coupling helper — folds the file-level ConsumerGraph into
  * per-subsystem coupling figures (efferent/afferent, membership, inbound set). A
- * subsystem is the first path segment after the source root.
+ * subsystem is the first path segment after the source root — or, when that
+ * segment is a declared layer, the first two segments, so a subsystem stays a
+ * real module rather than a whole layer grab-bag.
  */
+import type { LayersConfig } from '#foundation/config/types.js';
 import type { ConsumerGraph } from './types.js';
 
 /** Per-subsystem coupling figures folded from the file-level ConsumerGraph. */
@@ -27,16 +30,36 @@ interface SubsystemAccumulator {
 }
 
 /**
+ * The default `layers` value — a single shared frozen object so that callers
+ * that omit `layers` all share one stable cache identity (see `couplingCache`).
+ */
+const NO_LAYERS: LayersConfig = Object.freeze({});
+
+/**
  * Subsystem of a file id: strips a leading `sourceRoot + '/'` then takes the segment
  * before the first remaining `/`. A root-level file — one directly under the source
  * root, with no further `/` — has no subsystem: it is shared lexicon, not a subsystem,
  * so this returns `null` and the metrics fold excludes it entirely.
+ *
+ * When the first segment is a declared layer (a key of `layers`), a whole layer is
+ * a deliberate grab-bag, not a module — so the subsystem descends one level: it is
+ * the first two segments joined (`foundation/config`), or just the layer name when
+ * the file sits directly in the layer root (`runner/check.ts` → `runner`). An empty
+ * `layers` map means no segment is ever a layer — the first-segment behavior.
  */
-export function subsystemOf(fileId: string, sourceRoot: string): string | null {
+export function subsystemOf(
+  fileId: string,
+  sourceRoot: string,
+  layers: LayersConfig = NO_LAYERS,
+): string | null {
   const prefix = `${sourceRoot}/`;
   const rest = fileId.startsWith(prefix) ? fileId.slice(prefix.length) : fileId;
   const slash = rest.indexOf('/');
-  return slash === -1 ? null : rest.slice(0, slash);
+  if (slash === -1) return null;
+  const first = rest.slice(0, slash);
+  if (!Object.hasOwn(layers, first)) return first;
+  const secondSlash = rest.indexOf('/', slash + 1);
+  return secondSlash === -1 ? first : rest.slice(0, secondSlash);
 }
 
 /** Returns the accumulator for `name`, creating an empty one on first sight. */
@@ -53,13 +76,16 @@ function accumulatorFor(
 }
 
 /**
- * Cache keyed on the `(graph, sourceRoot)` pair: every metric rule folds the same
- * graph, so the fold is computed once per pair and reused. The ConsumerGraph is
- * frozen for the lifetime of a run, so a WeakMap key is safe and auto-clears.
+ * Cache keyed on the `(graph, layers, sourceRoot)` triple: every metric rule folds
+ * the same graph with the same `layers`, so the fold is computed once and reused.
+ * The ConsumerGraph and `layers` object are both frozen for the lifetime of a run,
+ * so a nested WeakMap is safe and auto-clears. `layers` is part of the key because
+ * it changes how `subsystemOf` names a subsystem — the metrics fold (layer-aware)
+ * and the graphdoc fold (top-level) must not poison each other's cache entry.
  */
 const couplingCache = new WeakMap<
   ConsumerGraph,
-  Map<string, ReadonlyMap<string, SubsystemCoupling>>
+  WeakMap<LayersConfig, Map<string, ReadonlyMap<string, SubsystemCoupling>>>
 >();
 
 /**
@@ -69,21 +95,28 @@ const couplingCache = new WeakMap<
  * edge whose consumer and producer both belong to a subsystem records an outbound
  * link on the consumer subsystem and an inbound link on the producer one; an edge
  * touching a root-level file is not an inter-subsystem coupling link and is skipped.
- * The fold is memoized per `(graph, sourceRoot)` pair — repeated calls are a lookup.
+ * The fold is memoized per `(graph, layers, sourceRoot)` triple — repeated calls
+ * with the same `layers` object are a lookup.
  */
 export function subsystemCoupling(
   graph: ConsumerGraph,
   sourceRoot: string,
+  layers: LayersConfig = NO_LAYERS,
 ): ReadonlyMap<string, SubsystemCoupling> {
-  let byRoot = couplingCache.get(graph);
+  let byLayers = couplingCache.get(graph);
+  if (byLayers === undefined) {
+    byLayers = new WeakMap();
+    couplingCache.set(graph, byLayers);
+  }
+  let byRoot = byLayers.get(layers);
   if (byRoot === undefined) {
     byRoot = new Map();
-    couplingCache.set(graph, byRoot);
+    byLayers.set(layers, byRoot);
   }
   const cached = byRoot.get(sourceRoot);
   if (cached !== undefined) return cached;
 
-  const coupling = computeSubsystemCoupling(graph, sourceRoot);
+  const coupling = computeSubsystemCoupling(graph, sourceRoot, layers);
   byRoot.set(sourceRoot, coupling);
   return coupling;
 }
@@ -92,19 +125,20 @@ export function subsystemCoupling(
 function computeSubsystemCoupling(
   graph: ConsumerGraph,
   sourceRoot: string,
+  layers: LayersConfig,
 ): ReadonlyMap<string, SubsystemCoupling> {
   const accumulators = new Map<string, SubsystemAccumulator>();
 
   for (const node of graph.nodes.values()) {
     if (node.kind !== 'file') continue;
-    const subsystem = subsystemOf(node.id, sourceRoot);
+    const subsystem = subsystemOf(node.id, sourceRoot, layers);
     if (subsystem === null) continue;
     accumulatorFor(accumulators, subsystem).files.add(node.id);
   }
 
   for (const edge of graph.edges) {
-    const consumerSubsystem = subsystemOf(edge.consumer, sourceRoot);
-    const producerSubsystem = subsystemOf(edge.producer, sourceRoot);
+    const consumerSubsystem = subsystemOf(edge.consumer, sourceRoot, layers);
+    const producerSubsystem = subsystemOf(edge.producer, sourceRoot, layers);
     if (consumerSubsystem === null || producerSubsystem === null) continue;
     if (consumerSubsystem === producerSubsystem) continue;
     accumulatorFor(accumulators, consumerSubsystem).outboundSubsystems.add(producerSubsystem);

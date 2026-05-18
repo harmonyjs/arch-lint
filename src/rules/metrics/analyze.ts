@@ -3,7 +3,7 @@
  * pass: afferent/efferent coupling, instability and internal cohesion.
  * Memoized per (graph, sourceRoot) so the metrics rules share one computation.
  */
-import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { LayersConfig, ResolvedConfig } from '#foundation/config/types.js';
 import { type SubsystemCoupling, subsystemCoupling, subsystemOf } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 
@@ -23,12 +23,19 @@ export type MetricsReport = ReadonlyMap<string, SubsystemMetrics>;
 
 const reportCache = new WeakMap<ConsumerGraph, Map<string, MetricsReport>>();
 
-function cohesiveFilesOf(graph: ConsumerGraph, root: string): ReadonlySet<string> {
+function cohesiveFilesOf(
+  graph: ConsumerGraph,
+  root: string,
+  layers: LayersConfig,
+): ReadonlySet<string> {
   const result = new Set<string>();
   for (const edge of graph.edges) {
     if (edge.consumer === edge.producer) continue;
-    const consumerSubsystem = subsystemOf(edge.consumer, root);
-    if (consumerSubsystem !== null && consumerSubsystem === subsystemOf(edge.producer, root)) {
+    const consumerSubsystem = subsystemOf(edge.consumer, root, layers);
+    if (
+      consumerSubsystem !== null &&
+      consumerSubsystem === subsystemOf(edge.producer, root, layers)
+    ) {
       result.add(edge.consumer);
     }
   }
@@ -59,9 +66,9 @@ function metricsOf(
   };
 }
 
-function computeReport(graph: ConsumerGraph, root: string): MetricsReport {
-  const coupling = subsystemCoupling(graph, root);
-  const cohesive = cohesiveFilesOf(graph, root);
+function computeReport(graph: ConsumerGraph, root: string, layers: LayersConfig): MetricsReport {
+  const coupling = subsystemCoupling(graph, root, layers);
+  const cohesive = cohesiveFilesOf(graph, root, layers);
   const report = new Map<string, SubsystemMetrics>();
   for (const [subsystem, info] of coupling) {
     report.set(subsystem, metricsOf(graph, info, cohesive));
@@ -82,7 +89,7 @@ export function analyzeMetrics(graph: ConsumerGraph, config: ResolvedConfig): Me
   }
   const cached = byRoot.get(root);
   if (cached !== undefined) return cached;
-  const report = computeReport(graph, root);
+  const report = computeReport(graph, root, config.layers);
   byRoot.set(root, report);
   return report;
 }
