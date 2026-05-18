@@ -119,6 +119,7 @@ export function resolveConfig(config: Config): ResolvedConfig {
     explicitPlacement: config.explicitPlacement ?? [],
     resolve: { ...DEFAULT_RESOLVE, ...config.resolve },
     layers: config.layers ?? {},
+    units: config.units ?? {},
     rules: normalizeRules(config.rules),
     perFileRules: normalizeRules(config.perFileRules),
     ignore: config.ignore ?? [],

@@ -78,6 +78,9 @@ const layerSchema = z.object({
 /** layers block — keyed by path-segment prefix or file path. */
 const layersSchema = z.record(z.string(), layerSchema);
 
+/** units block — keyed by unit name; each value is a glob or a list of globs. */
+const unitsSchema = z.record(z.string(), z.union([z.string(), z.array(z.string())]));
+
 /** resolve block — import-resolver knobs; every field optional. */
 const resolveSchema = z
   .object({
@@ -176,6 +179,7 @@ export const configSchema = z.object({
   explicitPlacement: z.array(explicitPlacementSchema).optional(),
   resolve: resolveSchema.optional(),
   layers: layersSchema.optional(),
+  units: unitsSchema.optional(),
   view: viewSchema.optional(),
   rules: z.record(z.string(), ruleSettingSchema).optional(),
   perFileRules: z.record(z.string(), ruleSettingSchema).optional(),

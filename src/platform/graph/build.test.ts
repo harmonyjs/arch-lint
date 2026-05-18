@@ -45,6 +45,7 @@ function makeConfig(): ResolvedConfig {
       extensions: ['.ts', '.tsx'],
     },
     layers: {},
+    units: {},
     rules: {},
     perFileRules: {},
     ignore: ['**/*.test.ts'],

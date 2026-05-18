@@ -255,3 +255,17 @@ describe('resolveConfig — RuleSetting normalization', () => {
     });
   });
 });
+
+describe('resolveConfig — units default', () => {
+  it('defaults units to an empty record', () => {
+    expect(resolveConfig(minimal).units).toEqual({});
+  });
+
+  it('preserves an explicit units record', () => {
+    const cfg: Config = {
+      project: { tsconfig: './tsconfig.json' },
+      units: { 'platform/graph': 'platform/graph/**' },
+    };
+    expect(resolveConfig(cfg).units).toEqual({ 'platform/graph': 'platform/graph/**' });
+  });
+});
