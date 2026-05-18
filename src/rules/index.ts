@@ -72,7 +72,7 @@ export function getActiveRules(
   const builtins = allRules.filter(
     (rule) => enabledPacks.has(rule.pack) && passesFilters(rule, config, filter),
   );
-  // Safe: pluginRuleSchema (config/schema.ts) validates plugin structure on load.
+  // pluginRuleSchema (config/schema.ts) validates plugin rules on load; check's signature is trusted.
   const pluginRules = config.plugins as readonly Rule[];
   const plugins = pluginRules.filter((rule) => passesFilters(rule, config, filter));
   return [...builtins, ...plugins];
