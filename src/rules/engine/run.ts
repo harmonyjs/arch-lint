@@ -4,7 +4,7 @@
 import type { Project } from 'ts-morph';
 import type { ResolvedConfig } from '#config/types.js';
 import type { ConsumerGraph } from '#graph/types.js';
-import type { Logger } from '#logger/index.js';
+import type { Logger, Telemetry } from '#logger/index.js';
 import { assertGraphProjectConsistent } from '#rules/ast/index.js';
 import { getActiveRules } from '#rules/index.js';
 import type { ManifestBundle, Rule } from '#rules/types.js';
@@ -61,6 +61,8 @@ export interface EngineInputs {
   readonly census: readonly string[];
   /** The diagnostic-output sink threaded into every rule context. */
   readonly logger: Logger;
+  /** The span recorder wrapping each rule's execution. */
+  readonly telemetry: Telemetry;
 }
 
 /**
@@ -75,7 +77,7 @@ export function runEngine(
   inputs: EngineInputs,
   ruleFilter?: readonly string[],
 ): readonly Diagnostic[] {
-  const { graph, config, suppress, project, census, logger } = inputs;
+  const { graph, config, suppress, project, census, logger, telemetry } = inputs;
   const activeRules = getActiveRules(config, ruleFilter);
   if (activeRules.some((r) => r.engine === 'syntactic')) {
     assertGraphProjectConsistent(graph, project);
@@ -90,7 +92,9 @@ export function runEngine(
     cwd: config.project.cwd,
     logger,
   };
-  let diagnostics: Diagnostic[] = activeRules.flatMap((rule) => dispatchRule(rule, env));
+  let diagnostics: Diagnostic[] = activeRules.flatMap((rule) =>
+    telemetry.withSpan(rule.id, () => dispatchRule(rule, env)),
+  );
   diagnostics = diagnostics.filter((d) => !suppress.isSuppressed(d));
   diagnostics = [...dedupPlacement(diagnostics)];
   runtimeSelfCheck(diagnostics);

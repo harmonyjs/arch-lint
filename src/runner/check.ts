@@ -13,8 +13,8 @@ import { ArchLintError, ConfigError, GraphBuildError, IOError } from '#errors/in
 import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-files.js';
 import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
-import type { Logger } from '#logger/index.js';
-import { ConsoleLogger } from '#logger/index.js';
+import type { Logger, Telemetry } from '#logger/index.js';
+import { ConsoleLogger, NullTelemetry, RecordingTelemetry } from '#logger/index.js';
 import { formatReport } from '#report/index.js';
 import { runEngine } from '#rules/engine/index.js';
 import type { CheckResult } from '#rules/types.js';
@@ -49,6 +49,8 @@ export interface CheckInputs {
   readonly census: readonly string[];
   /** The diagnostic-output sink threaded into the engine and its rule contexts. */
   readonly logger: Logger;
+  /** The span recorder the engine wraps each rule's execution in. */
+  readonly telemetry: Telemetry;
 }
 
 /**
@@ -156,6 +158,20 @@ export interface RunCheckOptions {
   readonly base?: string;
   /** Restrict the run to these rule ids; absent runs every active rule. */
   readonly ruleFilter?: readonly string[];
+  /** Record per-rule timing spans and log a slowest-first summary after the run. */
+  readonly telemetry?: boolean;
+}
+
+/**
+ * Logs a per-rule timing summary through `logger`, one `info` line per rule,
+ * sorted slowest-first. Durations are reported in milliseconds.
+ */
+function logTelemetrySummary(logger: Logger, telemetry: RecordingTelemetry): void {
+  const rows = [...telemetry.timings.entries()].sort(([, a], [, b]) => b - a);
+  logger.info('telemetry — per-rule timings (slowest first):');
+  for (const [ruleId, ms] of rows) {
+    logger.info(`  ${ruleId}: ${ms.toFixed(2)}ms`);
+  }
 }
 
 /** The result of a runCheck invocation — the report plus the process verdict. */
@@ -202,11 +218,11 @@ export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcom
   const { graph, sources } = await buildGraphAndSources(config);
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
-  const result = check(
-    { graph, config, suppress, project: sources.project, census: sources.census, logger },
-    options.ruleFilter,
-    baseline,
-  );
+  const { project, census } = sources;
+  const telemetry = options.telemetry ? new RecordingTelemetry() : new NullTelemetry();
+  const inputs: CheckInputs = { graph, config, suppress, project, census, logger, telemetry };
+  const result = check(inputs, options.ruleFilter, baseline);
+  if (telemetry instanceof RecordingTelemetry) logTelemetrySummary(logger, telemetry);
 
   const warnings: string[] = [];
   let diagnostics: readonly Diagnostic[] = result.diagnostics;
@@ -249,6 +265,8 @@ export interface CheckCommandFlags {
   readonly base?: string;
   /** Restrict the run to these rule ids; absent runs every active rule. */
   readonly ruleFilter?: readonly string[];
+  /** Record per-rule timing spans and log a slowest-first summary (`--telemetry`). */
+  readonly telemetry: boolean;
 }
 
 /**
@@ -278,6 +296,7 @@ export async function runCheckCommand(flags: CheckCommandFlags): Promise<CheckCo
     mode: flags.changedOnly ? 'preCommit' : 'ci',
     noBaseline: flags.noBaseline,
     changedOnly: flags.changedOnly,
+    telemetry: flags.telemetry,
     ...(flags.configPath !== undefined ? { configPath: flags.configPath } : {}),
     ...(flags.base !== undefined ? { base: flags.base } : {}),
     ...(flags.ruleFilter !== undefined ? { ruleFilter: flags.ruleFilter } : {}),

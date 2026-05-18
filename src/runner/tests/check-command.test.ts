@@ -142,6 +142,7 @@ describe('runCheckCommand', () => {
     const outcome = await runCheckCommand({
       cwd: '/repo',
       changedOnly: false,
+      telemetry: false,
       noBaseline: false,
     });
 
@@ -162,6 +163,7 @@ describe('runCheckCommand', () => {
       cwd: '/repo',
       configPath: '/repo/arch-lint.config.ts',
       changedOnly: true,
+      telemetry: false,
       noBaseline: true,
       base: 'origin/main',
       ruleFilter: ['layer-boundary'],

@@ -8,7 +8,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ResolvedConfig } from '#config/types.js';
 import { GraphBuildError } from '#errors/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import { NullTelemetry, RecordingTelemetry } from '#logger/index.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
+import { only } from '#rules/test-support/only.js';
 import type { Diagnostic } from '#types.js';
 
 // ── Mocked seams ─────────────────────────────────────────────────────────────
@@ -245,5 +247,23 @@ describe('runCheck', () => {
     expect(outcome.result.diagnostics.map((d) => d.entity)).toEqual(['src/a.ts']);
     // Summary stays from the full run — only the diagnostics list is narrowed.
     expect(outcome.result.summary.total).toBe(2);
+  });
+
+  it('hands the engine a NullTelemetry when --telemetry is absent', async () => {
+    arrange({ diagnostics: [] });
+    await runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false });
+    expect(only(runEngineMock.mock.calls)[0].telemetry).toBeInstanceOf(NullTelemetry);
+  });
+
+  it('hands the engine a RecordingTelemetry when --telemetry is set', async () => {
+    arrange({ diagnostics: [] });
+    await runCheck({
+      cwd: '/repo',
+      mode: 'ci',
+      noBaseline: false,
+      changedOnly: false,
+      telemetry: true,
+    });
+    expect(only(runEngineMock.mock.calls)[0].telemetry).toBeInstanceOf(RecordingTelemetry);
   });
 });

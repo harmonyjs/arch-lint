@@ -6,7 +6,7 @@ import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#config/types.js';
 import { EngineError } from '#errors/index.js';
-import { NullLogger } from '#logger/index.js';
+import { NullLogger, NullTelemetry, RecordingTelemetry } from '#logger/index.js';
 import { makeSuppressIndex } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import type { Rule } from '#rules/types.js';
@@ -54,6 +54,7 @@ describe('runEngine pipeline steps 1-2', () => {
       project: emptyProject,
       census: [],
       logger: new NullLogger(),
+      telemetry: new NullTelemetry(),
     });
     expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });
@@ -67,6 +68,7 @@ describe('runEngine pipeline steps 1-2', () => {
       project: emptyProject,
       census: [],
       logger: new NullLogger(),
+      telemetry: new NullTelemetry(),
     });
     expect(result.some((d) => d.entity === 'src/App/Stray')).toBe(false);
   });
@@ -79,6 +81,7 @@ describe('runEngine pipeline steps 1-2', () => {
       project: emptyProject,
       census: [],
       logger: new NullLogger(),
+      telemetry: new NullTelemetry(),
     });
     expect(result).toEqual([]);
   });
@@ -102,6 +105,7 @@ describe('runEngine pipeline steps 1-2', () => {
       project: emptyProject,
       census: [],
       logger: new NullLogger(),
+      telemetry: new NullTelemetry(),
     });
     expect(sawContext).toBe(true);
   });
@@ -125,6 +129,7 @@ describe('runEngine pipeline steps 1-2', () => {
       project: emptyProject,
       census: ['src/a.ts', 'src/a.test.ts'],
       logger: new NullLogger(),
+      telemetry: new NullTelemetry(),
     });
     expect(seenCensus).toEqual(['src/a.ts', 'src/a.test.ts']);
   });
@@ -146,6 +151,7 @@ describe('runEngine pipeline steps 1-2', () => {
         project: emptyProject,
         census: [],
         logger: new NullLogger(),
+        telemetry: new NullTelemetry(),
       }),
     ).toThrow(/src\/missing\.ts/);
   });
@@ -160,6 +166,7 @@ describe('runEngine pipeline steps 1-2', () => {
         project: emptyProject,
         census: [],
         logger: new NullLogger(),
+        telemetry: new NullTelemetry(),
       }),
     ).not.toThrow();
   });
@@ -184,6 +191,7 @@ describe('runEngine pipeline steps 1-2', () => {
       project,
       census: [],
       logger: new NullLogger(),
+      telemetry: new NullTelemetry(),
     });
     expect(seen).toBe(project);
   });
@@ -230,6 +238,7 @@ describe('runEngine pipeline steps 3-4', () => {
         project: emptyProject,
         census: [],
         logger: new NullLogger(),
+        telemetry: new NullTelemetry(),
       }),
     ).toThrow(EngineError);
   });
@@ -243,6 +252,7 @@ describe('runEngine pipeline steps 3-4', () => {
         project: emptyProject,
         census: [],
         logger: new NullLogger(),
+        telemetry: new NullTelemetry(),
       }),
     ).not.toThrow();
   });
@@ -258,6 +268,7 @@ describe('runEngine — rule filter', () => {
         project: emptyProject,
         census: [],
         logger: new NullLogger(),
+        telemetry: new NullTelemetry(),
       },
       ['layer-boundary'],
     );
@@ -272,7 +283,27 @@ describe('runEngine — rule filter', () => {
       project: emptyProject,
       census: [],
       logger: new NullLogger(),
+      telemetry: new NullTelemetry(),
     });
     expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
+  });
+});
+
+describe('runEngine — telemetry', () => {
+  it('wraps each rule in a telemetry span keyed by rule id', () => {
+    const telemetry = new RecordingTelemetry();
+    runEngine(
+      {
+        graph: strayGraph,
+        config: cfg(),
+        suppress: makeSuppressIndex(),
+        project: emptyProject,
+        census: [],
+        logger: new NullLogger(),
+        telemetry,
+      },
+      ['lca-placement'],
+    );
+    expect(telemetry.timings.has('lca-placement')).toBe(true);
   });
 });

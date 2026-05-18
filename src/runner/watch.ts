@@ -12,7 +12,7 @@ import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-file
 import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
 import type { Logger } from '#logger/index.js';
-import { ConsoleLogger } from '#logger/index.js';
+import { ConsoleLogger, NullTelemetry } from '#logger/index.js';
 import { formatReport } from '#report/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
 import { buildSuppressIndex } from '#suppress/suppress-index.js';
@@ -167,7 +167,15 @@ function render(rebuilt: RebuildResult, ctx: RenderContext): void {
   const { graph, sources } = rebuilt;
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const result = check(
-    { graph, config, suppress, project: sources.project, census: sources.census, logger },
+    {
+      graph,
+      config,
+      suppress,
+      project: sources.project,
+      census: sources.census,
+      logger,
+      telemetry: new NullTelemetry(),
+    },
     undefined,
     baseline,
   );

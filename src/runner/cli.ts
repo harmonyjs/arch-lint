@@ -29,6 +29,9 @@ interface GlobalOptions {
   readonly debug?: boolean;
 }
 
+/** The `check` command's merged global + local options, as parsed by commander. */
+type CheckOptions = GlobalOptions & { changedOnly?: boolean; telemetry?: boolean };
+
 /**
  * Normalises the raw `--rules` value into a rule-id list. Splits on commas,
  * trims each id, and drops empties; an undefined input or a list with no
@@ -80,12 +83,14 @@ function registerCheckCommand(program: Command, logger: Logger): void {
     .command('check')
     .description('run the architecture check')
     .option('--changed-only', 'restrict the run to files changed against the git base')
+    .option('--telemetry', 'record per-rule timings and print a slowest-first summary')
     .action(async (_local: unknown, cmd: Command) => {
-      const globals = cmd.optsWithGlobals() as GlobalOptions & { changedOnly?: boolean };
+      const globals = cmd.optsWithGlobals() as CheckOptions;
       const ruleFilter = parseRuleList(globals.rules);
       const outcome = await runCheckCommand({
         cwd: process.cwd(),
         changedOnly: globals.changedOnly === true,
+        telemetry: globals.telemetry === true,
         noBaseline: noBaselineFrom(globals),
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
         ...(globals.base !== undefined ? { base: globals.base } : {}),
@@ -108,12 +113,8 @@ function registerWatchCommand(program: Command): void {
         cwd: process.cwd(),
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
         createWatcher: (sourceRoot) => chokidar.watch(sourceRoot, { ignoreInitial: true }),
-        print: (text) => {
-          process.stdout.write(`${text}\n`);
-        },
-        clearScreen: () => {
-          process.stdout.write(CLEAR_SCREEN);
-        },
+        print: (text) => void process.stdout.write(`${text}\n`),
+        clearScreen: () => void process.stdout.write(CLEAR_SCREEN),
       });
       process.once('SIGINT', () => {
         void session.close().then(() => process.exit(0));
