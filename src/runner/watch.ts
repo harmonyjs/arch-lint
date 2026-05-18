@@ -11,6 +11,8 @@ import type { ResolvedConfig } from '#config/types.js';
 import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-files.js';
 import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import type { Logger } from '#logger/index.js';
+import { ConsoleLogger } from '#logger/index.js';
 import { formatReport } from '#report/index.js';
 import type { BaselineFile } from '#runner/baseline/types.js';
 import { buildSuppressIndex } from '#suppress/suppress-index.js';
@@ -84,17 +86,19 @@ export interface WatchSession {
  * render failure is reported and the session keeps watching.
  */
 export async function runWatch(opts: WatchOptions): Promise<WatchSession> {
-  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath));
+  const logger = new ConsoleLogger();
+  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath, logger));
   const baseline = await resolveBaseline(config, { noBaseline: false });
+  const renderContext: RenderContext = { config, baseline, opts, logger };
 
   const initial = await rebuild(config);
-  render(initial, config, baseline, opts);
+  render(initial, renderContext);
 
   const debouncer = createDebouncer<ClassifiedChange>(config.runMode.watch.debounceMs, () => {
     void (async () => {
       try {
         const next = await rebuild(config);
-        render(next, config, baseline, opts);
+        render(next, renderContext);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         opts.print(`Watch rebuild failed: ${message}`);
@@ -141,21 +145,29 @@ async function rebuild(config: ResolvedConfig): Promise<RebuildResult> {
   return { graph: buildGraphFromSources(config, sources), sources };
 }
 
+/** The session-invariant context a `render` reuses across every rebuild. */
+interface RenderContext {
+  /** The fully resolved configuration governing the run. */
+  readonly config: ResolvedConfig;
+  /** The baseline diagnostics are classified against; null skips classification. */
+  readonly baseline: BaselineFile | null;
+  /** The watch session's injected I/O seams. */
+  readonly opts: WatchOptions;
+  /** The diagnostic-output sink threaded into the check. */
+  readonly logger: Logger;
+}
+
 /**
  * Produces a CheckResult for the current graph and prints its report. The
  * suppress index is built per render from the shared sources; the optional
  * screen clear runs first.
  */
-function render(
-  rebuilt: RebuildResult,
-  config: ResolvedConfig,
-  baseline: BaselineFile | null,
-  opts: WatchOptions,
-): void {
+function render(rebuilt: RebuildResult, ctx: RenderContext): void {
+  const { config, baseline, opts, logger } = ctx;
   const { graph, sources } = rebuilt;
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const result = check(
-    { graph, config, suppress, project: sources.project, census: sources.census },
+    { graph, config, suppress, project: sources.project, census: sources.census, logger },
     undefined,
     baseline,
   );

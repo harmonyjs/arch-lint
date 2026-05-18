@@ -5,6 +5,7 @@
  */
 import type { Project } from 'ts-morph';
 import type { ResolvedConfig } from '#config/types.js';
+import type { Logger } from '#logger/index.js';
 import type {
   CensusRuleContext,
   GraphRuleContext,
@@ -32,40 +33,72 @@ function baseContext(
   return { ruleId: rule.id, severity, options };
 }
 
-/** Build the GraphRuleContext for `rule`: severity, options, and the suppress index. */
+/** The engine-specific dependencies a GraphRuleContext is assembled from. */
+export interface GraphContextDeps {
+  readonly suppress: SuppressIndex;
+  readonly logger: Logger;
+}
+
+/** The engine-specific dependencies a SyntacticRuleContext is assembled from. */
+export interface SyntacticContextDeps extends GraphContextDeps {
+  readonly project: Project;
+}
+
+/** The engine-specific dependencies a ManifestRuleContext is assembled from. */
+export interface ManifestContextDeps {
+  readonly manifests: ManifestBundle;
+  readonly cwd: string;
+  readonly logger: Logger;
+}
+
+/** The engine-specific dependencies a CensusRuleContext is assembled from. */
+export interface CensusContextDeps {
+  readonly census: readonly string[];
+  readonly logger: Logger;
+}
+
+/** Build the GraphRuleContext for `rule`: severity, options, the suppress index and logger. */
 export function buildGraphContext(
   rule: Rule,
   config: ResolvedConfig,
-  suppress: SuppressIndex,
+  deps: GraphContextDeps,
 ): GraphRuleContext {
-  return { ...baseContext(rule, config), suppress };
+  return { ...baseContext(rule, config), suppress: deps.suppress, logger: deps.logger };
 }
 
 /** Build the SyntacticRuleContext for `rule`: the GraphRule fields plus the parsed project. */
 export function buildSyntacticContext(
   rule: Rule,
   config: ResolvedConfig,
-  suppress: SuppressIndex,
-  project: Project,
+  deps: SyntacticContextDeps,
 ): SyntacticRuleContext {
-  return { ...baseContext(rule, config), suppress, project };
+  return {
+    ...baseContext(rule, config),
+    suppress: deps.suppress,
+    project: deps.project,
+    logger: deps.logger,
+  };
 }
 
 /** Build the ManifestRuleContext for `rule`: severity, options, the manifest bundle and cwd. */
 export function buildManifestContext(
   rule: Rule,
   config: ResolvedConfig,
-  manifests: ManifestBundle,
-  cwd: string,
+  deps: ManifestContextDeps,
 ): ManifestRuleContext {
-  return { ...baseContext(rule, config), manifests, cwd };
+  return {
+    ...baseContext(rule, config),
+    manifests: deps.manifests,
+    cwd: deps.cwd,
+    logger: deps.logger,
+  };
 }
 
 /** Build the CensusRuleContext for `rule`: severity, options and the FileCensus. */
 export function buildCensusContext(
   rule: Rule,
   config: ResolvedConfig,
-  census: readonly string[],
+  deps: CensusContextDeps,
 ): CensusRuleContext {
-  return { ...baseContext(rule, config), census };
+  return { ...baseContext(rule, config), census: deps.census, logger: deps.logger };
 }

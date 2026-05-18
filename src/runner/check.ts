@@ -13,6 +13,8 @@ import { ArchLintError, ConfigError, GraphBuildError, IOError } from '#errors/in
 import { loadSourceFiles, type SourceFileSet } from '#graph/discover-source-files.js';
 import { buildGraphFromSources, graphEntityResolver } from '#graph/index.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import type { Logger } from '#logger/index.js';
+import { ConsoleLogger } from '#logger/index.js';
 import { formatReport } from '#report/index.js';
 import { runEngine } from '#rules/engine/index.js';
 import type { CheckResult } from '#rules/types.js';
@@ -45,6 +47,8 @@ export interface CheckInputs {
   readonly project: Project;
   /** The FileCensus — the project file list census rules check placement against. */
   readonly census: readonly string[];
+  /** The diagnostic-output sink threaded into the engine and its rule contexts. */
+  readonly logger: Logger;
 }
 
 /**
@@ -193,12 +197,13 @@ async function buildGraphAndSources(
  * narrows only the reported diagnostics and the exit code.
  */
 export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcome> {
-  const config = resolveConfig(await loadConfig(options.cwd, options.configPath));
+  const logger = new ConsoleLogger();
+  const config = resolveConfig(await loadConfig(options.cwd, options.configPath, logger));
   const { graph, sources } = await buildGraphAndSources(config);
   const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
   const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
   const result = check(
-    { graph, config, suppress, project: sources.project, census: sources.census },
+    { graph, config, suppress, project: sources.project, census: sources.census, logger },
     options.ruleFilter,
     baseline,
   );

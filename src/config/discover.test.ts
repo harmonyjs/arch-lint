@@ -1,14 +1,11 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ConfigError } from '#errors/index.js';
+import { InMemoryLogger } from '#logger/index.js';
 import { discoverConfig } from './discover.js';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 describe('discoverConfig — explicit path', () => {
   it('returns an explicit-path descriptor for a supported extension', () => {
@@ -83,18 +80,19 @@ describe('discoverConfig — autodiscovery', () => {
 
 describe('discoverConfig — precedence and warnings', () => {
   it('prefers arch-lint.config.ts over .mjs and warns about multiple sources', () => {
-    const warn = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const logger = new InMemoryLogger();
     const dir = path.join(fixtures, 'two-sources');
-    const result = discoverConfig(dir);
+    const result = discoverConfig(dir, undefined, logger);
     expect(result).toEqual({ kind: 'file', path: path.join(dir, 'arch-lint.config.ts') });
-    expect(warn).toHaveBeenCalledOnce();
-    expect(warn.mock.calls[0]?.[0]).toContain('multiple');
+    expect(logger.entries).toHaveLength(1);
+    expect(logger.entries[0]?.level).toBe('warn');
+    expect(logger.entries[0]?.message).toContain('multiple');
   });
 
   it('does not warn when a single source is found', () => {
-    const warn = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    discoverConfig(path.join(fixtures, 'with-ts-config'));
-    expect(warn).not.toHaveBeenCalled();
+    const logger = new InMemoryLogger();
+    discoverConfig(path.join(fixtures, 'with-ts-config'), undefined, logger);
+    expect(logger.entries).toEqual([]);
   });
 });
 

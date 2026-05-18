@@ -12,6 +12,7 @@ import { isAbsolute, join, resolve } from 'node:path';
 import { loadConfig, resolveConfig } from '#config/index.js';
 import type { ResolvedConfig } from '#config/types.js';
 import { ConfigError } from '#errors/index.js';
+import { ConsoleLogger } from '#logger/index.js';
 import type { CheckResult } from '#rules/types.js';
 import { type RunCheckOptions, resolveBaseline, runCheck } from '#runner/check.js';
 import { packageRoot } from '#runner/paths.js';
@@ -80,7 +81,7 @@ async function runFullCheck(
  * the same content (records are sorted and deduplicated by the snapshot).
  */
 export async function runBaselineInit(opts: BaselineCommandOptions): Promise<BaselineOutcome> {
-  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath));
+  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath, new ConsoleLogger()));
   const path = baselinePath(config);
 
   const result = await runFullCheck(opts, false);
@@ -100,7 +101,7 @@ export async function runBaselineInit(opts: BaselineCommandOptions): Promise<Bas
  * resolved. Writes nothing.
  */
 export async function runBaselineDiff(opts: BaselineCommandOptions): Promise<BaselineOutcome> {
-  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath));
+  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath, new ConsoleLogger()));
   const path = baselinePath(config);
 
   const baseline = await resolveBaseline(config, { noBaseline: false });
@@ -125,7 +126,7 @@ export async function runBaselineDiff(opts: BaselineCommandOptions): Promise<Bas
  * nothing.
  */
 export async function runBaselinePrune(opts: BaselinePruneOptions): Promise<BaselineOutcome> {
-  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath));
+  const config = resolveConfig(await loadConfig(opts.cwd, opts.configPath, new ConsoleLogger()));
   const path = baselinePath(config);
 
   const baseline = await resolveBaseline(config, { noBaseline: false });

@@ -11,6 +11,7 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createJiti } from 'jiti';
 import { ConfigError } from '#errors/index.js';
+import type { Logger } from '#logger/index.js';
 import { type ConfigSource, discoverConfig } from './discover.js';
 import { validateConfig } from './schema.js';
 import type { Config } from './types.js';
@@ -79,10 +80,16 @@ async function loadRaw(source: ConfigSource): Promise<unknown> {
 /**
  * Discovers, loads and validates the arch-lint config for a given cwd. An
  * explicit path (from --config) bypasses autodiscovery. Returns a validated
- * Config; default resolution is a separate step (resolveConfig).
+ * Config; default resolution is a separate step (resolveConfig). The `logger`
+ * carries any discovery warnings; it defaults to a ConsoleLogger via
+ * `discoverConfig`.
  */
-export async function loadConfig(cwd: string, explicitPath?: string): Promise<Config> {
-  const source = discoverConfig(cwd, explicitPath);
+export async function loadConfig(
+  cwd: string,
+  explicitPath?: string,
+  logger?: Logger,
+): Promise<Config> {
+  const source = discoverConfig(cwd, explicitPath, logger);
   const raw = await loadRaw(source);
   const configPath = source.kind === 'defaults' ? undefined : source.path;
   return validateConfig(raw, configPath);

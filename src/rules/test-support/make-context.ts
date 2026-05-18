@@ -3,6 +3,8 @@
  * rule tests — every context carries an in-memory ts-morph Project (decision D9).
  */
 import { Project } from 'ts-morph';
+import type { Logger } from '#logger/index.js';
+import { NullLogger } from '#logger/index.js';
 import type {
   CensusRuleContext,
   ManifestBundle,
@@ -32,6 +34,8 @@ interface ContextSpec<TOptions> {
   readonly suppress?: SuppressIndex;
   /** Parsed source project rules read AST from (D9); empty in-memory project by default. */
   readonly project?: Project;
+  /** Diagnostic-output sink; a silent NullLogger by default. */
+  readonly logger?: Logger;
 }
 
 /** Builds a mock SyntacticRuleContext for `ruleId`, applying any severity/options/project overrides. */
@@ -45,6 +49,7 @@ export function makeContext<TOptions = Record<string, unknown>>(
     options: spec.options ?? ({} as TOptions),
     suppress: spec.suppress ?? makeSuppressIndex(),
     project: spec.project ?? new Project({ useInMemoryFileSystem: true }),
+    logger: spec.logger ?? new NullLogger(),
   };
 }
 
@@ -53,6 +58,8 @@ interface ManifestContextSpec<TOptions> {
   readonly options?: TOptions;
   readonly manifests?: ManifestBundle;
   readonly cwd?: string;
+  /** Diagnostic-output sink; a silent NullLogger by default. */
+  readonly logger?: Logger;
 }
 
 /** An all-null ManifestBundle — the default when a manifest test supplies none. */
@@ -69,6 +76,7 @@ export function makeManifestContext<TOptions = Record<string, unknown>>(
     options: (spec.options ?? {}) as TOptions,
     manifests: spec.manifests ?? EMPTY_BUNDLE,
     cwd: spec.cwd ?? process.cwd(),
+    logger: spec.logger ?? new NullLogger(),
   };
 }
 
@@ -76,6 +84,8 @@ interface CensusContextSpec<TOptions> {
   readonly severity?: ActiveSeverity;
   readonly options?: TOptions;
   readonly census?: readonly string[];
+  /** Diagnostic-output sink; a silent NullLogger by default. */
+  readonly logger?: Logger;
 }
 
 /** Builds a mock CensusRuleContext for `ruleId`, applying any severity/options/census overrides. */
@@ -88,5 +98,6 @@ export function makeCensusContext<TOptions = Record<string, unknown>>(
     severity: spec.severity ?? 'warning',
     options: (spec.options ?? {}) as TOptions,
     census: spec.census ?? [],
+    logger: spec.logger ?? new NullLogger(),
   };
 }

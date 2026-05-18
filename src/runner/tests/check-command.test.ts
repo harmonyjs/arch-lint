@@ -146,7 +146,7 @@ describe('runCheckCommand', () => {
     });
 
     // No config path forwarded — loadConfig is called with cwd and no override.
-    expect(loadConfigMock).toHaveBeenCalledWith('/repo', undefined);
+    expect(loadConfigMock.mock.calls[0]?.slice(0, 2)).toEqual(['/repo', undefined]);
     // changed-only off — the git base is never consulted.
     expect(getChangedFilesMock).not.toHaveBeenCalled();
     // No rule filter — runEngine receives undefined as its rule-filter argument.
@@ -168,7 +168,10 @@ describe('runCheckCommand', () => {
     });
 
     // The config path is forwarded to config loading.
-    expect(loadConfigMock).toHaveBeenCalledWith('/repo', '/repo/arch-lint.config.ts');
+    expect(loadConfigMock.mock.calls[0]?.slice(0, 2)).toEqual([
+      '/repo',
+      '/repo/arch-lint.config.ts',
+    ]);
     // changed-only on — the git base is consulted with the supplied ref.
     expect(getChangedFilesMock).toHaveBeenCalledWith('/repo', 'origin/main');
     // The rule filter reaches the engine.

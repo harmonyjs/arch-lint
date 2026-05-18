@@ -4,6 +4,7 @@
 import type { Project } from 'ts-morph';
 import type { ResolvedConfig } from '#config/types.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import type { Logger } from '#logger/index.js';
 import { assertGraphProjectConsistent } from '#rules/ast/index.js';
 import { getActiveRules } from '#rules/index.js';
 import type { ManifestBundle, Rule } from '#rules/types.js';
@@ -28,20 +29,25 @@ interface DispatchEnv {
   readonly manifests: ManifestBundle;
   readonly census: readonly string[];
   readonly cwd: string;
+  readonly logger: Logger;
 }
 
 /** Run one rule against the slice of the environment its engine consumes. */
 function dispatchRule(rule: Rule, env: DispatchEnv): Diagnostic[] {
-  const { graph, config, suppress, project, manifests, census, cwd } = env;
+  const { graph, config, suppress, project, manifests, census, cwd, logger } = env;
   switch (rule.engine) {
     case 'graph':
-      return rule.check(graph, config, buildGraphContext(rule, config, suppress));
+      return rule.check(graph, config, buildGraphContext(rule, config, { suppress, logger }));
     case 'syntactic':
-      return rule.check(graph, config, buildSyntacticContext(rule, config, suppress, project));
+      return rule.check(
+        graph,
+        config,
+        buildSyntacticContext(rule, config, { suppress, project, logger }),
+      );
     case 'manifest':
-      return rule.check(buildManifestContext(rule, config, manifests, cwd));
+      return rule.check(buildManifestContext(rule, config, { manifests, cwd, logger }));
     case 'census':
-      return rule.check(buildCensusContext(rule, config, census));
+      return rule.check(buildCensusContext(rule, config, { census, logger }));
   }
 }
 
@@ -53,6 +59,8 @@ export interface EngineInputs {
   readonly project: Project;
   /** The FileCensus — the project file list census rules check placement against. */
   readonly census: readonly string[];
+  /** The diagnostic-output sink threaded into every rule context. */
+  readonly logger: Logger;
 }
 
 /**
@@ -67,7 +75,7 @@ export function runEngine(
   inputs: EngineInputs,
   ruleFilter?: readonly string[],
 ): readonly Diagnostic[] {
-  const { graph, config, suppress, project, census } = inputs;
+  const { graph, config, suppress, project, census, logger } = inputs;
   const activeRules = getActiveRules(config, ruleFilter);
   if (activeRules.some((r) => r.engine === 'syntactic')) {
     assertGraphProjectConsistent(graph, project);
@@ -80,6 +88,7 @@ export function runEngine(
     manifests: buildManifestBundle(config),
     census,
     cwd: config.project.cwd,
+    logger,
   };
   let diagnostics: Diagnostic[] = activeRules.flatMap((rule) => dispatchRule(rule, env));
   diagnostics = diagnostics.filter((d) => !suppress.isSuppressed(d));

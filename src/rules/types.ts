@@ -6,6 +6,7 @@
 import type { Project } from 'ts-morph';
 import type { Pack, ResolvedConfig } from '#config/types.js';
 import type { ConsumerGraph } from '#graph/types.js';
+import type { Logger } from '#logger/index.js';
 import type { NpmrcDoc } from '#manifest/npmrc.js';
 import type { PackageJsonDoc } from '#manifest/package-json.js';
 import type { EffectiveTsconfig } from '#manifest/tsconfig-effective.js';
@@ -74,6 +75,8 @@ interface RuleContextBase<TOptions = unknown> {
   readonly ruleId: string;
   readonly severity: ActiveSeverity;
   readonly options: TOptions;
+  /** The diagnostic-output sink threaded through the run. */
+  readonly logger: Logger;
 }
 
 /** Context threaded into a GraphRule — carries the suppress index. */

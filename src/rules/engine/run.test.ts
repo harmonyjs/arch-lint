@@ -6,6 +6,7 @@ import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#config/types.js';
 import { EngineError } from '#errors/index.js';
+import { NullLogger } from '#logger/index.js';
 import { makeSuppressIndex } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import type { Rule } from '#rules/types.js';
@@ -52,6 +53,7 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress: makeSuppressIndex(),
       project: emptyProject,
       census: [],
+      logger: new NullLogger(),
     });
     expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });
@@ -64,6 +66,7 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress,
       project: emptyProject,
       census: [],
+      logger: new NullLogger(),
     });
     expect(result.some((d) => d.entity === 'src/App/Stray')).toBe(false);
   });
@@ -75,6 +78,7 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress: makeSuppressIndex(),
       project: emptyProject,
       census: [],
+      logger: new NullLogger(),
     });
     expect(result).toEqual([]);
   });
@@ -97,6 +101,7 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress: makeSuppressIndex(),
       project: emptyProject,
       census: [],
+      logger: new NullLogger(),
     });
     expect(sawContext).toBe(true);
   });
@@ -119,6 +124,7 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress: makeSuppressIndex(),
       project: emptyProject,
       census: ['src/a.ts', 'src/a.test.ts'],
+      logger: new NullLogger(),
     });
     expect(seenCensus).toEqual(['src/a.ts', 'src/a.test.ts']);
   });
@@ -139,6 +145,7 @@ describe('runEngine pipeline steps 1-2', () => {
         suppress: makeSuppressIndex(),
         project: emptyProject,
         census: [],
+        logger: new NullLogger(),
       }),
     ).toThrow(/src\/missing\.ts/);
   });
@@ -152,6 +159,7 @@ describe('runEngine pipeline steps 1-2', () => {
         suppress: makeSuppressIndex(),
         project: emptyProject,
         census: [],
+        logger: new NullLogger(),
       }),
     ).not.toThrow();
   });
@@ -175,6 +183,7 @@ describe('runEngine pipeline steps 1-2', () => {
       suppress: makeSuppressIndex(),
       project,
       census: [],
+      logger: new NullLogger(),
     });
     expect(seen).toBe(project);
   });
@@ -220,6 +229,7 @@ describe('runEngine pipeline steps 3-4', () => {
         suppress: makeSuppressIndex(),
         project: emptyProject,
         census: [],
+        logger: new NullLogger(),
       }),
     ).toThrow(EngineError);
   });
@@ -232,6 +242,7 @@ describe('runEngine pipeline steps 3-4', () => {
         suppress: makeSuppressIndex(),
         project: emptyProject,
         census: [],
+        logger: new NullLogger(),
       }),
     ).not.toThrow();
   });
@@ -246,6 +257,7 @@ describe('runEngine — rule filter', () => {
         suppress: makeSuppressIndex(),
         project: emptyProject,
         census: [],
+        logger: new NullLogger(),
       },
       ['layer-boundary'],
     );
@@ -259,6 +271,7 @@ describe('runEngine — rule filter', () => {
       suppress: makeSuppressIndex(),
       project: emptyProject,
       census: [],
+      logger: new NullLogger(),
     });
     expect(result.some((d) => d.ruleId === 'lca-placement')).toBe(true);
   });

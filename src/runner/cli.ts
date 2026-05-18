@@ -7,6 +7,8 @@ import { createInterface } from 'node:readline/promises';
 import chokidar from 'chokidar';
 import { Command } from 'commander';
 import { ArchLintError, ConfigError } from '#errors/index.js';
+import type { Logger } from '#logger/index.js';
+import { ConsoleLogger } from '#logger/index.js';
 import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './baseline/command.js';
 import { runCheckCommand } from './check.js';
 import { runExplain } from './explain.js';
@@ -62,10 +64,10 @@ async function confirmPrune(): Promise<boolean> {
   }
 }
 
-/** Writes each line of a stderr stream as its own line. */
-function writeStderr(lines: readonly string[]): void {
+/** Routes each diagnostic line through the logger as a warning. */
+function writeStderr(logger: Logger, lines: readonly string[]): void {
   for (const line of lines) {
-    process.stderr.write(`${line}\n`);
+    logger.warn(line);
   }
 }
 
@@ -73,7 +75,7 @@ function writeStderr(lines: readonly string[]): void {
 const CLEAR_SCREEN = '\x1B[2J\x1B[3J\x1B[H';
 
 /** Registers the `check` command — the architecture run, optionally changed-only. */
-function registerCheckCommand(program: Command): void {
+function registerCheckCommand(program: Command, logger: Logger): void {
   program
     .command('check')
     .description('run the architecture check')
@@ -90,7 +92,7 @@ function registerCheckCommand(program: Command): void {
         ...(ruleFilter !== undefined ? { ruleFilter } : {}),
       });
       process.stdout.write(`${outcome.stdout}\n`);
-      writeStderr(outcome.stderr);
+      writeStderr(logger, outcome.stderr);
       process.exitCode = outcome.exitCode;
     });
 }
@@ -185,7 +187,7 @@ function registerExplainCommand(program: Command): void {
 }
 
 /** Registers the `graph` command — renders the dependency graph as a Mermaid document. */
-function registerGraphCommand(program: Command): void {
+function registerGraphCommand(program: Command, logger: Logger): void {
   program
     .command('graph')
     .description('render the dependency graph as a layered Mermaid document')
@@ -203,7 +205,7 @@ function registerGraphCommand(program: Command): void {
         ...(globals.subsystem !== undefined ? { subsystem: globals.subsystem } : {}),
       });
       if (outcome.stdout !== '') process.stdout.write(`${outcome.stdout}\n`);
-      writeStderr(outcome.stderr);
+      writeStderr(logger, outcome.stderr);
       process.exitCode = outcome.exitCode;
     });
 }
@@ -212,9 +214,10 @@ function registerGraphCommand(program: Command): void {
  * Builds the arch-lint commander program: the named root with its five global
  * options and the five commands. Each command's `.action` reads the merged
  * global+local options via `optsWithGlobals()`, delegates to its adapter, and
- * applies the resulting stdout/stderr/exit code.
+ * applies the resulting stdout/stderr/exit code. Diagnostic output routes
+ * through `logger`, which defaults to a ConsoleLogger.
  */
-export function buildProgram(): Command {
+export function buildProgram(logger: Logger = new ConsoleLogger()): Command {
   const program = new Command();
   program
     .name('arch-lint')
@@ -225,11 +228,11 @@ export function buildProgram(): Command {
     .option('--no-baseline', 'ignore the baseline file — treat every violation as new')
     .option('--debug', 'enable verbose diagnostic output');
 
-  registerCheckCommand(program);
+  registerCheckCommand(program, logger);
   registerWatchCommand(program);
   registerBaselineCommand(program);
   registerExplainCommand(program);
-  registerGraphCommand(program);
+  registerGraphCommand(program, logger);
 
   return program;
 }
@@ -240,16 +243,17 @@ export function buildProgram(): Command {
  * is an unexpected internal fault and maps to exit code 5.
  */
 export async function runCli(argv: readonly string[]): Promise<void> {
+  const logger = new ConsoleLogger();
   try {
-    await buildProgram().parseAsync([...argv]);
+    await buildProgram(logger).parseAsync([...argv]);
   } catch (err) {
     if (err instanceof ArchLintError) {
-      process.stderr.write(`error: ${err.message}\n`);
+      logger.error(`error: ${err.message}`);
       process.exitCode = err.exitCode;
       return;
     }
     const message = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`error: ${message}\n`);
+    logger.error(`error: ${message}`);
     process.exitCode = 5;
   }
 }

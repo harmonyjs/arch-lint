@@ -2,13 +2,16 @@
  * @fileoverview Config discovery — locates the arch-lint config source by the
  * fixed precedence of spec §3 (five sources, first match wins). It returns a
  * source descriptor, not the config itself; loading is done by load.ts. More
- * than one source emits a stderr warning; an unsupported format or no source at
- * all raises a ConfigError (process exit code 2). The fs probes are synchronous
+ * than one source emits a warning through the supplied Logger; an unsupported
+ * format or no source at all raises a ConfigError (process exit code 2). The
+ * fs probes are synchronous
  * on purpose — discovery is a one-shot check before any real work begins.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
 import { ConfigError } from '#errors/index.js';
+import type { Logger } from '#logger/index.js';
+import { ConsoleLogger } from '#logger/index.js';
 
 /** Where the config will be read from. Consumed by load.ts. */
 export type ConfigSource =
@@ -82,15 +85,20 @@ function collectSources(cwd: string): ConfigSource[] {
 /**
  * Discovers the arch-lint config source for a given cwd. An explicit path (from
  * --config) bypasses autodiscovery. Returns the first matching source per §3.
+ * A multiple-source warning is routed through `logger`.
  */
-export function discoverConfig(cwd: string, explicitPath?: string): ConfigSource {
+export function discoverConfig(
+  cwd: string,
+  explicitPath?: string,
+  logger: Logger = new ConsoleLogger(),
+): ConfigSource {
   if (explicitPath !== undefined) {
     return resolveExplicit(explicitPath);
   }
 
   const found = collectSources(cwd);
   if (found.length > 1) {
-    console.error(
+    logger.warn(
       `arch-lint: multiple config sources found, using the first by precedence ` +
         `(${describeSources(found)})`,
     );
