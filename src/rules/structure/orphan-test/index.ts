@@ -3,13 +3,8 @@
  * `<name>` source sibling, a test co-located with nothing it tests.
  */
 
-import {
-  baseNameOf,
-  dirOf,
-  dropExtension,
-  isTestFile,
-  isUnderSegment,
-} from '#foundation/entity-id/index.js';
+import { baseNameOf, dirOf, dropExtension, isUnderSegment } from '#foundation/entity-id/index.js';
+import { isTestFile } from '#foundation/file-classification/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { CensusRule, CensusRuleContext } from '#platform/engine/types.js';
 
