@@ -4,7 +4,7 @@
  */
 import { baseNameOf, dirOf, isTestFile, stemOf } from '#foundation/entity-id/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
-import { fileNodeIds } from '#platform/ast/find-source-file.js';
+import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 

@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { makeGraph } from '#rules/test-support/make-graph.js';
-import { fileNodeIds } from './find-source-file.js';
+import { fileNodeIds } from './file-nodes.js';
 
 describe('fileNodeIds', () => {
   it('lists only file-kind node ids, skipping folders', () => {
