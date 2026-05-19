@@ -4,7 +4,7 @@
  */
 import type { ConventionsConfig } from '#foundation/config/types.js';
 import { baseNameOf, dirOf, firstSegment } from '#foundation/entity-id/index.js';
-import type { SourceFileSet } from './discover-source-files.js';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 import type { Edge } from './types.js';
 
 export interface EntityContext {

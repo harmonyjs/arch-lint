@@ -9,5 +9,6 @@ export { graphEntityResolver } from './entity-resolver.js';
 export { GraphUnitsCache } from './graph-units-cache.js';
 export { buildIncremental } from './incremental.js';
 export { layerOf } from './layers.js';
+export { sourceFileFor } from './source-file-for.js';
 export type { UnitCoupling } from './unit-coupling.js';
 export { unitCoupling, unitOf } from './unit-coupling.js';

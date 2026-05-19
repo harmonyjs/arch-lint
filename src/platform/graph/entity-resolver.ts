@@ -7,8 +7,8 @@
 
 import type { Project, SourceFile } from 'ts-morph';
 import { ancestorsOf, baseNameOf, dropExtension } from '#foundation/entity-id/index.js';
-import { sourceFileFor as resolveSourceFile } from '#foundation/ts-project/index.js';
 import type { EntityResolver, SuppressEntity } from '#foundation/types/index.js';
+import { sourceFileFor as resolveSourceFile } from './source-file-for.js';
 import type { ConsumerGraph } from './types.js';
 
 function entityName(entityId: string): string {

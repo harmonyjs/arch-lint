@@ -3,10 +3,10 @@
  * blank and comment lines. Reads file text from the RuleContext project (decision D9).
  */
 import type { SourceFile } from 'ts-morph';
-import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
+import { sourceFileFor } from '#platform/graph/index.js';
 
 /** Options of max-lines. */
 interface Options {

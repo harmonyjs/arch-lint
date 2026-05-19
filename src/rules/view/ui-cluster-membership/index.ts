@@ -4,10 +4,10 @@
  */
 
 import { isStrictlyUnderPrefix } from '#foundation/entity-id/index.js';
-import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import { importsOf } from '#platform/ast/import-info.js';
 import type { SyntacticRule } from '#platform/engine/types.js';
+import { sourceFileFor } from '#platform/graph/index.js';
 import type { Node } from '#platform/graph/types.js';
 import { triggerPackageMatcher } from './matcher.js';
 

@@ -3,7 +3,7 @@
  * syntactic resolver — edges represent post-barrel-unwinding consumer relations (§4.2).
  */
 import { type Identifier, Node, type SourceFile } from 'ts-morph';
-import type { SourceFileSet } from './discover-source-files.js';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 import {
   type CollectorCtx,
   collectImportedSymbol,

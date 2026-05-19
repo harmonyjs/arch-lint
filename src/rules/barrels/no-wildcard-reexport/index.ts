@@ -3,12 +3,12 @@
  * in barrels. Reads import/export AST from the RuleContext project (decision D9).
  */
 
-import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import { type ImportInfo, importsOf } from '#platform/ast/import-info.js';
 import { dedupByFingerprint } from '#platform/engine/dedup-diagnostics.js';
 import type { SyntacticRule } from '#platform/engine/types.js';
+import { sourceFileFor } from '#platform/graph/index.js';
 
 /** Builds the diagnostic for one forbidden wildcard re-export. */
 function wildcardDiagnostic(

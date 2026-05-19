@@ -3,12 +3,12 @@
  * the folder's own entity (decision D7). Reads AST from the RuleContext project (D9).
  */
 import { folderOf, segmentsOf } from '#foundation/entity-id/index.js';
-import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic, Location } from '#foundation/types/index.js';
 import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import { importsOf } from '#platform/ast/import-info.js';
 import { isBarrelFile } from '#platform/ast/node-helpers.js';
 import type { SyntacticRule } from '#platform/engine/types.js';
+import { sourceFileFor } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** Options of barrel-narrow-export (D7). */

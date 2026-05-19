@@ -2,7 +2,7 @@
  * @fileoverview Extracts the @fileoverview description of each source file —
  * the per-file text the graph document shows on nodes and in %% comments.
  */
-import type { SourceFileSet } from '#platform/graph/discover-source-files.js';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 
 /** Parses the @fileoverview text from a file's leading JSDoc; null when absent. */
 export function fileoverviewOf(text: string): string | null {

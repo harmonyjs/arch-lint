@@ -8,7 +8,6 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   discoverSourceFilePaths,
-  fileIdOf,
   loadSourceFiles,
   moduleResolutionContextOf,
 } from './discover-source-files.js';
@@ -84,8 +83,8 @@ describe('loadSourceFiles census', () => {
   });
 });
 
-describe('fileIdOf / moduleResolutionContextOf', () => {
-  it('converts an absolute path back to a cwd-relative POSIX file id', async () => {
+describe('moduleResolutionContextOf', () => {
+  it('builds a resolution context from the set project', async () => {
     writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}');
     const set = await loadSourceFiles({
       project: {
@@ -97,7 +96,6 @@ describe('fileIdOf / moduleResolutionContextOf', () => {
       resolve: { extensions: ['.ts', '.tsx'] },
       ignore: [],
     } as never);
-    expect(fileIdOf(join(dir, 'src/App/App.tsx'), set)).toBe('src/App/App.tsx');
     expect(moduleResolutionContextOf(set).compilerOptions).toBeDefined();
   });
 });

@@ -3,12 +3,9 @@
  * config by discovering sources, resolving imports and projecting onto entities.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 import { freezeGraph } from './consumer-graph.js';
-import {
-  loadSourceFiles,
-  moduleResolutionContextOf,
-  type SourceFileSet,
-} from './discover-source-files.js';
+import { loadSourceFiles, moduleResolutionContextOf } from './discover-source-files.js';
 import { buildEdges } from './edges.js';
 import type { EntityContext } from './entities.js';
 import { buildNodes } from './nodes.js';

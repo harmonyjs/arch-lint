@@ -2,7 +2,7 @@
  * @fileoverview Re-export hop resolution — named and wildcard barrel unwinding.
  */
 import { Node, type SourceFile } from 'ts-morph';
-import { fileIdOf, type SourceFileSet } from '#platform/graph/discover-source-files.js';
+import { fileIdOf, type SourceFileSet } from '#foundation/source-files/index.js';
 import type { Resolution } from '#platform/graph/types.js';
 import type { ModuleResolutionContext } from './module-resolution.js';
 import { resolveSpecifier } from './module-resolution.js';

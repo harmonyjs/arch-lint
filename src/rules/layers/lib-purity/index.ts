@@ -4,9 +4,9 @@
  */
 import picomatch from 'picomatch';
 import type { ExportDeclaration, ImportDeclaration, SourceFile } from 'ts-morph';
-import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { SyntacticRule } from '#platform/engine/types.js';
+import { sourceFileFor } from '#platform/graph/index.js';
 
 interface LibPurityOptions {
   readonly forbiddenImports?: readonly string[];
