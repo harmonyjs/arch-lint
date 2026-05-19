@@ -1,10 +1,13 @@
 /**
  * @fileoverview graphEntityResolver — the graph-side implementation of the suppress
  * EntityResolver contract. Projects ConsumerGraph file nodes into the SuppressEntity
- * descriptors suppress consumes, so suppress depends on the interface, never on graph
- * internals.
+ * descriptors suppress consumes and resolves each entity's entry SourceFile, so
+ * suppress depends only on the interface — never on graph internals or ts-morph.
  */
+
+import type { Project, SourceFile } from 'ts-morph';
 import { ancestorsOf, baseNameOf, dropExtension } from '#foundation/entity-id/index.js';
+import { sourceFileFor as resolveSourceFile } from '#foundation/ts-project/index.js';
 import type { EntityResolver, SuppressEntity } from '#foundation/types/index.js';
 import type { ConsumerGraph } from './types.js';
 
@@ -28,7 +31,7 @@ function entityIdOfFile(fileId: string, graph: ConsumerGraph): string {
   }
   return fileId;
 }
-export function graphEntityResolver(graph: ConsumerGraph): EntityResolver {
+export function graphEntityResolver(graph: ConsumerGraph, project: Project): EntityResolver {
   return {
     listEntities(): readonly SuppressEntity[] {
       const ids = new Set<string>();
@@ -41,6 +44,9 @@ export function graphEntityResolver(graph: ConsumerGraph): EntityResolver {
         name: entityName(id),
         entryFilePath: entryFileOf(id, graph),
       }));
+    },
+    sourceFileFor(entity: SuppressEntity): SourceFile | undefined {
+      return resolveSourceFile(project, entity.entryFilePath);
     },
   };
 }
