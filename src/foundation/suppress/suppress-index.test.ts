@@ -2,11 +2,11 @@
  * @fileoverview Tests for the SuppressIndex class — isSuppressed, findExpired, factory.
  */
 
-import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { SuppressConfig } from '#foundation/config/types.js';
 import type {
   Diagnostic,
+  EntityComments,
   EntityResolver,
   Location,
   SuppressEntity,
@@ -14,11 +14,14 @@ import type {
 import { buildSuppressIndex, SuppressIndexImpl } from './suppress-index.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
 
-/** Wraps a project + entity list into the EntityResolver buildSuppressIndex consumes. */
-function resolverOf(project: Project, entities: readonly SuppressEntity[]): EntityResolver {
+/** Wraps an entity list + comment models into the EntityResolver buildSuppressIndex consumes. */
+function resolverOf(
+  entities: readonly SuppressEntity[],
+  comments: ReadonlyMap<string, EntityComments>,
+): EntityResolver {
   return {
     listEntities: () => entities,
-    sourceFileFor: (entity) => project.getSourceFile(entity.entryFilePath),
+    commentsFor: (entity) => comments.get(entity.id),
   };
 }
 
@@ -166,38 +169,61 @@ describe('SuppressIndexImpl.findExpired', () => {
 });
 
 describe('buildSuppressIndex', () => {
+  const widget: SuppressEntity = {
+    id: 'src/Widget',
+    name: 'Widget',
+    entryFilePath: 'src/Widget/Widget.tsx',
+  };
+
   it('builds an index that suppresses a diagnostic from a parsed comment', () => {
-    const project = new Project({ useInMemoryFileSystem: true });
-    project.createSourceFile(
-      'src/Widget/Widget.tsx',
-      '// @arch-decision: deliberate architectural choice\nexport const Widget = () => null;',
-    );
-    const entities: SuppressEntity[] = [
-      { id: 'src/Widget', name: 'Widget', entryFilePath: 'src/Widget/Widget.tsx' },
-    ];
-    const index = buildSuppressIndex(cfg, resolverOf(project, entities), NOW);
+    const comments = new Map<string, EntityComments>([
+      [
+        'src/Widget',
+        {
+          anchor: 'resolved',
+          comments: [
+            {
+              rawText: '// @arch-decision: deliberate architectural choice',
+              kind: 'leading-comment',
+              location: loc,
+              distanceLines: 0,
+            },
+          ],
+        },
+      ],
+    ]);
+    const index = buildSuppressIndex(cfg, resolverOf([widget], comments), NOW);
     expect(index.isSuppressed(diag({ entity: 'src/Widget' }))).toBe(true);
   });
 
-  it('skips entities whose entry file is not in the project', () => {
-    const project = new Project({ useInMemoryFileSystem: true });
-    const entities: SuppressEntity[] = [
-      { id: 'src/Missing', name: 'Missing', entryFilePath: 'src/Missing/Missing.tsx' },
-    ];
-    const index = buildSuppressIndex(cfg, resolverOf(project, entities), NOW);
+  it('skips entities whose entry file the resolver cannot resolve', () => {
+    const missing: SuppressEntity = {
+      id: 'src/Missing',
+      name: 'Missing',
+      entryFilePath: 'src/Missing/Missing.tsx',
+    };
+    const index = buildSuppressIndex(cfg, resolverOf([missing], new Map()), NOW);
     expect(index.isSuppressed(diag({ entity: 'src/Missing' }))).toBe(false);
   });
 
   it('collects malformed suppress across all entities into findExpired', () => {
-    const project = new Project({ useInMemoryFileSystem: true });
-    project.createSourceFile(
-      'src/Widget/Widget.tsx',
-      '// @arch-decision: short\nexport const Widget = () => null;',
-    );
-    const entities: SuppressEntity[] = [
-      { id: 'src/Widget', name: 'Widget', entryFilePath: 'src/Widget/Widget.tsx' },
-    ];
-    const index = buildSuppressIndex(cfg, resolverOf(project, entities), NOW);
+    const comments = new Map<string, EntityComments>([
+      [
+        'src/Widget',
+        {
+          anchor: 'resolved',
+          comments: [
+            {
+              rawText: '// @arch-decision: short',
+              kind: 'leading-comment',
+              location: loc,
+              distanceLines: 0,
+            },
+          ],
+        },
+      ],
+    ]);
+    const index = buildSuppressIndex(cfg, resolverOf([widget], comments), NOW);
     expect(index.findExpired()).toHaveLength(1);
   });
 });

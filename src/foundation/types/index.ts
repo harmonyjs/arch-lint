@@ -4,7 +4,6 @@
  * shape; Severity and Location are reused project-wide. Subsystem-specific types
  * live in that subsystem's own types.ts.
  */
-import type { SourceFile } from 'ts-morph';
 
 // ── Primitives ───────────────────────────────────────────────────────────────
 
@@ -103,9 +102,26 @@ export interface SuppressEntity {
   readonly name: string;
   readonly entryFilePath: string;
 }
+
+/** A comment block found in a source file, in ts-morph-free form. */
+export interface CommentBlock {
+  /** Raw comment text, line/block/JSDoc delimiter glyphs included. */
+  readonly rawText: string;
+  readonly kind: 'leading-comment' | 'jsdoc';
+  /** True first-character position of the comment. */
+  readonly location: Location;
+  /** Line gap from the comment to the anchor declaration; 0 in the `absent` case. */
+  readonly distanceLines: number;
+}
+
+/** Comments suppress needs for one entity, discriminated on anchor resolution. */
+export type EntityComments =
+  | { readonly anchor: 'resolved'; readonly comments: readonly CommentBlock[] }
+  | { readonly anchor: 'absent'; readonly fileComments: readonly CommentBlock[] };
+
 export interface EntityResolver {
   /** Every placement entity the suppress index should parse decision data for. */
   listEntities(): readonly SuppressEntity[];
-  /** The parsed entry SourceFile of an entity, or undefined when it is absent. */
-  sourceFileFor(entity: SuppressEntity): SourceFile | undefined;
+  /** The entity's comment model, or undefined when its entry file is absent. */
+  commentsFor(entity: SuppressEntity): EntityComments | undefined;
 }

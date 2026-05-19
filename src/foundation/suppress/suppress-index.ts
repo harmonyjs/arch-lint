@@ -78,9 +78,9 @@ export function buildSuppressIndex(
 ): SuppressIndexImpl {
   const byEntity = new Map<string, EntitySuppressData>();
   for (const entity of entities.listEntities()) {
-    const entryFile = entities.sourceFileFor(entity);
-    if (entryFile === undefined) continue;
-    byEntity.set(entity.id, parseEntitySuppress(entryFile, entity, config));
+    const comments = entities.commentsFor(entity);
+    if (comments === undefined) continue;
+    byEntity.set(entity.id, parseEntitySuppress(comments, config));
   }
   return new SuppressIndexImpl(byEntity, now);
 }
