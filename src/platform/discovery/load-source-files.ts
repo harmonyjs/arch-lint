@@ -1,14 +1,15 @@
 /**
- * @fileoverview Discovers project source files and builds the ts-morph Project that
- * backs syntactic graph analysis — without type-checker program resolution.
+ * @fileoverview Source-file discovery — walks the project source root, builds
+ * the ts-morph Project that backs syntactic graph analysis (without
+ * type-checker program resolution), and returns it as a SourceFileSet.
  */
-import { join, relative, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import { baseNameOf, isTestFile } from '#foundation/entity-id/index.js';
-import type { ModuleResolutionContext } from './resolution/index.js';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 
 export interface DiscoverOptions {
   readonly cwd: string;
@@ -37,19 +38,6 @@ export async function discoverSourceFilePaths(options: DiscoverOptions): Promise
     .sort();
 }
 
-export interface SourceFileSet {
-  readonly project: Project;
-  readonly files: ReadonlyMap<string, SourceFile>;
-  /**
-   * The FileCensus — every file under `sourceRoot` matching `resolve.extensions`,
-   * filtered only by the `ignore` globs. Unlike `files`, the census includes test
-   * files: they are excluded from the import graph structurally, not from existence.
-   */
-  readonly census: readonly string[];
-  readonly rootDir: string;
-  readonly cwd: string;
-}
-
 /**
  * Discovers source files and parses them into a ts-morph Project created without
  * program/type resolution (`skipFileDependencyResolution`). The returned registry
@@ -76,18 +64,4 @@ export async function loadSourceFiles(config: ResolvedConfig): Promise<SourceFil
     files.set(id, project.addSourceFileAtPath(resolve(cwd, id)));
   }
   return { project, files, census, rootDir: join(cwd, config.project.sourceRoot), cwd };
-}
-
-/** Converts an absolute file path to its POSIX file id relative to the set's cwd. */
-export function fileIdOf(absolutePath: string, set: SourceFileSet): string {
-  return relative(set.cwd, absolutePath).split('\\').join('/');
-}
-
-/** Builds a ModuleResolutionContext backed by the ts-morph Project's compiler state. */
-export function moduleResolutionContextOf(set: SourceFileSet): ModuleResolutionContext {
-  const program = set.project.getProgram().compilerObject;
-  return {
-    compilerOptions: program.getCompilerOptions(),
-    moduleResolutionHost: set.project.getModuleResolutionHost(),
-  };
 }

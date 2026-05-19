@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { buildGraph } from '../build.js';
+import { buildGraph } from '#runner/graph-build.js';
 
 interface NormalizedEdge {
   readonly consumer: string;

@@ -13,6 +13,7 @@ export {
 export {
   type ModuleResolutionContext,
   type ModuleResolutionResult,
+  moduleResolutionContextOf,
   resolveSpecifier,
 } from './module-resolution.js';
 export { createResolver, type Resolver, type ResolverContext } from './resolve.js';

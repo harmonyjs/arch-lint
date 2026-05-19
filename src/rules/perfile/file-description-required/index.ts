@@ -5,10 +5,10 @@
 
 import type { SourceFile } from 'ts-morph';
 import { type Node, SyntaxKind } from 'ts-morph';
-import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
+import { sourceFileFor } from '#platform/graph/index.js';
 
 /** Options of file-description-required. */
 interface Options {

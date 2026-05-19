@@ -2,9 +2,14 @@
  * @fileoverview Tests for module specifier resolution against the TypeScript resolver.
  */
 
+import { Project } from 'ts-morph';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { type ModuleResolutionContext, resolveSpecifier } from './module-resolution.js';
+import {
+  type ModuleResolutionContext,
+  moduleResolutionContextOf,
+  resolveSpecifier,
+} from './module-resolution.js';
 
 function makeCtx(files: Record<string, string>): ModuleResolutionContext {
   const compilerOptions: ts.CompilerOptions = {
@@ -88,5 +93,13 @@ describe('resolveSpecifier — unresolved', () => {
     const ctx = makeCtx({ '/proj/src/App/App.tsx': 'x' });
     const result = resolveSpecifier('/proj/src/App/App.tsx', './Missing', ctx);
     expect(result).toEqual({ kind: 'unresolved' });
+  });
+});
+
+describe('moduleResolutionContextOf', () => {
+  it('builds a resolution context from the set project', () => {
+    const project = new Project({ useInMemoryFileSystem: true });
+    const set = { project, files: new Map(), census: [], rootDir: '/', cwd: '/' };
+    expect(moduleResolutionContextOf(set).compilerOptions).toBeDefined();
   });
 });

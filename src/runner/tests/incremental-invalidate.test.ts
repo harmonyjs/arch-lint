@@ -2,7 +2,7 @@
  * @fileoverview Tests for resolver-cache invalidation via the reverse index.
  */
 import { describe, expect, it } from 'vitest';
-import { cacheKeysToInvalidate } from '#platform/graph/incremental.js';
+import { cacheKeysToInvalidate } from '#runner/graph-build.js';
 
 const reverseIndex = new Map<string, Set<string>>([
   ['src/lib/util.ts', new Set(['src/App/App.tsx#util', 'src/api/api.ts#util'])],

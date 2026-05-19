@@ -45,8 +45,6 @@ export type {
 } from '#foundation/types/index.js';
 // Types — rules module
 export type { CheckResult, Rule, RuleContext, RuleEngine } from '#platform/engine/types.js';
-// Function — graph builder
-export { buildGraph } from '#platform/graph/index.js';
 // Types — graph module (Resolution excluded — internal resolver helper)
 export type {
   ConsumerGraph,
@@ -57,5 +55,7 @@ export type {
 } from '#platform/graph/types.js';
 // Types — baseline module
 export type { BaselineFile, BaselineRecord } from '#runner/baseline/types.js';
+// Function — graph builder
+export { buildGraph } from '#runner/graph-build.js';
 // Function — check runner
 export { check } from '#runner/index.js';

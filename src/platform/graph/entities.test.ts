@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ConventionsConfig } from '#foundation/config/types.js';
-import { loadSourceFiles } from './discover-source-files.js';
+import { loadSourceFiles } from '#platform/discovery/index.js';
 import {
   componentParent,
   type EntityContext,

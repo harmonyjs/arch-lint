@@ -6,10 +6,8 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  loadSourceFiles,
-  moduleResolutionContextOf,
-} from '#platform/graph/discover-source-files.js';
+import { loadSourceFiles } from '#platform/discovery/index.js';
+import { moduleResolutionContextOf } from './module-resolution.js';
 import { createResolver, type Resolver } from './resolve.js';
 
 let dir: string;

@@ -3,7 +3,7 @@
  * native declaration without invoking the TypeScript type-checker.
  */
 
-import type { SourceFileSet } from '#platform/graph/discover-source-files.js';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 import type { Resolution } from '#platform/graph/types.js';
 import type { ModuleResolutionContext } from './module-resolution.js';
 import { findNativeDeclaration } from './resolve-declarations.js';

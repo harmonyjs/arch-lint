@@ -11,7 +11,7 @@ import type {
   ViewConfig,
 } from '#foundation/config/types.js';
 import { baseNameOf, dirOf, dropExtension } from '#foundation/entity-id/index.js';
-import type { SourceFileSet } from './discover-source-files.js';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 import { type EntityContext, isComponentFolder } from './entities.js';
 import { classifyRegion, classifyRegionFromPrefixes, hasJsx } from './region.js';
 import type { Node } from './types.js';
