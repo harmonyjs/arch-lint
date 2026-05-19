@@ -68,7 +68,7 @@ function membershipDiagnostic(
     suggestions: [
       auto
         ? {
-            action: 'custom',
+            action: 'move',
             rationale: `Move this file into the view region (a folder tree containing JSX components), or drop the ${list} import`,
           }
         : {

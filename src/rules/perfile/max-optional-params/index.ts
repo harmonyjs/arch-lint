@@ -39,7 +39,10 @@ export const maxOptionalParams: SyntacticRule = {
         actual: `${count} optional parameters`,
         reason: 'options-creep — the function grows flags instead of a reworked signature',
         suggestions: [
-          { action: 'custom', rationale: 'collect the optional flags into one options object' },
+          {
+            action: 'group-params',
+            rationale: 'collect the optional flags into one options object',
+          },
         ],
         location: functionLocation(fileId, unit),
       });

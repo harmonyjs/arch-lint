@@ -64,7 +64,7 @@ function makeDiag(
           rationale: `Move the hook into '${targetDir}'`,
         }
       : {
-          action: 'custom' as const,
+          action: 'move' as const,
           rationale: 'Move the non-hook file out of the hooks/ folder or rename it to a hook',
         };
   return {
