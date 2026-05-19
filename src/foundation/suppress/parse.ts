@@ -37,6 +37,7 @@ function interpretAll(
   const malformed: MalformedSuppress[] = [];
   for (const comment of comments) {
     const text = stripCommentGlyphs(comment.rawText);
+    // §9: a directive reports at column 1 (the anchor-line convention), not the comment's true column.
     const location: Location = { ...comment.location, column: 1 };
     const raw = scanSuppressText(text, config.marker, location);
     if (raw === null) continue;

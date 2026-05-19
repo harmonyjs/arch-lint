@@ -4,7 +4,7 @@
  * extracts the raw comment blocks above it; when there is no anchor it returns
  * every comment in the file so suppress can scan for a stray @arch-decision.
  */
-import { Node, type SourceFile } from 'ts-morph';
+import { type CommentRange, Node, type SourceFile } from 'ts-morph';
 import type { CommentBlock, EntityComments } from '#foundation/types/index.js';
 import { findAnchorDeclaration } from './anchor.js';
 
@@ -17,31 +17,39 @@ export function collectEntityComments(sourceFile: SourceFile, entityName: string
   return { anchor: 'resolved', comments: collectAnchorComments(anchor) };
 }
 
+/** Build a CommentBlock from one ts-morph comment range. */
+function commentBlockOf(
+  range: CommentRange,
+  sourceFile: SourceFile,
+  fullText: string,
+  distanceLines: number,
+): CommentBlock {
+  const start = sourceFile.getLineAndColumnAtPos(range.getPos());
+  const rawText = fullText.slice(range.getPos(), range.getEnd());
+  return {
+    rawText,
+    kind: rawText.startsWith('/**') ? 'jsdoc' : 'leading-comment',
+    location: { file: sourceFile.getFilePath(), line: start.line, column: start.column },
+    distanceLines,
+  };
+}
+
 /** Raw leading comment blocks immediately preceding the anchor declaration. */
 function collectAnchorComments(anchor: Node): CommentBlock[] {
   const host = commentHostOf(anchor);
   const sourceFile = host.getSourceFile();
-  const filePath = sourceFile.getFilePath();
   const fullText = sourceFile.getFullText();
   const declStartLine = host.getStartLineNumber();
   const out: CommentBlock[] = [];
   for (const range of host.getLeadingCommentRanges()) {
-    const start = sourceFile.getLineAndColumnAtPos(range.getPos());
     const endLine = sourceFile.getLineAndColumnAtPos(range.getEnd()).line;
-    const rawText = fullText.slice(range.getPos(), range.getEnd());
-    out.push({
-      rawText,
-      kind: rawText.startsWith('/**') ? 'jsdoc' : 'leading-comment',
-      location: { file: filePath, line: start.line, column: start.column },
-      distanceLines: declStartLine - endLine - 1,
-    });
+    out.push(commentBlockOf(range, sourceFile, fullText, declStartLine - endLine - 1));
   }
   return out;
 }
 
 /** Every comment in the file, deduplicated by start position. */
 function collectAllComments(sourceFile: SourceFile): CommentBlock[] {
-  const filePath = sourceFile.getFilePath();
   const fullText = sourceFile.getFullText();
   const seen = new Set<number>();
   const out: CommentBlock[] = [];
@@ -50,14 +58,7 @@ function collectAllComments(sourceFile: SourceFile): CommentBlock[] {
       const pos = range.getPos();
       if (seen.has(pos)) continue;
       seen.add(pos);
-      const rawText = fullText.slice(pos, range.getEnd());
-      const start = sourceFile.getLineAndColumnAtPos(pos);
-      out.push({
-        rawText,
-        kind: rawText.startsWith('/**') ? 'jsdoc' : 'leading-comment',
-        location: { file: filePath, line: start.line, column: start.column },
-        distanceLines: 0,
-      });
+      out.push(commentBlockOf(range, sourceFile, fullText, 0));
     }
   }
   return out;

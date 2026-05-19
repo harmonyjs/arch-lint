@@ -138,6 +138,27 @@ describe('parseEntitySuppress — absent anchor', () => {
     expect(data).toEqual({ valid: [], malformed: [] });
   });
 
+  it('locates a stray @arch-decision precisely inside a multi-line JSDoc comment', () => {
+    const data = parseEntitySuppress(
+      absent([
+        block({
+          kind: 'jsdoc',
+          rawText:
+            '/**\n * filler comment text here\n * @arch-decision: stray reason long enough\n */',
+          location: { file: 'src/Widget/Widget.tsx', line: 10, column: 1 },
+        }),
+      ]),
+      cfg,
+    );
+    expect(data.malformed).toHaveLength(1);
+    expect(data.malformed[0]?.kind).toBe('no-main-export');
+    expect(data.malformed[0]?.location).toEqual({
+      file: 'src/Widget/Widget.tsx',
+      line: 12,
+      column: 4,
+    });
+  });
+
   it('returns empty data when there are no file comments at all', () => {
     expect(parseEntitySuppress(absent([]), cfg)).toEqual({ valid: [], malformed: [] });
   });
