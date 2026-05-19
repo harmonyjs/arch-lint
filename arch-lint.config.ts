@@ -28,6 +28,7 @@ export default defineConfig({
     'foundation/config': 'foundation/config/**',
     'foundation/entity-id': 'foundation/entity-id/**',
     'foundation/errors': 'foundation/errors/**',
+    'foundation/file-classification': 'foundation/file-classification/**',
     'foundation/logger': 'foundation/logger/**',
     'foundation/manifest': 'foundation/manifest/**',
     'foundation/source-files': 'foundation/source-files/**',

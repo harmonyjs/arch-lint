@@ -8,7 +8,8 @@ import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { baseNameOf, isTestFile } from '#foundation/entity-id/index.js';
+import { baseNameOf } from '#foundation/entity-id/index.js';
+import { isTestFile } from '#foundation/file-classification/index.js';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
 
 export interface DiscoverOptions {
