@@ -34,6 +34,7 @@ export default defineConfig({
     'foundation/suppress': 'foundation/suppress/**',
     'foundation/types': 'foundation/types/**',
     'platform/ast': 'platform/ast/**',
+    'platform/discovery': 'platform/discovery/**',
     'platform/engine': 'platform/engine/**',
     'platform/graph': 'platform/graph/**',
     'rules/barrels': 'rules/barrels/**',

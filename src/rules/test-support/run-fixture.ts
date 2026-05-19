@@ -12,7 +12,7 @@ import type { Config } from '#foundation/config/types.js';
 import { NullLogger, NullTelemetry } from '#foundation/logger/index.js';
 import { buildSuppressIndex } from '#foundation/suppress/suppress-index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
-import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
+import { loadSourceFiles } from '#platform/discovery/index.js';
 import { buildGraphFromSources, graphEntityResolver } from '#platform/graph/index.js';
 import { allRules } from '#rules/index.js';
 import { check } from '#runner/index.js';

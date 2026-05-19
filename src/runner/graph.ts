@@ -8,7 +8,7 @@
 import { writeFile } from 'node:fs/promises';
 import { loadConfig, resolveConfig } from '#foundation/config/index.js';
 import { ArchLintError, GraphBuildError, IOError } from '#foundation/errors/index.js';
-import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
+import { loadSourceFiles } from '#platform/discovery/index.js';
 import { buildGraphFromSources } from '#platform/graph/index.js';
 import { extractFileoverviews, renderGraphDoc } from '#runner/graphdoc/index.js';
 

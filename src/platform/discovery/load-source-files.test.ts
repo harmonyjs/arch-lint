@@ -6,11 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  discoverSourceFilePaths,
-  loadSourceFiles,
-  moduleResolutionContextOf,
-} from './discover-source-files.js';
+import { discoverSourceFilePaths, loadSourceFiles } from './load-source-files.js';
 
 let dir: string;
 
@@ -80,22 +76,5 @@ describe('loadSourceFiles census', () => {
       'src/App/App.tsx',
       'src/App/util.ts',
     ]);
-  });
-});
-
-describe('moduleResolutionContextOf', () => {
-  it('builds a resolution context from the set project', async () => {
-    writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}');
-    const set = await loadSourceFiles({
-      project: {
-        tsconfig: './tsconfig.json',
-        sourceRoot: 'src',
-        cwd: dir,
-        includeOutOfRoot: false,
-      },
-      resolve: { extensions: ['.ts', '.tsx'] },
-      ignore: [],
-    } as never);
-    expect(moduleResolutionContextOf(set).compilerOptions).toBeDefined();
   });
 });

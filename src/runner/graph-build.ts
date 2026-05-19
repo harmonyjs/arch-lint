@@ -5,7 +5,7 @@
  * so the result is identical to a cold build of the same tree.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
+import { loadSourceFiles } from '#platform/discovery/index.js';
 import { buildGraphFromSources } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 

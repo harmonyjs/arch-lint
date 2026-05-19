@@ -12,7 +12,7 @@ import type { Logger } from '#foundation/logger/index.js';
 import { ConsoleLogger, NullTelemetry } from '#foundation/logger/index.js';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
 import { buildSuppressIndex } from '#foundation/suppress/suppress-index.js';
-import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
+import { loadSourceFiles } from '#platform/discovery/index.js';
 import { buildGraphFromSources, graphEntityResolver } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 import { formatReport } from '#report/index.js';

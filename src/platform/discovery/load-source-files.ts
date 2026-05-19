@@ -1,6 +1,7 @@
 /**
- * @fileoverview Discovers project source files and builds the ts-morph Project that
- * backs syntactic graph analysis — without type-checker program resolution.
+ * @fileoverview Source-file discovery — walks the project source root, builds
+ * the ts-morph Project that backs syntactic graph analysis (without
+ * type-checker program resolution), and returns it as a SourceFileSet.
  */
 import { join, resolve } from 'node:path';
 import picomatch from 'picomatch';
@@ -9,7 +10,6 @@ import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import { baseNameOf, isTestFile } from '#foundation/entity-id/index.js';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
-import type { ModuleResolutionContext } from './resolution/index.js';
 
 export interface DiscoverOptions {
   readonly cwd: string;
@@ -64,13 +64,4 @@ export async function loadSourceFiles(config: ResolvedConfig): Promise<SourceFil
     files.set(id, project.addSourceFileAtPath(resolve(cwd, id)));
   }
   return { project, files, census, rootDir: join(cwd, config.project.sourceRoot), cwd };
-}
-
-/** Builds a ModuleResolutionContext backed by the ts-morph Project's compiler state. */
-export function moduleResolutionContextOf(set: SourceFileSet): ModuleResolutionContext {
-  const program = set.project.getProgram().compilerObject;
-  return {
-    compilerOptions: program.getCompilerOptions(),
-    moduleResolutionHost: set.project.getModuleResolutionHost(),
-  };
 }

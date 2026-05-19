@@ -3,6 +3,7 @@
  * module resolver — covers relative paths, extensions, index files and path aliases.
  */
 import ts from 'typescript';
+import type { SourceFileSet } from '#foundation/source-files/index.js';
 
 export interface ModuleResolutionContext {
   readonly compilerOptions: ts.CompilerOptions;
@@ -38,4 +39,13 @@ export function resolveSpecifier(
     return { kind: 'external' };
   }
   return { kind: 'internal', file: module.resolvedFileName };
+}
+
+/** Builds a ModuleResolutionContext backed by the ts-morph Project's compiler state. */
+export function moduleResolutionContextOf(set: SourceFileSet): ModuleResolutionContext {
+  const program = set.project.getProgram().compilerObject;
+  return {
+    compilerOptions: program.getCompilerOptions(),
+    moduleResolutionHost: set.project.getModuleResolutionHost(),
+  };
 }

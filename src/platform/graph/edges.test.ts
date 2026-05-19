@@ -6,9 +6,9 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { loadSourceFiles, moduleResolutionContextOf } from './discover-source-files.js';
+import { loadSourceFiles } from '#platform/discovery/index.js';
 import { buildEdges } from './edges.js';
-import { createResolver } from './resolution/index.js';
+import { createResolver, moduleResolutionContextOf } from './resolution/index.js';
 
 let dir: string;
 
