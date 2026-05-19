@@ -37,7 +37,7 @@ export const maxParams: SyntacticRule = {
         actual: `${count} parameters`,
         reason: 'many parameters signal a signature due for a rework',
         suggestions: [
-          { action: 'custom', rationale: 'group the parameters into one options object' },
+          { action: 'group-params', rationale: 'group the parameters into one options object' },
         ],
         location: functionLocation(fileId, unit),
       });
