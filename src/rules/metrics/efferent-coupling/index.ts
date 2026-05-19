@@ -5,6 +5,7 @@
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
+import { couplingFacets, splitSuggestion } from '#rules/metrics/analysis/index.js';
 import { analyzeMetrics, hasDeclaredUnits } from '#rules/metrics/analyze.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
@@ -32,7 +33,7 @@ export const efferentCoupling: GraphRule = {
     const out: Diagnostic[] = [];
     for (const [unit, m] of report) {
       if (allow.has(unit) || m.ce <= opts.max) continue;
-      const outbound = [...m.outboundUnits].sort().join(', ');
+      const analysis = couplingFacets(unit, graph, config, 'outbound');
       out.push(
         verdictToDiagnostic(
           {
@@ -41,10 +42,11 @@ export const efferentCoupling: GraphRule = {
             fingerprint: `efferent-coupling#${unit}`,
             message: `unit ${unit} depends on too many other units`,
             expected: `≤ ${opts.max} outbound unit dependencies`,
-            actual: `${m.ce} (${outbound})`,
+            actual: `${m.ce}`,
             reason:
               'high efferent coupling makes the unit hard to extract and reason about in isolation',
-            suggestion: 'reduce the dependency fan-out — invert a dependency or merge a leaf',
+            suggestions: [splitSuggestion(analysis, graph, config)],
+            analysis,
           },
           context.severity,
         ),

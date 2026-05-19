@@ -15,7 +15,7 @@ function edge(consumer: string, producer: string, typeOnly = false): Edge {
 }
 
 function cfg(units: UnitsConfig = {}): ResolvedConfig {
-  return { project: { sourceRoot: 'src' }, units } as ResolvedConfig;
+  return { project: { sourceRoot: 'src' }, units, layers: {} } as ResolvedConfig;
 }
 
 /**
