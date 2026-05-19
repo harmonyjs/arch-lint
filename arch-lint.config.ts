@@ -31,6 +31,7 @@ export default defineConfig({
     'foundation/logger': 'foundation/logger/**',
     'foundation/manifest': 'foundation/manifest/**',
     'foundation/suppress': 'foundation/suppress/**',
+    'foundation/ts-project': 'foundation/ts-project/**',
     'foundation/types': 'foundation/types/**',
     'platform/ast': 'platform/ast/**',
     'platform/engine': 'platform/engine/**',
@@ -87,11 +88,16 @@ export default defineConfig({
     // `platform/engine` is the rule-engine integration kernel, each rule pack
     // must pull the foundation vocabulary plus the platform graph/ast primitives
     // it analyzes, and `runner/baseline` composes config + engine + runner.
+    // `rules/perfile` joins its sibling rule packs: it depends on `foundation/
+    // ts-project` (node-id source-file lookup), `foundation/types`, `platform/
+    // ast`, `platform/engine`, and `platform/graph` — the same kernel-and-
+    // vocabulary fan-out that is inherent to every rule pack's role.
     'efferent-coupling': {
       allow: [
         'platform/engine',
         'rules/barrels',
         'rules/layers',
+        'rules/perfile',
         'rules/placement',
         'rules/structure',
         'rules/view',

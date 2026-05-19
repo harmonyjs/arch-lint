@@ -1,40 +1,30 @@
 /**
- * @fileoverview Integration test for barrel-is-public-face on a graph from real buildGraph.
+ * @fileoverview Integration test for barrel-is-public-face — full check() pipeline over a fixture.
  */
-
 import { fileURLToPath } from 'node:url';
-import { Project } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
-import { resolveConfig } from '#foundation/config/index.js';
-import { buildGraph } from '#platform/graph/index.js';
-import {
-  type BarrelIsPublicFaceOptions,
-  barrelIsPublicFace,
-} from '#rules/barrels/barrel-is-public-face/index.js';
-import { makeContext } from '#rules/test-support/make-context.js';
+import { runRuleOnFixture } from '#rules/test-support/run-fixture.js';
 
 const fixtureRoot = fileURLToPath(new URL('../fixtures/bypass-import', import.meta.url));
 
-function ctx() {
-  return makeContext<BarrelIsPublicFaceOptions>('barrel-is-public-face', {
-    severity: 'error',
-    options: { enforceForSegments: 'all', allowExplicitIndex: false, allowSiblingImports: true },
-    project: new Project({ useInMemoryFileSystem: true }),
-  });
-}
-
 describe('barrel-is-public-face — integration', () => {
   it('flags a barrel bypass on a really built graph', async () => {
-    const config = resolveConfig({
-      project: { tsconfig: `${fixtureRoot}/tsconfig.json`, sourceRoot: 'src', cwd: fixtureRoot },
+    const diags = await runRuleOnFixture({
+      fixtureRoot,
+      ruleId: 'barrel-is-public-face',
+      config: {
+        rules: {
+          'barrel-is-public-face': {
+            enforceForSegments: 'all',
+            allowExplicitIndex: false,
+            allowSiblingImports: true,
+          },
+        },
+      },
     });
-    const graph = await buildGraph(config);
-    const diags = barrelIsPublicFace.check(graph, config, ctx());
-    expect(diags.length).toBeGreaterThanOrEqual(1);
-    expect(
-      diags.some(
-        (d) => d.ruleId === 'barrel-is-public-face' && d.message.includes('bypassing the barrel'),
-      ),
-    ).toBe(true);
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.entity).toBe('src/App/main.tsx');
+    expect(diags[0]?.fingerprint).toBe('src/App/main.tsx#src/App/Card/internal.ts');
+    expect(diags[0]?.message).toContain('bypassing the barrel');
   });
 });

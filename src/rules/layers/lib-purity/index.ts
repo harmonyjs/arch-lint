@@ -4,6 +4,7 @@
  */
 import picomatch from 'picomatch';
 import type { ExportDeclaration, ImportDeclaration, SourceFile } from 'ts-morph';
+import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { SyntacticRule } from '#platform/engine/types.js';
 
@@ -100,7 +101,7 @@ export const libPurityRule: SyntacticRule = {
     const seen = new Set<string>();
     for (const [id, node] of graph.nodes) {
       if (node.kind !== 'file' || !inScope(id, segments)) continue;
-      const file = context.project.getSourceFile(id);
+      const file = sourceFileFor(context.project, id);
       if (file === undefined) continue;
       for (const imp of externalImportsOf(file)) {
         if (!isForbidden(imp.specifier)) continue;
