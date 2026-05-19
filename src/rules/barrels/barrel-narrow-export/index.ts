@@ -3,8 +3,9 @@
  * the folder's own entity (decision D7). Reads AST from the RuleContext project (D9).
  */
 import { folderOf, segmentsOf } from '#foundation/entity-id/index.js';
+import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic, Location } from '#foundation/types/index.js';
-import { fileNodeIds, sourceFileFor } from '#platform/ast/find-source-file.js';
+import { fileNodeIds } from '#platform/ast/find-source-file.js';
 import { importsOf } from '#platform/ast/import-info.js';
 import { isBarrelFile } from '#platform/ast/node-helpers.js';
 import type { SyntacticRule } from '#platform/engine/types.js';
