@@ -18,6 +18,7 @@ describe('e2e: runCheck on the sample project', () => {
       mode: 'ci',
       noBaseline: true,
       changedOnly: false,
+      explain: false,
     });
     expect(out.exitCode).toBe(0);
     expect(out.result.diagnostics).toEqual([]);
@@ -31,6 +32,7 @@ describe('e2e: runCheck on the sample project', () => {
       mode: 'preCommit',
       noBaseline: true,
       changedOnly: true,
+      explain: false,
     });
     expect([0, 1]).toContain(out.exitCode);
   }, 30_000);
