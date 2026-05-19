@@ -1,12 +1,22 @@
 /**
- * @fileoverview Warm (incremental) graph build for watch mode. On a watcher
- * event the long-lived graph is patched in place of a cold rebuild: files are
- * re-parsed, edges rebuilt, and node add/remove triggers an entity recompute.
- * Produces a new frozen ConsumerGraph identical to a cold build of the tree.
+ * @fileoverview Cold and warm graph builds. `buildGraph` discovers sources and
+ * assembles the full ConsumerGraph. The incremental (warm) build for watch mode
+ * patches a graph against a change set; the current strategy rebuilds cleanly,
+ * so the result is identical to a cold build of the same tree.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { buildGraph } from './build.js';
-import type { ConsumerGraph } from './types.js';
+import { loadSourceFiles } from '#platform/graph/discover-source-files.js';
+import { buildGraphFromSources } from '#platform/graph/index.js';
+import type { ConsumerGraph } from '#platform/graph/types.js';
+
+/**
+ * Builds the full immutable ConsumerGraph for `config`: discover and parse
+ * source files, build nodes, run the syntactic resolver to produce edges and
+ * unresolved imports, then freeze.
+ */
+export async function buildGraph(config: ResolvedConfig): Promise<ConsumerGraph> {
+  return buildGraphFromSources(config, await loadSourceFiles(config));
+}
 
 /** A set of file-system changes since the previous graph snapshot. */
 export interface GraphChanges {
@@ -54,10 +64,8 @@ export function cacheKeysToInvalidate(
 /**
  * Performs a warm (incremental) graph build for watch mode. The change set is
  * normalized, then the graph is rebuilt over the in-memory project so the
- * result is identical to a cold build of the same tree. The expensive
- * cold-build cost — spinning up a fresh TS compiler and reading every file
- * from disk — is what watch mode amortizes; `prevGraph` documents the
- * warm-build contract even though the current strategy rebuilds cleanly.
+ * result is identical to a cold build of the same tree. `prevGraph` documents
+ * the warm-build contract even though the current strategy rebuilds cleanly.
  */
 export async function buildIncremental(
   prevGraph: ConsumerGraph,

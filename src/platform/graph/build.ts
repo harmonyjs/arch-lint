@@ -1,11 +1,12 @@
 /**
- * @fileoverview Cold build orchestration — assembles a ConsumerGraph from a resolved
- * config by discovering sources, resolving imports and projecting onto entities.
+ * @fileoverview Graph assembly — builds the immutable ConsumerGraph from an
+ * already-loaded SourceFileSet: build nodes, run the syntactic resolver to
+ * produce edges and unresolved imports, then freeze.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
 import { freezeGraph } from './consumer-graph.js';
-import { loadSourceFiles, moduleResolutionContextOf } from './discover-source-files.js';
+import { moduleResolutionContextOf } from './discover-source-files.js';
 import { buildEdges } from './edges.js';
 import type { EntityContext } from './entities.js';
 import { buildNodes } from './nodes.js';
@@ -13,9 +14,9 @@ import { createResolver } from './resolution/index.js';
 import type { ConsumerGraph } from './types.js';
 
 /**
- * Assembles the immutable ConsumerGraph from an already-loaded SourceFileSet: build
- * nodes, run the syntactic resolver to produce edges and unresolved imports, then
- * freeze. Synchronous — source discovery and parsing happen before this is called.
+ * Assembles the immutable ConsumerGraph from an already-loaded SourceFileSet:
+ * build nodes, run the syntactic resolver to produce edges and unresolved
+ * imports, then freeze. Synchronous — source discovery happens before this.
  */
 export function buildGraphFromSources(
   config: ResolvedConfig,
@@ -31,13 +32,4 @@ export function buildGraphFromSources(
   const { edges, unresolved } = buildEdges(sources, resolver, config.resolve.treatTypeOnlyAsEdge);
   const entityCtx: EntityContext = { sources, conventions: config.conventions };
   return freezeGraph({ nodes, edges, unresolved, entityCtx, rootDir: sources.rootDir });
-}
-
-/**
- * Builds the full immutable ConsumerGraph for `config`: discover and parse source
- * files, build nodes, run the syntactic resolver to produce edges and unresolved
- * imports, then freeze.
- */
-export async function buildGraph(config: ResolvedConfig): Promise<ConsumerGraph> {
-  return buildGraphFromSources(config, await loadSourceFiles(config));
 }

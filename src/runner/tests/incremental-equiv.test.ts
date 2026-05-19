@@ -8,9 +8,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { resolveConfig } from '#foundation/config/index.js';
-import { buildGraph } from '#platform/graph/build.js';
-import { buildIncremental } from '#platform/graph/incremental.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
+import { buildGraph, buildIncremental } from '#runner/graph-build.js';
 
 let root: string;
 
