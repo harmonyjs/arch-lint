@@ -74,6 +74,7 @@ async function runFullCheck(
     mode: 'ci',
     noBaseline: !withBaseline,
     changedOnly: false,
+    explain: false,
     logger,
     ...(opts.configPath !== undefined ? { configPath: opts.configPath } : {}),
   };

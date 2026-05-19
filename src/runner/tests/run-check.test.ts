@@ -151,6 +151,7 @@ describe('runCheck', () => {
       mode: 'ci',
       noBaseline: false,
       changedOnly: false,
+      explain: false,
     });
     expect(outcome.exitCode).toBe(0);
     expect(outcome.result.exitCode).toBe(0);
@@ -167,6 +168,7 @@ describe('runCheck', () => {
       mode: 'ci',
       noBaseline: false,
       changedOnly: false,
+      explain: false,
     });
     expect(outcome.exitCode).toBe(1);
     expect(outcome.result.exitCode).toBe(1);
@@ -186,6 +188,7 @@ describe('runCheck', () => {
       mode: 'preCommit',
       noBaseline: false,
       changedOnly: false,
+      explain: false,
     });
     expect(outcome.exitCode).toBe(0);
   });
@@ -196,7 +199,7 @@ describe('runCheck', () => {
       throw new Error('parse blew up');
     });
     await expect(
-      runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false }),
+      runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false, explain: false }),
     ).rejects.toBeInstanceOf(GraphBuildError);
   });
 
@@ -207,7 +210,7 @@ describe('runCheck', () => {
       throw original;
     });
     await expect(
-      runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false }),
+      runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false, explain: false }),
     ).rejects.toBe(original);
   });
 
@@ -219,6 +222,7 @@ describe('runCheck', () => {
       mode: 'ci',
       noBaseline: false,
       changedOnly: true,
+      explain: false,
     });
     expect(outcome.warnings).toHaveLength(1);
     expect(outcome.warnings[0]).toContain('changed-only');
@@ -246,6 +250,7 @@ describe('runCheck', () => {
       mode: 'ci',
       noBaseline: false,
       changedOnly: true,
+      explain: false,
     });
     expect(outcome.result.diagnostics.map((d) => d.entity)).toEqual(['src/a.ts']);
     // Summary stays from the full run — only the diagnostics list is narrowed.
@@ -254,7 +259,13 @@ describe('runCheck', () => {
 
   it('hands the engine a NullTelemetry when --telemetry is absent', async () => {
     arrange({ diagnostics: [] });
-    await runCheck({ cwd: '/repo', mode: 'ci', noBaseline: false, changedOnly: false });
+    await runCheck({
+      cwd: '/repo',
+      mode: 'ci',
+      noBaseline: false,
+      changedOnly: false,
+      explain: false,
+    });
     expect(only(runEngineMock.mock.calls)[0].telemetry).toBeInstanceOf(NullTelemetry);
   });
 
@@ -266,6 +277,7 @@ describe('runCheck', () => {
       noBaseline: false,
       changedOnly: false,
       telemetry: true,
+      explain: false,
     });
     expect(only(runEngineMock.mock.calls)[0].telemetry).toBeInstanceOf(RecordingTelemetry);
   });

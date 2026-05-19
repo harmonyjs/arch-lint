@@ -152,6 +152,7 @@ describe('runCheckCommand', () => {
       changedOnly: false,
       telemetry: false,
       noBaseline: false,
+      explain: false,
     });
 
     // No config path forwarded — loadConfig is called with cwd and no override.
@@ -161,6 +162,34 @@ describe('runCheckCommand', () => {
     // No rule filter — getActiveRules resolves the set with an undefined filter.
     expect(only(getActiveRulesMock.mock.calls)[1]).toBeUndefined();
     expect(outcome).toEqual({ stdout: 'report-text', stderr: [], exitCode: 0 });
+  });
+
+  it('threads explain: true as formatReport’s third argument', async () => {
+    arrange({ diagnostics: [] });
+
+    await runCheckCommand({
+      cwd: '/repo',
+      changedOnly: false,
+      telemetry: false,
+      noBaseline: false,
+      explain: true,
+    });
+
+    expect(only(formatReportMock.mock.calls)[2]).toBe(true);
+  });
+
+  it('threads explain: false as formatReport’s third argument', async () => {
+    arrange({ diagnostics: [] });
+
+    await runCheckCommand({
+      cwd: '/repo',
+      changedOnly: false,
+      telemetry: false,
+      noBaseline: false,
+      explain: false,
+    });
+
+    expect(only(formatReportMock.mock.calls)[2]).toBe(false);
   });
 
   it('runs --changed-only as a preCommit verdict and forwards warnings + exit code', async () => {
@@ -173,6 +202,7 @@ describe('runCheckCommand', () => {
       changedOnly: true,
       telemetry: false,
       noBaseline: true,
+      explain: false,
       base: 'origin/main',
       ruleFilter: ['layer-boundary'],
     });
