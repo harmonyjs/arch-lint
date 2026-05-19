@@ -7,6 +7,7 @@
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
+import { couplingFacets, splitSuggestion } from '#rules/metrics/analysis/index.js';
 import { analyzeMetrics, hasDeclaredUnits } from '#rules/metrics/analyze.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
@@ -54,6 +55,7 @@ export const crossCuttingConcern: GraphRule = {
       if (m.ce < opts.minCe) continue;
       if (cohesion > opts.maxCohesion) continue;
       if (m.abstractness > opts.maxAbstractness) continue;
+      const analysis = couplingFacets(unit, graph, config, 'inbound');
       out.push(
         verdictToDiagnostic(
           {
@@ -70,8 +72,8 @@ export const crossCuttingConcern: GraphRule = {
               `abstractness=${m.abstractness.toFixed(2)}`,
             reason:
               'a unit that is widely depended on, depends widely, is internally incoherent and concrete is a god-module — not a shared kernel',
-            suggestion:
-              'split the unit by responsibility, or — if it is a deliberate shared kernel — add it to the rule allow list',
+            suggestions: [splitSuggestion(analysis, graph, config)],
+            analysis,
           },
           context.severity,
         ),

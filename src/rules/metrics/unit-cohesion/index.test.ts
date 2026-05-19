@@ -14,7 +14,7 @@ function edge(consumer: string, producer: string): Edge {
 }
 
 function cfg(units: UnitsConfig = {}): ResolvedConfig {
-  return { project: { sourceRoot: 'src' }, units } as ResolvedConfig;
+  return { project: { sourceRoot: 'src' }, units, layers: {} } as ResolvedConfig;
 }
 
 describe('unitCohesion — metadata', () => {
