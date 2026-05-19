@@ -4,6 +4,7 @@
  */
 import type { Project } from 'ts-morph';
 import type { SuppressConfig } from '#foundation/config/types.js';
+import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic, EntityResolver } from '#foundation/types/index.js';
 import { parseEntitySuppress } from './parse.js';
 import { isSuppressedByStack } from './precedence.js';
@@ -79,7 +80,7 @@ export function buildSuppressIndex(
 ): SuppressIndexImpl {
   const byEntity = new Map<string, EntitySuppressData>();
   for (const entity of entities.listEntities()) {
-    const entryFile = project.getSourceFile(entity.entryFilePath);
+    const entryFile = sourceFileFor(project, entity.entryFilePath);
     if (entryFile === undefined) continue;
     byEntity.set(entity.id, parseEntitySuppress(entryFile, entity, config));
   }

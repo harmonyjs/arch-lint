@@ -5,8 +5,9 @@
 
 import type { SourceFile, VariableDeclaration } from 'ts-morph';
 import { Node } from 'ts-morph';
+import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
-import { fileNodeIds, sourceFileFor } from '#platform/ast/find-source-file.js';
+import { fileNodeIds } from '#platform/ast/find-source-file.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
 
 /** PascalCase name — the component heuristic (decision A2). */
