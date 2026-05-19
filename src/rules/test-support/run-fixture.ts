@@ -45,7 +45,7 @@ export async function runRuleOnFixture(run: FixtureRun): Promise<readonly Diagno
   });
   const sources = await loadSourceFiles(config);
   const graph = buildGraphFromSources(config, sources);
-  const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
+  const suppress = buildSuppressIndex(config.suppress, graphEntityResolver(graph, sources.project));
   return check(
     {
       graph,

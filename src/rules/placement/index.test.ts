@@ -1,15 +1,15 @@
 /**
- * @fileoverview Parameterized tests for the placement rule family — one case
- * per descriptor, plus verdict-routing coverage shared across the family.
+ * @fileoverview Tests for the placement pack aggregate — rule metadata plus
+ * verdict-routing coverage shared across the family.
  */
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
+import type { ActiveSeverity } from '#foundation/types/index.js';
 import type { GraphRule } from '#platform/engine/types.js';
 import { makeContext } from '#rules/test-support/make-context.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
 import { only } from '#rules/test-support/only.js';
-import { placementRuleDescriptors } from './family.js';
-import { registerPlacementRules } from './register.js';
+import { placementRules } from './index.js';
 
 function cfg(): ResolvedConfig {
   return {
@@ -28,7 +28,16 @@ function cfg(): ResolvedConfig {
   } as unknown as ResolvedConfig;
 }
 
-const rulesById = new Map(registerPlacementRules().map((r) => [r.id, r]));
+/** The placement rules and their canonical default severities. */
+const expectedRules: readonly { readonly id: string; readonly defaultSeverity: ActiveSeverity }[] =
+  [
+    { id: 'lca-placement', defaultSeverity: 'warning' },
+    { id: 'slots-privacy', defaultSeverity: 'error' },
+    { id: 'siblings-forbidden', defaultSeverity: 'error' },
+    { id: 'empty-items-folder', defaultSeverity: 'warning' },
+  ];
+
+const rulesById = new Map(placementRules.map((r) => [r.id, r]));
 
 /** Looks up a placement rule by id, failing the test when it is not registered. */
 function getRule(id: string): GraphRule {
@@ -39,20 +48,21 @@ function getRule(id: string): GraphRule {
   return rule;
 }
 
-describe('placement rule family', () => {
-  it('builds exactly one Rule per descriptor', () => {
-    expect(rulesById.size).toBe(placementRuleDescriptors.length);
+describe('placement pack aggregate', () => {
+  it('aggregates exactly the four placement rules', () => {
+    expect(placementRules).toHaveLength(expectedRules.length);
+    expect(rulesById.size).toBe(expectedRules.length);
   });
 
-  for (const descriptor of placementRuleDescriptors) {
-    describe(descriptor.id, () => {
-      const rule = getRule(descriptor.id);
+  for (const expected of expectedRules) {
+    describe(expected.id, () => {
+      const rule = getRule(expected.id);
 
       it('has the canonical metadata', () => {
-        expect(rule.id).toBe(descriptor.id);
+        expect(rule.id).toBe(expected.id);
         expect(rule.pack).toBe('placement');
         expect(rule.engine).toBe('graph');
-        expect(rule.defaultSeverity).toBe(descriptor.defaultSeverity);
+        expect(rule.defaultSeverity).toBe(expected.defaultSeverity);
       });
     });
   }

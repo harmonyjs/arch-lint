@@ -8,7 +8,7 @@
 import { dirOf } from '#foundation/entity-id/index.js';
 import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
-import { fileNodeIds } from '#platform/ast/find-source-file.js';
+import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import { type ImportInfo, importsOf } from '#platform/ast/import-info.js';
 import { dedupByFingerprint } from '#platform/engine/dedup-diagnostics.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';

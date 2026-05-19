@@ -6,7 +6,7 @@
  */
 import type { Project } from 'ts-morph';
 import type { ConsumerGraph } from '#platform/graph/types.js';
-import { fileNodeIds } from './find-source-file.js';
+import { fileNodeIds } from './file-nodes.js';
 
 function hasFileFor(projectIds: ReadonlySet<string>, id: string): boolean {
   if (projectIds.has(id)) return true;

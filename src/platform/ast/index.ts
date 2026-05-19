@@ -3,7 +3,7 @@
  */
 export { sourceFileFor } from '#foundation/ts-project/index.js';
 export { assertGraphProjectConsistent } from './assert-consistent.js';
-export { fileNodeIds } from './find-source-file.js';
+export { fileNodeIds } from './file-nodes.js';
 export { type ImportInfo, importsOf } from './import-info.js';
 export {
   componentFolderOf,

@@ -2,9 +2,7 @@
  * @fileoverview The concrete SuppressIndex: maps entity ids to their parsed @arch-decision
  * data and answers isSuppressed / findExpired for the rule engine and `expired-suppress`.
  */
-import type { Project } from 'ts-morph';
 import type { SuppressConfig } from '#foundation/config/types.js';
-import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic, EntityResolver } from '#foundation/types/index.js';
 import { parseEntitySuppress } from './parse.js';
 import { isSuppressedByStack } from './precedence.js';
@@ -69,18 +67,18 @@ function malformedToParsed(malformed: MalformedSuppress): ParsedSuppress {
 }
 
 /**
- * Build a SuppressIndex from a ts-morph project: parse every entity's @arch-decision
- * comments. Entities whose entry file is absent from the project are skipped silently.
+ * Build a SuppressIndex through the EntityResolver: parse every entity's
+ * @arch-decision comments. Entities whose entry file the resolver cannot
+ * resolve are skipped silently.
  */
 export function buildSuppressIndex(
-  project: Project,
   config: SuppressConfig,
   entities: EntityResolver,
   now: Date = new Date(),
 ): SuppressIndexImpl {
   const byEntity = new Map<string, EntitySuppressData>();
   for (const entity of entities.listEntities()) {
-    const entryFile = sourceFileFor(project, entity.entryFilePath);
+    const entryFile = entities.sourceFileFor(entity);
     if (entryFile === undefined) continue;
     byEntity.set(entity.id, parseEntitySuppress(entryFile, entity, config));
   }

@@ -210,7 +210,7 @@ export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcom
   const config = resolveConfig(await loadConfig(options.cwd, options.configPath, logger));
   warnIfMetricsInert(config, logger);
   const { graph, sources } = await buildGraphAndSources(config);
-  const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
+  const suppress = buildSuppressIndex(config.suppress, graphEntityResolver(graph, sources.project));
   const baseline = await resolveBaseline(config, { noBaseline: options.noBaseline });
   const { project, census } = sources;
   const telemetry = options.telemetry ? new RecordingTelemetry() : new NullTelemetry();

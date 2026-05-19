@@ -167,7 +167,7 @@ interface RenderContext {
 function render(rebuilt: RebuildResult, ctx: RenderContext): void {
   const { config, baseline, opts, logger } = ctx;
   const { graph, sources } = rebuilt;
-  const suppress = buildSuppressIndex(sources.project, config.suppress, graphEntityResolver(graph));
+  const suppress = buildSuppressIndex(config.suppress, graphEntityResolver(graph, sources.project));
   const result = check(
     {
       graph,

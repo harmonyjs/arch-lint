@@ -1,27 +1,30 @@
 /**
- * @fileoverview Builds a thin placement Rule that projects one §7.3 verdict ruleId (D3).
+ * @fileoverview makeThinPlacementRule — builds a placement Rule that projects
+ * one analyzePlacement verdict kind into Diagnostics (D3, §7.3).
  */
 
-import type { Diagnostic } from '#foundation/types/index.js';
+import type { ActiveSeverity, Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule } from '#platform/engine/types.js';
-import { analyzePlacement } from './analyze.js';
-import type { PlacementRuleDescriptor } from './family.js';
+import { analyzePlacement, type PlacementVerdict } from './analyze.js';
 import { verdictToDiagnostic } from './verdict-to-diagnostic.js';
 
 /**
- * Builds a placement Rule that calls analyzePlacement and emits a Diagnostic only for
- * entities whose verdict matches `spec.id` — verdicts never overlap by construction.
+ * Builds a placement Rule that calls analyzePlacement and emits a Diagnostic only
+ * for entities whose verdict matches `id` — verdicts never overlap by construction.
  */
-export function makeThinPlacementRule(spec: PlacementRuleDescriptor): GraphRule {
+export function makeThinPlacementRule(
+  id: PlacementVerdict['ruleId'],
+  defaultSeverity: ActiveSeverity,
+): GraphRule {
   return {
-    id: spec.id,
+    id,
     pack: 'placement',
     engine: 'graph',
-    defaultSeverity: spec.defaultSeverity,
+    defaultSeverity,
     check: (graph, config, context): Diagnostic[] => {
       const out: Diagnostic[] = [];
       for (const verdict of analyzePlacement(graph, config).values()) {
-        if (verdict.ruleId === spec.id) {
+        if (verdict.ruleId === id) {
           out.push(verdictToDiagnostic(verdict, context.severity));
         }
       }

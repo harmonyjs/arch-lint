@@ -4,6 +4,7 @@
  * shape; Severity and Location are reused project-wide. Subsystem-specific types
  * live in that subsystem's own types.ts.
  */
+import type { SourceFile } from 'ts-morph';
 
 // ── Primitives ───────────────────────────────────────────────────────────────
 
@@ -67,4 +68,6 @@ export interface SuppressEntity {
 export interface EntityResolver {
   /** Every placement entity the suppress index should parse decision data for. */
   listEntities(): readonly SuppressEntity[];
+  /** The parsed entry SourceFile of an entity, or undefined when it is absent. */
+  sourceFileFor(entity: SuppressEntity): SourceFile | undefined;
 }

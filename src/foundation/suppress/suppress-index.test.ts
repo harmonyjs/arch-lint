@@ -14,9 +14,12 @@ import type {
 import { buildSuppressIndex, SuppressIndexImpl } from './suppress-index.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
 
-/** Wraps a fixed entity list into the EntityResolver buildSuppressIndex consumes. */
-function resolverOf(entities: readonly SuppressEntity[]): EntityResolver {
-  return { listEntities: () => entities };
+/** Wraps a project + entity list into the EntityResolver buildSuppressIndex consumes. */
+function resolverOf(project: Project, entities: readonly SuppressEntity[]): EntityResolver {
+  return {
+    listEntities: () => entities,
+    sourceFileFor: (entity) => project.getSourceFile(entity.entryFilePath),
+  };
 }
 
 const loc: Location = { file: 'src/Widget/Widget.tsx', line: 1, column: 1 };
@@ -172,7 +175,7 @@ describe('buildSuppressIndex', () => {
     const entities: SuppressEntity[] = [
       { id: 'src/Widget', name: 'Widget', entryFilePath: 'src/Widget/Widget.tsx' },
     ];
-    const index = buildSuppressIndex(project, cfg, resolverOf(entities), NOW);
+    const index = buildSuppressIndex(cfg, resolverOf(project, entities), NOW);
     expect(index.isSuppressed(diag({ entity: 'src/Widget' }))).toBe(true);
   });
 
@@ -181,7 +184,7 @@ describe('buildSuppressIndex', () => {
     const entities: SuppressEntity[] = [
       { id: 'src/Missing', name: 'Missing', entryFilePath: 'src/Missing/Missing.tsx' },
     ];
-    const index = buildSuppressIndex(project, cfg, resolverOf(entities), NOW);
+    const index = buildSuppressIndex(cfg, resolverOf(project, entities), NOW);
     expect(index.isSuppressed(diag({ entity: 'src/Missing' }))).toBe(false);
   });
 
@@ -194,7 +197,7 @@ describe('buildSuppressIndex', () => {
     const entities: SuppressEntity[] = [
       { id: 'src/Widget', name: 'Widget', entryFilePath: 'src/Widget/Widget.tsx' },
     ];
-    const index = buildSuppressIndex(project, cfg, resolverOf(entities), NOW);
+    const index = buildSuppressIndex(cfg, resolverOf(project, entities), NOW);
     expect(index.findExpired()).toHaveLength(1);
   });
 });

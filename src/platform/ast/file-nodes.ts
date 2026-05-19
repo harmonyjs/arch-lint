@@ -1,6 +1,5 @@
 /**
- * @fileoverview File-kind node enumeration over a ConsumerGraph. The node-id
- * source-file lookup that used to live here moved to `#foundation/ts-project`.
+ * @fileoverview file-node enumeration over a ConsumerGraph.
  */
 import type { ConsumerGraph } from '#platform/graph/types.js';
 

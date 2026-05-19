@@ -8,7 +8,7 @@ import type { ExportDeclaration, ExportSpecifier, Statement } from 'ts-morph';
 import { Node, type SourceFile } from 'ts-morph';
 import { sourceFileFor } from '#foundation/ts-project/index.js';
 import type { Diagnostic, Location } from '#foundation/types/index.js';
-import { fileNodeIds } from '#platform/ast/find-source-file.js';
+import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
 
 /** Options of no-default-export. */
