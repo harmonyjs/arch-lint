@@ -15,7 +15,7 @@ import { expiredSuppressRule } from './meta/expired-suppress/index.js';
 import { unresolvedImportRule } from './meta/unresolved-import/index.js';
 import { metricsRules } from './metrics/index.js';
 import { perfileRules } from './perfile/index.js';
-import { registerPlacementRules } from './placement/index.js';
+import { placementRules } from './placement/index.js';
 import { structureRules } from './structure/index.js';
 import { hooksFolderRequired } from './view/hooks-folder-required/index.js';
 import { tokensImportIsSideEffect } from './view/tokens-import-is-side-effect/index.js';
@@ -27,7 +27,7 @@ import { uiClusterMembership } from './view/ui-cluster-membership/index.js';
  * rule's options at runtime (`buildRuleContext`).
  */
 export const allRules: readonly Rule[] = [
-  ...registerPlacementRules(),
+  ...placementRules,
   layerBoundaryRule,
   libPurityRule,
   unresolvedImportRule,
