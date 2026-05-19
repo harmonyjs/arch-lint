@@ -68,7 +68,7 @@ function consumerLine(c: ConsumerInfo, index: number): string {
 function remedyLine(s: Suggestion): string {
   if (s.candidates !== undefined && s.candidates.length > 0) {
     const best = s.candidates.find((c) => c.best) ?? s.candidates[0];
-    return `    Remedy:   ${s.action} — suggested home ${best?.target ?? '(none)'}`;
+    return `    Remedy:   ${s.rationale} → suggested home ${best?.target ?? '(none)'}`;
   }
   const target = s.target === undefined ? '' : ` → ${s.target}`;
   return `    Remedy:   ${s.rationale}${target}`;
@@ -103,12 +103,12 @@ function couplingFacetsLines(a: CouplingFacetsAnalysis): readonly string[] {
   return lines;
 }
 
-/** Renders an analysis block — one formatter per DiagnosticAnalysis kind. */
+/**
+ * Renders an analysis block. `DiagnosticAnalysis` has one kind today; when it
+ * gains more, `couplingFacetsLines`'s parameter type forces a dispatch here.
+ */
 function analysisLines(a: DiagnosticAnalysis): readonly string[] {
-  switch (a.kind) {
-    case 'coupling-facets':
-      return couplingFacetsLines(a);
-  }
+  return couplingFacetsLines(a);
 }
 
 /** Renders the body of one diagnostic (everything below its group header). */
