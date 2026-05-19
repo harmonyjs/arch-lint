@@ -4,33 +4,6 @@ Deferred improvements — work that was consciously postponed, with enough conte
 to pick it up cold later. Each entry records *what*, *why it was deferred*, and
 *where in the code* it lives.
 
-## suppress parsing still depends on ts-morph AST
-
-- **What:** `foundation/suppress/` no longer imports `foundation/ts-project` —
-  index construction is decoupled through `EntityResolver.sourceFileFor`. But
-  the @arch-decision *parsing* itself is still ts-morph-bound: `parse.ts`,
-  `anchor.ts` and `collect-comments.ts` consume a ts-morph `SourceFile` AST
-  directly. So suppress is not yet a fully ts-morph-free library.
-- **Why deferred:** the resolver-interface decoupling was the scoped change.
-  Making the parse layer ts-morph-free needs an abstraction over comment / JSDoc
-  scanning — a separate design, not a follow-on edit.
-- **Where:** `src/foundation/suppress/{parse,anchor,collect-comments}.ts`.
-- **Trigger:** when suppress must run in a context that has no ts-morph project.
-
-## entity-id/test-file.ts → file-classification
-
-- **What:** `foundation/entity-id/` holds path arithmetic (`path-arithmetic.ts`,
-  `segments.ts`) plus `test-file.ts` — a basename predicate that classifies test
-  files. `test-file.ts` is a filename predicate, not arithmetic over a path id.
-- **Why deferred:** with a single filename predicate the file is fine where it
-  is — small, and topically related under "properties of an entity id".
-- **Where:** `src/foundation/entity-id/test-file.ts`.
-- **Trigger:** when a second filename predicate appears (e.g. a storybook,
-  fixture or config-file classifier). At that point move `test-file.ts` into a
-  new `foundation/file-classification/` and keep `entity-id/` pure path
-  arithmetic. Do the split then — do not let two predicates pile up in
-  `entity-id/` first.
-
 ## Rules as data — a declarative DSL
 
 - **What:** a declarative DSL for the subset of rules shaped "traverse X, test

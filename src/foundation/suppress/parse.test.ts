@@ -1,11 +1,11 @@
 /**
- * @fileoverview Tests for parsing all @arch-decision suppress data of one entity.
+ * @fileoverview Tests for parsing all @arch-decision suppress data of one
+ * entity from the ts-morph-free comment model.
  */
 
-import { Project, type SourceFile } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import type { SuppressConfig } from '#foundation/config/types.js';
-import type { SuppressEntity } from '#foundation/types/index.js';
+import type { CommentBlock, EntityComments } from '#foundation/types/index.js';
 import { parseEntitySuppress } from './parse.js';
 
 const cfg: SuppressConfig = {
@@ -16,29 +16,30 @@ const cfg: SuppressConfig = {
   maxDistanceLines: 5,
 };
 
-function sf(code: string): SourceFile {
-  return new Project({ useInMemoryFileSystem: true }).createSourceFile(
-    'src/Widget/Widget.tsx',
-    code,
-  );
+function block(over: Partial<CommentBlock>): CommentBlock {
+  return {
+    rawText: '',
+    kind: 'leading-comment',
+    location: { file: 'src/Widget/Widget.tsx', line: 1, column: 1 },
+    distanceLines: 0,
+    ...over,
+  };
+}
+function resolved(comments: CommentBlock[]): EntityComments {
+  return { anchor: 'resolved', comments };
+}
+function absent(fileComments: CommentBlock[]): EntityComments {
+  return { anchor: 'absent', fileComments };
 }
 
-const widget: SuppressEntity = {
-  id: 'src/Widget',
-  name: 'Widget',
-  entryFilePath: 'src/Widget/Widget.tsx',
-};
-
-describe('parseEntitySuppress', () => {
-  it('returns empty data for an entity without any @arch-decision comment', () => {
-    const data = parseEntitySuppress(sf('export const Widget = () => null;'), widget, cfg);
-    expect(data).toEqual({ valid: [], malformed: [] });
+describe('parseEntitySuppress — resolved anchor', () => {
+  it('returns empty data when the anchor has no comments', () => {
+    expect(parseEntitySuppress(resolved([]), cfg)).toEqual({ valid: [], malformed: [] });
   });
 
-  it('parses one valid broad suppress above the main export', () => {
+  it('parses one valid broad suppress', () => {
     const data = parseEntitySuppress(
-      sf('// @arch-decision: deliberate architectural choice\nexport const Widget = () => null;'),
-      widget,
+      resolved([block({ rawText: '// @arch-decision: deliberate architectural choice' })]),
       cfg,
     );
     expect(data.valid).toHaveLength(1);
@@ -49,10 +50,11 @@ describe('parseEntitySuppress', () => {
 
   it('parses a rule-scoped suppress with an expiry', () => {
     const data = parseEntitySuppress(
-      sf(
-        '// @arch-decision[lca-placement]: until 2026-12-31, migration in progress\nexport const Widget = () => null;',
-      ),
-      widget,
+      resolved([
+        block({
+          rawText: '// @arch-decision[lca-placement]: until 2026-12-31, migration in progress',
+        }),
+      ]),
       cfg,
     );
     expect(data.valid[0]?.ruleId).toBe('lca-placement');
@@ -61,8 +63,7 @@ describe('parseEntitySuppress', () => {
 
   it('collects a short-reason comment into malformed', () => {
     const data = parseEntitySuppress(
-      sf('// @arch-decision: short\nexport const Widget = () => null;'),
-      widget,
+      resolved([block({ rawText: '// @arch-decision: short' })]),
       cfg,
     );
     expect(data.valid).toEqual([]);
@@ -70,74 +71,95 @@ describe('parseEntitySuppress', () => {
     expect(data.malformed[0]?.kind).toBe('short-reason');
   });
 
-  it('parses multiple suppress comments stacked above the export', () => {
+  it('parses multiple stacked suppress comments', () => {
     const data = parseEntitySuppress(
-      sf(
-        '// @arch-decision[lca-placement]: rule scoped decision here\n' +
-          '// @arch-decision: broad decision long enough\n' +
-          'export const Widget = () => null;',
-      ),
-      widget,
+      resolved([
+        block({ rawText: '// @arch-decision[lca-placement]: rule scoped decision here' }),
+        block({ rawText: '// @arch-decision: broad decision long enough' }),
+      ]),
       cfg,
     );
     expect(data.valid).toHaveLength(2);
   });
 
-  it('reports no-main-export malformed when a stray @arch-decision has no anchor', () => {
+  it('ignores a JSDoc comment when scanLocations excludes jsdoc', () => {
     const data = parseEntitySuppress(
-      sf('// @arch-decision: stray decision with no main export\nexport const helper = 1;'),
-      widget,
-      cfg,
-    );
-    expect(data.valid).toEqual([]);
-    expect(data.malformed).toHaveLength(1);
-    expect(data.malformed[0]?.kind).toBe('no-main-export');
-  });
-
-  it('ignores a marker that appears only inside a string literal, not a comment', () => {
-    const data = parseEntitySuppress(
-      sf("export const defaultMarker = '@arch-decision';\nexport const helper = 1;"),
-      widget,
-      cfg,
-    );
-    expect(data).toEqual({ valid: [], malformed: [] });
-  });
-
-  it('still flags a stray marker living in a genuine unanchored comment', () => {
-    const data = parseEntitySuppress(
-      sf(
-        "export const defaultMarker = '@arch-decision';\n" +
-          '// @arch-decision: stray decision with no main export\n' +
-          'export const helper = 1;',
-      ),
-      widget,
-      cfg,
-    );
-    expect(data.valid).toEqual([]);
-    expect(data.malformed).toHaveLength(1);
-    expect(data.malformed[0]?.kind).toBe('no-main-export');
-  });
-
-  it('ignores a marker that appears as prose in a comment, not as a directive', () => {
-    const data = parseEntitySuppress(
-      sf(
-        '/**\n * @fileoverview parser that reports malformed @arch-decision comments.\n */\n' +
-          'export const helper = 1;',
-      ),
-      widget,
-      cfg,
-    );
-    expect(data).toEqual({ valid: [], malformed: [] });
-  });
-
-  it('does not scan jsdoc when scanLocations excludes it', () => {
-    const data = parseEntitySuppress(
-      sf(
-        '/**\n * @arch-decision: jsdoc decision long enough\n */\nexport const Widget = () => null;',
-      ),
-      widget,
+      resolved([
+        block({
+          kind: 'jsdoc',
+          rawText: '/**\n * @arch-decision: jsdoc decision long enough\n */',
+        }),
+      ]),
       { ...cfg, scanLocations: ['leading-comment'] },
     );
     expect(data.valid).toEqual([]);
+  });
+
+  it('ignores a comment farther than maxDistanceLines away', () => {
+    const data = parseEntitySuppress(
+      resolved([block({ rawText: '// @arch-decision: far decision here now', distanceLines: 7 })]),
+      cfg,
+    );
+    expect(data.valid).toEqual([]);
+  });
+
+  it('keeps a comment exactly maxDistanceLines away', () => {
+    const data = parseEntitySuppress(
+      resolved([
+        block({ rawText: '// @arch-decision: borderline decision here', distanceLines: 5 }),
+      ]),
+      cfg,
+    );
+    expect(data.valid).toHaveLength(1);
+  });
+});
+
+describe('parseEntitySuppress — absent anchor', () => {
+  it('reports no-main-export for a stray @arch-decision directive', () => {
+    const data = parseEntitySuppress(
+      absent([block({ rawText: '// @arch-decision: stray decision with no main export' })]),
+      cfg,
+    );
+    expect(data.valid).toEqual([]);
+    expect(data.malformed).toHaveLength(1);
+    expect(data.malformed[0]?.kind).toBe('no-main-export');
+  });
+
+  it('ignores a marker that appears as prose, not as a directive', () => {
+    const data = parseEntitySuppress(
+      absent([
+        block({
+          kind: 'jsdoc',
+          rawText: '/**\n * @fileoverview parser reporting malformed @arch-decision comments.\n */',
+        }),
+      ]),
+      cfg,
+    );
+    expect(data).toEqual({ valid: [], malformed: [] });
+  });
+
+  it('locates a stray @arch-decision precisely inside a multi-line JSDoc comment', () => {
+    const data = parseEntitySuppress(
+      absent([
+        block({
+          kind: 'jsdoc',
+          rawText:
+            '/**\n * filler comment text here\n * @arch-decision: stray reason long enough\n */',
+          location: { file: 'src/Widget/Widget.tsx', line: 10, column: 1 },
+        }),
+      ]),
+      cfg,
+    );
+    expect(data.malformed).toHaveLength(1);
+    expect(data.malformed[0]?.kind).toBe('no-main-export');
+    expect(data.malformed[0]?.location).toEqual({
+      file: 'src/Widget/Widget.tsx',
+      line: 12,
+      column: 4,
+    });
+  });
+
+  it('returns empty data when there are no file comments at all', () => {
+    expect(parseEntitySuppress(absent([]), cfg)).toEqual({ valid: [], malformed: [] });
   });
 });

@@ -1,13 +1,14 @@
 /**
- * @fileoverview graphEntityResolver — the graph-side implementation of the suppress
- * EntityResolver contract. Projects ConsumerGraph file nodes into the SuppressEntity
- * descriptors suppress consumes and resolves each entity's entry SourceFile, so
- * suppress depends only on the interface — never on graph internals or ts-morph.
+ * @fileoverview graphEntityResolver — the graph-side implementation of the
+ * suppress EntityResolver contract. Projects ConsumerGraph file nodes into
+ * SuppressEntity descriptors and resolves each entity's ts-morph-free comment
+ * model, so suppress depends only on the interface — never on ts-morph.
  */
 
-import type { Project, SourceFile } from 'ts-morph';
+import type { Project } from 'ts-morph';
 import { ancestorsOf, baseNameOf, dropExtension } from '#foundation/entity-id/index.js';
-import type { EntityResolver, SuppressEntity } from '#foundation/types/index.js';
+import type { EntityComments, EntityResolver, SuppressEntity } from '#foundation/types/index.js';
+import { collectEntityComments } from './entity-comments.js';
 import { sourceFileFor as resolveSourceFile } from './source-file-for.js';
 import type { ConsumerGraph } from './types.js';
 
@@ -45,8 +46,10 @@ export function graphEntityResolver(graph: ConsumerGraph, project: Project): Ent
         entryFilePath: entryFileOf(id, graph),
       }));
     },
-    sourceFileFor(entity: SuppressEntity): SourceFile | undefined {
-      return resolveSourceFile(project, entity.entryFilePath);
+    commentsFor(entity: SuppressEntity): EntityComments | undefined {
+      const sourceFile = resolveSourceFile(project, entity.entryFilePath);
+      if (sourceFile === undefined) return undefined;
+      return collectEntityComments(sourceFile, entity.name);
     },
   };
 }

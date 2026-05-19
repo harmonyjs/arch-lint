@@ -1,45 +1,45 @@
 /**
- * @fileoverview Per-entity @arch-decision parser: locates the anchor declaration, collects
- * nearby comments, scans and interprets them into the entity's valid/malformed suppress data.
+ * @fileoverview Per-entity @arch-decision parser: interprets the ts-morph-free
+ * comment model into the entity's valid/malformed suppress data.
  */
-import type { SourceFile } from 'ts-morph';
 import type { SuppressConfig } from '#foundation/config/types.js';
-import type { Location, SuppressEntity } from '#foundation/types/index.js';
-import { findAnchorDeclaration } from './anchor.js';
-import { type CollectedComment, collectSuppressComments } from './collect-comments.js';
+import type { CommentBlock, EntityComments, Location } from '#foundation/types/index.js';
 import { interpretSuppress } from './interpret.js';
 import { hasArchDecisionDirective, scanSuppressText } from './scan-text.js';
+import { stripCommentGlyphs } from './strip.js';
 import type { EntitySuppressData, MalformedSuppress, ParsedSuppress } from './types.js';
 
 /**
- * Parse every @arch-decision comment attached to one entity. When the entry file has no
- * main export but does carry a stray @arch-decision, that comment is flagged `no-main-export`.
+ * Parse every @arch-decision comment of one entity. When the entry file has no
+ * anchor but carries a stray @arch-decision, that comment is flagged
+ * `no-main-export`.
  */
 export function parseEntitySuppress(
-  entryFile: SourceFile,
-  entity: SuppressEntity,
+  comments: EntityComments,
   config: SuppressConfig,
 ): EntitySuppressData {
-  const anchor = findAnchorDeclaration(entryFile, entity.name);
-  if (anchor === null) {
-    const stray = findStrayMarker(entryFile, config);
+  if (comments.anchor === 'absent') {
+    const stray = findStrayMarker(comments.fileComments, config);
     return { valid: [], malformed: stray === null ? [] : [stray] };
   }
-  const comments = collectSuppressComments(anchor, config).filter((c) =>
-    config.scanLocations.includes(c.kind),
+  const inScope = comments.comments.filter(
+    (c) => config.scanLocations.includes(c.kind) && c.distanceLines <= config.maxDistanceLines,
   );
-  return interpretAll(comments, config);
+  return interpretAll(inScope, config);
 }
 
-/** Interpret a list of collected comments into valid/malformed buckets. */
+/** Interpret a list of in-scope comment blocks into valid/malformed buckets. */
 function interpretAll(
-  comments: readonly CollectedComment[],
+  comments: readonly CommentBlock[],
   config: SuppressConfig,
 ): EntitySuppressData {
   const valid: ParsedSuppress[] = [];
   const malformed: MalformedSuppress[] = [];
   for (const comment of comments) {
-    const raw = scanSuppressText(comment.text, config.marker, comment.location);
+    const text = stripCommentGlyphs(comment.rawText);
+    // §9: a directive reports at column 1 (the anchor-line convention), not the comment's true column.
+    const location: Location = { ...comment.location, column: 1 };
+    const raw = scanSuppressText(text, config.marker, location);
     if (raw === null) continue;
     const result = interpretSuppress(raw, config);
     if (result.ok) valid.push(result.value);
@@ -49,27 +49,29 @@ function interpretAll(
 }
 
 /**
- * Search the file's comments for an @arch-decision directive that could not be anchored.
- * Only comment text is scanned, and only a real directive counts — a marker inside a
- * string literal, ordinary code, or prose (a `@fileoverview` documenting the feature) is
- * not a suppress directive and must be ignored.
+ * Find the first file comment carrying a real @arch-decision directive that
+ * could not be anchored. A marker inside a string literal never reaches here
+ * (the producer collects comments only); a bare marker in prose has no
+ * `[ruleId]?:` opener and is not a directive.
  */
-function findStrayMarker(entryFile: SourceFile, config: SuppressConfig): MalformedSuppress | null {
-  const fullText = entryFile.getFullText();
-  const seen = new Set<number>();
-  for (const node of [entryFile, ...entryFile.getDescendants()]) {
-    for (const range of [...node.getLeadingCommentRanges(), ...node.getTrailingCommentRanges()]) {
-      const pos = range.getPos();
-      if (seen.has(pos)) continue;
-      seen.add(pos);
-      const commentText = fullText.slice(pos, range.getEnd());
-      if (!hasArchDecisionDirective(commentText, config.marker)) continue;
-      const { line, column } = entryFile.getLineAndColumnAtPos(
-        pos + commentText.indexOf(config.marker),
-      );
-      const location: Location = { file: entryFile.getFilePath(), line, column };
-      return { kind: 'no-main-export', ruleId: null, reason: undefined, location };
-    }
+function findStrayMarker(
+  fileComments: readonly CommentBlock[],
+  config: SuppressConfig,
+): MalformedSuppress | null {
+  for (const comment of fileComments) {
+    if (!hasArchDecisionDirective(comment.rawText, config.marker)) continue;
+    const markerOffset = comment.rawText.indexOf(config.marker);
+    const location = offsetToLocation(comment.location, comment.rawText, markerOffset);
+    return { kind: 'no-main-export', ruleId: null, reason: undefined, location };
   }
   return null;
+}
+
+/** Absolute Location of `offset` within `text`, given the text's start Location. */
+function offsetToLocation(start: Location, text: string, offset: number): Location {
+  const before = text.slice(0, offset);
+  const lastNewline = before.lastIndexOf('\n');
+  const line = start.line + (before.match(/\n/g)?.length ?? 0);
+  const column = lastNewline === -1 ? start.column + offset : offset - lastNewline;
+  return { file: start.file, line, column };
 }

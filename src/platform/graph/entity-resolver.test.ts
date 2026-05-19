@@ -1,6 +1,6 @@
 /**
  * @fileoverview Tests for graphEntityResolver — listEntities projection and
- * sourceFileFor lookup over a ts-morph Project.
+ * commentsFor lookup over a ts-morph Project.
  */
 
 import { Project } from 'ts-morph';
@@ -58,8 +58,8 @@ describe('graphEntityResolver — listEntities', () => {
   });
 });
 
-describe('graphEntityResolver — sourceFileFor', () => {
-  it('resolves an entity entry file to its parsed SourceFile', () => {
+describe('graphEntityResolver — commentsFor', () => {
+  it('resolves an entity entry file to its comment model', () => {
     const project = new Project({ useInMemoryFileSystem: true });
     project.createSourceFile('src/Widget/Widget.tsx', 'export const Widget = () => null;');
     const graph = makeGraph({
@@ -70,14 +70,15 @@ describe('graphEntityResolver — sourceFileFor', () => {
       name: 'Widget',
       entryFilePath: 'src/Widget/Widget.tsx',
     };
-    expect(graphEntityResolver(graph, project).sourceFileFor(entity)?.getFilePath()).toContain(
-      'src/Widget/Widget.tsx',
-    );
+    expect(graphEntityResolver(graph, project).commentsFor(entity)).toEqual({
+      anchor: 'resolved',
+      comments: [],
+    });
   });
   it('returns undefined for an entity whose file is absent from the project', () => {
     const project = new Project({ useInMemoryFileSystem: true });
     const graph = makeGraph({ nodes: { 'src/util.ts': { kind: 'file', isEntity: true } } });
     const entity: SuppressEntity = { id: 'src/x', name: 'x', entryFilePath: 'src/x/x.ts' };
-    expect(graphEntityResolver(graph, project).sourceFileFor(entity)).toBeUndefined();
+    expect(graphEntityResolver(graph, project).commentsFor(entity)).toBeUndefined();
   });
 });
