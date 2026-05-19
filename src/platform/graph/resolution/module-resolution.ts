@@ -1,6 +1,7 @@
 /**
  * @fileoverview Resolves a module specifier to a project file id using the TypeScript
  * module resolver — covers relative paths, extensions, index files and path aliases.
+ * Also builds the ModuleResolutionContext from a SourceFileSet's ts-morph project.
  */
 import ts from 'typescript';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
