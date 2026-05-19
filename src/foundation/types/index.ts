@@ -35,6 +35,7 @@ export interface Diagnostic {
   readonly consumers?: readonly ConsumerInfo[];
   readonly reason: string;
   readonly suggestions: readonly Suggestion[];
+  readonly analysis?: DiagnosticAnalysis;
   readonly location: Location;
   readonly typeOnly?: boolean;
 }
@@ -48,9 +49,46 @@ export interface ConsumerInfo {
 }
 
 export interface Suggestion {
-  readonly action: 'move' | 'inline' | 'split' | 'add-barrel' | 'remove-suppress' | 'custom';
+  readonly action:
+    | 'move'
+    | 'inline'
+    | 'split'
+    | 'add-barrel'
+    | 'remove-suppress'
+    | 'group-params'
+    | 'custom';
   readonly target?: string;
   readonly rationale: string;
+  readonly candidates?: readonly RemedyCandidate[];
+}
+
+/** One ranked remedy option, carrying the metric math behind its ranking. */
+export interface RemedyCandidate {
+  readonly target: string;
+  /** The quantified consequence, e.g. '+0 new unit edges'. Omitted when N/A. */
+  readonly note?: string;
+  readonly best: boolean;
+}
+
+/** Structured, occurrence-specific analysis attached to a diagnostic. */
+export type DiagnosticAnalysis = CouplingFacetsAnalysis;
+
+/**
+ * A unit's coupling decomposed into facets — groups of units linked to the
+ * subject unit through the same imported symbol. Disjoint facets are a
+ * mechanical signal that the unit carries more than one responsibility.
+ */
+export interface CouplingFacetsAnalysis {
+  readonly kind: 'coupling-facets';
+  readonly facets: readonly Facet[];
+  /** True when the facets' unit sets are pairwise disjoint. */
+  readonly disjoint: boolean;
+}
+
+/** One coupling facet: the units linked to the subject unit through `symbol`. */
+export interface Facet {
+  readonly symbol: string;
+  readonly units: readonly string[];
 }
 
 // ── Entity resolution ────────────────────────────────────────────────────────

@@ -5,7 +5,14 @@
  */
 import pc from 'picocolors';
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import type { ActiveSeverity, ConsumerInfo, Diagnostic } from '#foundation/types/index.js';
+import type {
+  ActiveSeverity,
+  ConsumerInfo,
+  CouplingFacetsAnalysis,
+  Diagnostic,
+  DiagnosticAnalysis,
+  Suggestion,
+} from '#foundation/types/index.js';
 import type { CheckResult } from '#platform/engine/types.js';
 
 /** Total visual width of a group-header divider line. */
@@ -50,16 +57,58 @@ export interface RenderOptions {
   readonly showSuggestions: boolean;
   readonly foldLongLists: boolean;
   readonly hyperlinks: boolean;
+  readonly explain: boolean;
 }
 
 function consumerLine(c: ConsumerInfo, index: number): string {
   return `      ${index + 1}. ${c.file} (line ${c.location.line})`;
 }
 
-function suggestionLine(s: Diagnostic['suggestions'][number], index: number): string {
-  const letter = String.fromCharCode(97 + index);
+/** Default-mode one-line remedy summary for one suggestion. */
+function remedyLine(s: Suggestion): string {
+  if (s.candidates !== undefined && s.candidates.length > 0) {
+    const best = s.candidates.find((c) => c.best) ?? s.candidates[0];
+    return `    Remedy:   ${s.rationale} → suggested home ${best?.target ?? '(none)'}`;
+  }
   const target = s.target === undefined ? '' : ` → ${s.target}`;
-  return `      [${letter}] ${s.action}${target}`;
+  return `    Remedy:   ${s.rationale}${target}`;
+}
+
+/** Explain-mode remedy: the rationale plus the ranked candidate list. */
+function remedyLinesExplain(s: Suggestion): readonly string[] {
+  if (s.candidates === undefined || s.candidates.length === 0) return [remedyLine(s)];
+  const lines = [`    Remedy:   ${s.rationale}`];
+  s.candidates.forEach((c, i) => {
+    const letter = String.fromCharCode(97 + i);
+    const note = c.note === undefined ? '' : `  (${c.note})`;
+    const star = c.best ? '  ★' : '';
+    lines.push(`      [${letter}] ${c.target}${note}${star}`);
+  });
+  return lines;
+}
+
+/** Formats a coupling-facets analysis block. */
+function couplingFacetsLines(a: CouplingFacetsAnalysis): readonly string[] {
+  const lines = [`    Analysis: ${a.facets.length} facet(s) by consumed symbol`];
+  for (const f of a.facets) {
+    lines.push(`                ${f.symbol} → ${f.units.join(', ')}  (${f.units.length})`);
+  }
+  if (a.facets.length > 1) {
+    lines.push(
+      a.disjoint
+        ? '              disjoint ⇒ the unit carries separable responsibilities'
+        : '              facets overlap ⇒ no clean split seam',
+    );
+  }
+  return lines;
+}
+
+/**
+ * Renders an analysis block. `DiagnosticAnalysis` has one kind today; when it
+ * gains more, `couplingFacetsLines`'s parameter type forces a dispatch here.
+ */
+function analysisLines(a: DiagnosticAnalysis): readonly string[] {
+  return couplingFacetsLines(a);
 }
 
 /** Renders the body of one diagnostic (everything below its group header). */
@@ -73,9 +122,13 @@ export function renderDiagnostic(d: Diagnostic, opts: RenderOptions): string {
     const rendered = d.consumers.map((c, i) => consumerLine(c, i));
     lines.push(...foldConsumers(rendered, opts.foldLongLists));
   }
-  if (opts.showSuggestions && d.suggestions.length > 0) {
-    lines.push('    Suggest:');
-    lines.push(...d.suggestions.map((s, i) => suggestionLine(s, i)));
+  if (opts.explain && d.analysis !== undefined) {
+    lines.push(...analysisLines(d.analysis));
+  }
+  if (opts.showSuggestions) {
+    for (const s of d.suggestions) {
+      lines.push(...(opts.explain ? remedyLinesExplain(s) : [remedyLine(s)]));
+    }
   }
   return lines.join('\n');
 }
@@ -84,12 +137,15 @@ function pluralize(count: number, word: string): string {
   return `${count} ${word}${count === 1 ? '' : 's'}`;
 }
 
-function summaryLine(summary: CheckResult['summary']): string {
-  return (
-    `Summary: ${pluralize(summary.bySeverity.error, 'error')}, ` +
-    `${pluralize(summary.bySeverity.warning, 'warning')} ` +
-    `(${summary.new} new, ${summary.inBaseline} in baseline)`
-  );
+function summaryLine(result: CheckResult, explain: boolean): string {
+  const s = result.summary;
+  const base =
+    `Summary: ${pluralize(s.bySeverity.error, 'error')}, ` +
+    `${pluralize(s.bySeverity.warning, 'warning')} ` +
+    `(${s.new} new, ${s.inBaseline} in baseline)`;
+  if (explain) return base;
+  const enriched = result.diagnostics.filter((d) => d.analysis !== undefined).length;
+  return enriched === 0 ? base : `${base} · ${enriched} finding(s) carry --explain analysis`;
 }
 
 function colorEnabled(mode: ResolvedConfig['report']['cli']['color']): boolean {
@@ -106,7 +162,7 @@ const SEVERITY_ORDER: readonly ActiveSeverity[] = ['error', 'warning', 'info'];
  * severity within a group, closed by a summary line. Pure — colour is decided
  * from report.cli.color, never from ambient process state directly.
  */
-export function formatReport(result: CheckResult, config: ResolvedConfig): string {
+export function formatReport(result: CheckResult, config: ResolvedConfig, explain = false): string {
   const cli = config.report.cli;
   if (result.diagnostics.length === 0) return 'No architecture violations found.';
 
@@ -116,6 +172,7 @@ export function formatReport(result: CheckResult, config: ResolvedConfig): strin
     showSuggestions: cli.showSuggestions,
     foldLongLists: cli.foldLongLists,
     hyperlinks: cli.hyperlinks === 'always' || (cli.hyperlinks === 'auto' && useColor),
+    explain,
   };
 
   const byRule = new Map<string, Diagnostic[]>();
@@ -137,6 +194,6 @@ export function formatReport(result: CheckResult, config: ResolvedConfig): strin
     blocks.push(useColor ? pc.bold(header) : header);
     for (const d of diags) blocks.push(renderDiagnostic(d, opts));
   }
-  blocks.push(summaryLine(result.summary));
+  blocks.push(summaryLine(result, explain));
   return blocks.join('\n');
 }

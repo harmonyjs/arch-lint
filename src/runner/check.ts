@@ -163,6 +163,8 @@ export interface RunCheckOptions {
   readonly ruleFilter?: readonly string[];
   /** Record per-rule timing spans and log a slowest-first summary after the run. */
   readonly telemetry?: boolean;
+  /** Render the full structural analysis block for every enriched diagnostic. */
+  readonly explain: boolean;
   /** Diagnostic-output sink; absent falls back to a fresh ConsoleLogger. */
   readonly logger?: Logger;
 }
@@ -239,7 +241,7 @@ export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcom
   const filteredResult: CheckResult = { ...result, diagnostics, exitCode: verdictCode };
   return {
     result: filteredResult,
-    report: formatReport(filteredResult, config),
+    report: formatReport(filteredResult, config, options.explain),
     exitCode: verdictCode,
     warnings,
   };
@@ -261,6 +263,8 @@ export interface CheckCommandFlags {
   readonly ruleFilter?: readonly string[];
   /** Record per-rule timing spans and log a slowest-first summary (`--telemetry`). */
   readonly telemetry: boolean;
+  /** Render the full structural analysis block for every enriched diagnostic. */
+  readonly explain: boolean;
   /** Diagnostic-output sink; absent falls back to a fresh ConsoleLogger. */
   readonly logger?: Logger;
 }
@@ -293,6 +297,7 @@ export async function runCheckCommand(flags: CheckCommandFlags): Promise<CheckCo
     noBaseline: flags.noBaseline,
     changedOnly: flags.changedOnly,
     telemetry: flags.telemetry,
+    explain: flags.explain,
     ...(flags.configPath !== undefined ? { configPath: flags.configPath } : {}),
     ...(flags.base !== undefined ? { base: flags.base } : {}),
     ...(flags.ruleFilter !== undefined ? { ruleFilter: flags.ruleFilter } : {}),

@@ -14,7 +14,7 @@ function edge(consumer: string, producer: string): Edge {
 }
 
 function cfg(units: UnitsConfig = {}): ResolvedConfig {
-  return { project: { sourceRoot: 'src' }, units } as ResolvedConfig;
+  return { project: { sourceRoot: 'src' }, units, layers: {} } as ResolvedConfig;
 }
 
 describe('afferentCoupling — metadata', () => {
@@ -78,7 +78,7 @@ describe('afferentCoupling — check', () => {
     expect(d.fingerprint).toBe('afferent-coupling#graph');
     expect(d.message).toBe('unit graph is depended on by many units');
     expect(d.expected).toBe('≤ 1 inbound unit dependencies');
-    expect(d.actual).toBe('2 (report, runner)');
+    expect(d.actual).toBe('2');
     expect(d.location).toEqual({ file: 'graph', line: 1, column: 1 });
   });
 
@@ -114,6 +114,6 @@ describe('afferentCoupling — check', () => {
     const graph = makeGraph({ nodes, edges });
     const ctx = makeContext('afferent-coupling', { severity: 'info' });
     const d = only(afferentCoupling.check(graph, cfg(units), ctx));
-    expect(d.actual).toBe('7 (a, b, c, d, e, f, g)');
+    expect(d.actual).toBe('7');
   });
 });

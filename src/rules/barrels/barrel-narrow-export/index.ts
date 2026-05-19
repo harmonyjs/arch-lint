@@ -95,7 +95,7 @@ function narrowExportDiagnostic(
     reason: 'A component-folder barrel must expose only its own entity, not aggregate others',
     suggestions: [
       {
-        action: 'custom',
+        action: 'move',
         rationale: `Move foreign re-exports out of ${folderId}'s barrel or relocate those entities`,
       },
     ],

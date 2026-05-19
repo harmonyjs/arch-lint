@@ -8,6 +8,7 @@
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
+import { couplingFacets, splitSuggestion } from '#rules/metrics/analysis/index.js';
 import { analyzeMetrics, hasDeclaredUnits } from '#rules/metrics/analyze.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
@@ -37,6 +38,7 @@ export const unitCohesion: GraphRule = {
       if (m.entityFiles < 2 || ignore.has(unit)) continue;
       const cohesion = m.cohesiveEntityFiles / m.entityFiles;
       if (cohesion >= opts.min) continue;
+      const analysis = couplingFacets(unit, graph, config, 'inbound');
       out.push(
         verdictToDiagnostic(
           {
@@ -48,8 +50,8 @@ export const unitCohesion: GraphRule = {
             actual: `${cohesion.toFixed(2)} (${m.cohesiveEntityFiles}/${m.entityFiles} files import a sibling)`,
             reason:
               'files that sit together but never reference each other are a folder, not a unit',
-            suggestion:
-              'either the files belong in different units, or a missing seam should connect them',
+            suggestions: [splitSuggestion(analysis, graph, config)],
+            analysis,
           },
           context.severity,
         ),

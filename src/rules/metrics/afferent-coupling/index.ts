@@ -5,6 +5,7 @@
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import type { GraphRule, GraphRuleContext } from '#platform/engine/types.js';
+import { couplingFacets, splitSuggestion } from '#rules/metrics/analysis/index.js';
 import { analyzeMetrics, hasDeclaredUnits } from '#rules/metrics/analyze.js';
 import { verdictToDiagnostic } from '#rules/metrics/verdict-to-diagnostic.js';
 
@@ -32,7 +33,7 @@ export const afferentCoupling: GraphRule = {
     const out: Diagnostic[] = [];
     for (const [unit, m] of report) {
       if (allow.has(unit) || m.ca <= opts.max) continue;
-      const inbound = [...m.inboundUnits].sort().join(', ');
+      const analysis = couplingFacets(unit, graph, config, 'inbound');
       out.push(
         verdictToDiagnostic(
           {
@@ -41,10 +42,11 @@ export const afferentCoupling: GraphRule = {
             fingerprint: `afferent-coupling#${unit}`,
             message: `unit ${unit} is depended on by many units`,
             expected: `≤ ${opts.max} inbound unit dependencies`,
-            actual: `${m.ca} (${inbound})`,
+            actual: `${m.ca}`,
             reason:
               'a widely-depended-on unit is a high-blast-radius change point — keep its surface stable and small',
-            suggestion: 'confirm this is a deliberate shared unit; if not, split it by client',
+            suggestions: [splitSuggestion(analysis, graph, config)],
+            analysis,
           },
           context.severity,
         ),

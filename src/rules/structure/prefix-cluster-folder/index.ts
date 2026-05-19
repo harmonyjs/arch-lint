@@ -63,7 +63,7 @@ function clusterDiagnostic(
     reason: 'files sharing a name prefix form a hidden subsystem that has no folder of its own',
     suggestions: [
       {
-        action: 'custom',
+        action: 'split',
         rationale: `create a ${prefix}/ subfolder, move the clustered files into it, and update imports`,
       },
     ],

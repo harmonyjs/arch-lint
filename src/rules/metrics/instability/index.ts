@@ -46,7 +46,12 @@ export const instability: GraphRule = {
               actual: 'Ca = 0 — nothing imports this unit',
               reason:
                 'a unit nothing depends on is not a foundation; its instability is a boundary artifact, not a signal',
-              suggestion: 'drop it from leafUnits, or wire the units that should depend on it',
+              suggestions: [
+                {
+                  action: 'custom',
+                  rationale: 'drop it from leafUnits, or wire the units that should depend on it',
+                },
+              ],
             },
             'info',
           ),
@@ -64,8 +69,13 @@ export const instability: GraphRule = {
             expected: `instability I ≤ ${opts.maxForLeafUnits}`,
             actual: `I = ${m.instability.toFixed(2)} (Ca=${m.ca}, Ce=${m.ce})`,
             reason: 'a foundational unit should be stable — many depend on it, it depends on few',
-            suggestion:
-              'move the outbound dependencies out of this unit, or drop it from leafUnits',
+            suggestions: [
+              {
+                action: 'custom',
+                rationale:
+                  'move the outbound dependencies out of this unit, or drop it from leafUnits',
+              },
+            ],
           },
           context.severity,
         ),
