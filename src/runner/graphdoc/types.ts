@@ -2,7 +2,7 @@
  * @fileoverview Render-model types for the graph document — the GraphDoc tree
  * the model builds and the document/mermaid emitters consume.
  */
-import type { ShapeFinding } from './shape/types.js';
+import type { ShapeFinding } from './shape/index.js';
 
 /** arch-lint's classification of a file node — drives shape and visual weight. */
 export type NodeRole =
