@@ -4,6 +4,7 @@
  * A pure string builder: depends only on ./types.js and ./mermaid.js.
  */
 import { renderDiagram } from './mermaid.js';
+import { renderShape } from './shape/index.js';
 import type { DocSection, GraphDoc, RenderNode } from './types.js';
 
 /** Legend rows mapping each NodeRole to its diagram shape and meaning. */
@@ -76,7 +77,11 @@ function renderSection(section: DocSection): string {
 
 /** Renders the full Markdown document for a GraphDoc render model. */
 export function renderDocument(doc: GraphDoc): string {
-  const blocks: string[] = ['# Project dependency graph', renderLegend()];
+  const blocks: string[] = [
+    '# Project dependency graph',
+    renderLegend(),
+    renderShape(doc.findings),
+  ];
   for (const section of doc.sections) {
     blocks.push(renderSection(section));
   }

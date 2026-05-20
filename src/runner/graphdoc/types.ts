@@ -2,6 +2,7 @@
  * @fileoverview Render-model types for the graph document — the GraphDoc tree
  * the model builds and the document/mermaid emitters consume.
  */
+import type { ShapeFinding } from './shape/types.js';
 
 /** arch-lint's classification of a file node — drives shape and visual weight. */
 export type NodeRole =
@@ -91,4 +92,5 @@ export interface DocSection {
 /** The whole render model — the Overview section first, then drill-downs. */
 export interface GraphDoc {
   readonly sections: readonly DocSection[];
+  readonly findings: readonly ShapeFinding[];
 }

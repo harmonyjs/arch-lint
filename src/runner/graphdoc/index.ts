@@ -15,7 +15,8 @@ export function renderGraphDoc(
   graph: ConsumerGraph,
   fileoverviews: ReadonlyMap<string, string | null>,
   config: ResolvedConfig,
+  locByPath: ReadonlyMap<string, number>,
   options?: BuildModelOptions,
 ): string {
-  return renderDocument(buildGraphDoc(graph, fileoverviews, config, options));
+  return renderDocument(buildGraphDoc(graph, fileoverviews, config, locByPath, options));
 }
