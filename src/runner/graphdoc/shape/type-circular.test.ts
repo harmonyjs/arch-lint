@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import type { FolderTree } from '../model/tree.js';
 import { findTypeCircular } from './type-circular.js';
 import type { DetectorInput } from './types.js';
@@ -15,16 +16,7 @@ function edge(consumer: string, producer: string, typeOnly = false): Edge {
 }
 
 function graphOf(edges: Edge[]): ConsumerGraph {
-  return {
-    nodes: new Map(),
-    edges,
-    consumersOf: new Map(),
-    producersOf: new Map(),
-    entityConsumersOf: new Map(),
-    unresolved: [],
-    builtAt: new Date(0),
-    rootDir: 'src',
-  };
+  return makeGraph({ edges });
 }
 
 const tree: FolderTree = {
@@ -60,10 +52,7 @@ describe('findTypeCircular — pair', () => {
   });
 
   it('does not report a pair where both edges are type-only', () => {
-    const graph = graphOf([
-      edge('src/a.ts', 'src/b.ts', true),
-      edge('src/b.ts', 'src/a.ts', true),
-    ]);
+    const graph = graphOf([edge('src/a.ts', 'src/b.ts', true), edge('src/b.ts', 'src/a.ts', true)]);
     const out = findTypeCircular(inputOf(graph));
     expect(out.filter((f) => f.kind === 'type-circular-pair')).toEqual([]);
   });

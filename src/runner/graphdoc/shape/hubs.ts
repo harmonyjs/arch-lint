@@ -3,7 +3,8 @@
  * fan-out reaches the threshold. Barrels are excluded by basename because they
  * are hubs by design.
  */
-import type { ConsumerGraph } from '#platform/graph/types.js';
+import { baseNameOf } from '#foundation/entity-id/index.js';
+import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import type { FolderTree } from '../model/tree.js';
 import type { DetectorInput, HubFinding } from './types.js';
 
@@ -27,21 +28,34 @@ function walk(folder: FolderTree, graph: ConsumerGraph, out: HubFinding[]): void
 function inspectFolder(folder: FolderTree, graph: ConsumerGraph, out: HubFinding[]): void {
   const sibling = new Set(folder.files);
   for (const file of folder.files) {
-    if (BARREL_BASENAMES.has(basenameOf(file))) continue;
-    let fanIn = 0;
-    let fanOut = 0;
-    for (const edge of graph.edges) {
-      if (edge.producer === file && sibling.has(edge.consumer) && edge.consumer !== file) fanIn += 1;
-      if (edge.consumer === file && sibling.has(edge.producer) && edge.producer !== file) fanOut += 1;
-    }
+    if (BARREL_BASENAMES.has(baseNameOf(file))) continue;
+    const fanOut = countSiblingEdges(graph.producersOf.get(file), 'producer', sibling, file);
+    const fanIn = countSiblingEdges(graph.consumersOf.get(file), 'consumer', sibling, file);
     if (fanIn >= THRESHOLD || fanOut >= THRESHOLD) {
       out.push({ kind: 'hub', file, fanIn, fanOut });
     }
   }
 }
 
-/** Returns the last path segment of `path`. */
-function basenameOf(path: string): string {
-  const slash = path.lastIndexOf('/');
-  return slash === -1 ? path : path.slice(slash + 1);
+/**
+ * Counts edges whose `other` end is a sibling file ≠ `self`.
+ *
+ * `producersOf.get(file)` returns edges where `file` is the consumer — the
+ * other end is the producer, so passing `'producer'` counts fan-out.
+ * `consumersOf.get(file)` returns edges where `file` is the producer — the
+ * other end is the consumer, so passing `'consumer'` counts fan-in.
+ */
+function countSiblingEdges(
+  edges: readonly Edge[] | undefined,
+  otherEnd: 'producer' | 'consumer',
+  sibling: ReadonlySet<string>,
+  self: string,
+): number {
+  if (edges === undefined) return 0;
+  let count = 0;
+  for (const edge of edges) {
+    const other = edge[otherEnd];
+    if (other !== self && sibling.has(other)) count += 1;
+  }
+  return count;
 }

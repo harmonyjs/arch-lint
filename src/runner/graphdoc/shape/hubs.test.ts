@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import type { FolderTree } from '../model/tree.js';
 import { findHubs } from './hubs.js';
 import type { DetectorInput } from './types.js';
@@ -26,16 +27,7 @@ function folderOf(path: string, files: string[]): FolderTree {
 }
 
 function graphOf(edges: Edge[]): ConsumerGraph {
-  return {
-    nodes: new Map(),
-    edges,
-    consumersOf: new Map(),
-    producersOf: new Map(),
-    entityConsumersOf: new Map(),
-    unresolved: [],
-    builtAt: new Date(0),
-    rootDir: 'src',
-  };
+  return makeGraph({ edges });
 }
 
 function inputOf(graph: ConsumerGraph, tree: FolderTree): DetectorInput {
@@ -69,12 +61,7 @@ describe('findHubs', () => {
   });
 
   it('reports a file with fan-in ≥ 3 from siblings', () => {
-    const tree = folderOf('src/p', [
-      'src/p/shared.ts',
-      'src/p/a.ts',
-      'src/p/b.ts',
-      'src/p/c.ts',
-    ]);
+    const tree = folderOf('src/p', ['src/p/shared.ts', 'src/p/a.ts', 'src/p/b.ts', 'src/p/c.ts']);
     const graph = graphOf([
       edge('src/p/a.ts', 'src/p/shared.ts'),
       edge('src/p/b.ts', 'src/p/shared.ts'),
@@ -86,10 +73,7 @@ describe('findHubs', () => {
 
   it('does not report a file below threshold', () => {
     const tree = folderOf('src/p', ['src/p/x.ts', 'src/p/y.ts', 'src/p/z.ts']);
-    const graph = graphOf([
-      edge('src/p/y.ts', 'src/p/x.ts'),
-      edge('src/p/z.ts', 'src/p/x.ts'),
-    ]);
+    const graph = graphOf([edge('src/p/y.ts', 'src/p/x.ts'), edge('src/p/z.ts', 'src/p/x.ts')]);
     const out = findHubs(inputOf(graph, tree));
     expect(out.find((f) => f.file === 'src/p/x.ts')).toBeUndefined();
   });

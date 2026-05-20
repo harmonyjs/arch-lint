@@ -3,6 +3,7 @@
  * sub-folders. Surfaces uneven role within a pack (e.g., a primitives folder
  * consumed by four of five rule sub-folders).
  */
+import { isAtOrUnderPrefix } from '#foundation/entity-id/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 import type { FolderTree } from '../model/tree.js';
 import type { DetectorInput, SiblingAsymmetryFinding } from './types.js';
@@ -30,12 +31,13 @@ function inspectParent(
 ): void {
   const subs = [...parent.folders.values()];
   if (subs.length < MIN_SIBLINGS) return;
+  const reachFrom = buildSubFolderReach(graph, subs);
   for (const target of subs) {
-    const others = subs.filter((s) => s !== target);
     const usedBy: string[] = [];
     const missing: string[] = [];
-    for (const sibling of others) {
-      if (anyEdge(graph, sibling.path, target.path)) usedBy.push(sibling.name);
+    for (const sibling of subs) {
+      if (sibling === target) continue;
+      if (reachFrom.get(sibling.path)?.has(target.path) === true) usedBy.push(sibling.name);
       else missing.push(sibling.name);
     }
     if (usedBy.length === 0 || missing.length === 0) continue;
@@ -44,17 +46,42 @@ function inspectParent(
       folder: target.path,
       usedBy: usedBy.sort(),
       missing: missing.sort(),
-      total: others.length,
+      total: usedBy.length + missing.length,
     });
   }
 }
 
-/** True when any runtime-or-type edge has its consumer under `from` and producer under `to`. */
-function anyEdge(graph: ConsumerGraph, fromFolder: string, toFolder: string): boolean {
-  const fromPrefix = `${fromFolder}/`;
-  const toPrefix = `${toFolder}/`;
+/**
+ * Single pass over `graph.edges`: maps each immediate sub-folder to the set of
+ * sibling sub-folders it imports from. Built once per parent, replacing the
+ * O(S*S*E) per-pair `anyEdge` scan with O(E + S*S).
+ */
+function buildSubFolderReach(
+  graph: ConsumerGraph,
+  subs: readonly FolderTree[],
+): Map<string, Set<string>> {
+  const reach = new Map<string, Set<string>>();
+  if (subs.length === 0) return reach;
   for (const edge of graph.edges) {
-    if (edge.consumer.startsWith(fromPrefix) && edge.producer.startsWith(toPrefix)) return true;
+    const fromSub = subFolderOf(edge.consumer, subs);
+    if (fromSub === null) continue;
+    const toSub = subFolderOf(edge.producer, subs);
+    if (toSub === null) continue;
+    if (fromSub === toSub) continue;
+    let bucket = reach.get(fromSub);
+    if (bucket === undefined) {
+      bucket = new Set();
+      reach.set(fromSub, bucket);
+    }
+    bucket.add(toSub);
   }
-  return false;
+  return reach;
+}
+
+/** Returns the immediate sub-folder path that `id` lies under, or null. */
+function subFolderOf(id: string, subs: readonly FolderTree[]): string | null {
+  for (const sub of subs) {
+    if (isAtOrUnderPrefix(id, sub.path)) return sub.path;
+  }
+  return null;
 }

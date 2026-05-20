@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
+import { makeGraph } from '#rules/test-support/make-graph.js';
 import type { FolderTree } from '../model/tree.js';
 import { findSiblingAsymmetry } from './sibling-asymmetry.js';
 import type { DetectorInput } from './types.js';
@@ -26,16 +27,7 @@ function emptyFolder(path: string): FolderTree {
 }
 
 function graphOf(edges: Edge[]): ConsumerGraph {
-  return {
-    nodes: new Map(),
-    edges,
-    consumersOf: new Map(),
-    producersOf: new Map(),
-    entityConsumersOf: new Map(),
-    unresolved: [],
-    builtAt: new Date(0),
-    rootDir: 'src',
-  };
+  return makeGraph({ edges });
 }
 
 /**

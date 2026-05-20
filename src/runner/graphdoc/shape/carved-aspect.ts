@@ -3,6 +3,7 @@
  * folder connected by a runtime edge. Surfaces a carved-out aspect that
  * factored out of its host module.
  */
+import { baseNameOf, dropExtension } from '#foundation/entity-id/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 import type { FolderTree } from '../model/tree.js';
 import type { CarvedAspectFinding, DetectorInput } from './types.js';
@@ -56,10 +57,9 @@ function inspectFolder(
 
 /** Returns the file's basename without extension, or null for non-.ts(x) files. */
 function baseName(path: string): string | null {
-  const slash = path.lastIndexOf('/');
-  const file = slash === -1 ? path : path.slice(slash + 1);
-  const m = /^(.+)\.tsx?$/.exec(file);
-  return m === null ? null : (m[1] ?? null);
+  const file = baseNameOf(path);
+  if (!/\.tsx?$/.test(file)) return null;
+  return dropExtension(file);
 }
 
 /** Edge direction between two files, or null when no runtime edge connects them. */
@@ -68,10 +68,11 @@ function edgeDirection(
   core: string,
   aspect: string,
 ): CarvedAspectFinding['direction'] | null {
-  for (const edge of graph.edges) {
-    if (edge.typeOnly) continue;
-    if (edge.consumer === core && edge.producer === aspect) return 'core→aspect';
-    if (edge.consumer === aspect && edge.producer === core) return 'aspect→core';
+  for (const edge of graph.producersOf.get(core) ?? []) {
+    if (!edge.typeOnly && edge.producer === aspect) return 'core→aspect';
+  }
+  for (const edge of graph.producersOf.get(aspect) ?? []) {
+    if (!edge.typeOnly && edge.producer === core) return 'aspect→core';
   }
   return null;
 }

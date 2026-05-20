@@ -35,12 +35,16 @@ function findPairs(graph: ConsumerGraph): TypeCircularPairFinding[] {
   return out;
 }
 
-/** True/false: the `typeOnly` of the first reverse edge found, or null when none. */
+/**
+ * `typeOnly` of the first reverse edge found, or null when none.
+ *
+ * `producersOf.get(edge.producer)` returns edges where `edge.producer` is the
+ * consumer — i.e., outgoing edges from `edge.producer`. The reverse of `edge`
+ * is the one whose producer is `edge.consumer`.
+ */
 function oppositeKind(graph: ConsumerGraph, edge: Edge): boolean | null {
-  for (const candidate of graph.edges) {
-    if (candidate.consumer === edge.producer && candidate.producer === edge.consumer) {
-      return candidate.typeOnly;
-    }
+  for (const candidate of graph.producersOf.get(edge.producer) ?? []) {
+    if (candidate.producer === edge.consumer) return candidate.typeOnly;
   }
   return null;
 }
@@ -66,19 +70,16 @@ function findTriplets(graph: ConsumerGraph): TypeCircularTripletFinding[] {
 
 /** Files that import both `a` and `b` via runtime edges. */
 function sharedRuntimeConsumers(graph: ConsumerGraph, a: string, b: string): string[] {
-  const runtimeOf = new Map<string, Set<string>>();
-  for (const edge of graph.edges) {
-    if (edge.typeOnly) continue;
-    let producers = runtimeOf.get(edge.consumer);
-    if (producers === undefined) {
-      producers = new Set();
-      runtimeOf.set(edge.consumer, producers);
+  const into = (target: string): Set<string> => {
+    const result = new Set<string>();
+    for (const edge of graph.consumersOf.get(target) ?? []) {
+      if (!edge.typeOnly) result.add(edge.consumer);
     }
-    producers.add(edge.producer);
-  }
-  const out: string[] = [];
-  for (const [consumer, producers] of runtimeOf) {
-    if (producers.has(a) && producers.has(b)) out.push(consumer);
-  }
-  return out.sort();
+    return result;
+  };
+  const consumersOfA = into(a);
+  const consumersOfB = into(b);
+  const shared: string[] = [];
+  for (const c of consumersOfA) if (consumersOfB.has(c)) shared.push(c);
+  return shared.sort();
 }
