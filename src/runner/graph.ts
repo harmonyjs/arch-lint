@@ -8,6 +8,7 @@
 import { writeFile } from 'node:fs/promises';
 import { loadConfig, resolveConfig } from '#foundation/config/index.js';
 import { ArchLintError, GraphBuildError, IOError } from '#foundation/errors/index.js';
+import { fileIdOf, type SourceFileSet } from '#foundation/source-files/index.js';
 import { loadSourceFiles } from '#platform/discovery/index.js';
 import { buildGraphFromSources } from '#platform/graph/index.js';
 import { extractFileoverviews, renderGraphDoc } from '#runner/graphdoc/index.js';
@@ -43,10 +44,12 @@ export async function runGraphCommand(flags: GraphCommandFlags): Promise<GraphCo
     const sources = await loadSourceFiles(config);
     const graph = buildGraphFromSources(config, sources);
     const fileoverviews = extractFileoverviews(sources);
+    const locByPath = buildLocMap(sources);
     document = renderGraphDoc(
       graph,
       fileoverviews,
       config,
+      locByPath,
       flags.subsystem !== undefined ? { subsystem: flags.subsystem } : undefined,
     );
   } catch (err) {
@@ -63,4 +66,14 @@ export async function runGraphCommand(flags: GraphCommandFlags): Promise<GraphCo
     return { stdout: '', stderr: [`graph document written to ${flags.out}`], exitCode: 0 };
   }
   return { stdout: document, stderr: [], exitCode: 0 };
+}
+
+/** Counts lines in every loaded SourceFile, keyed by the file id used in the graph. */
+function buildLocMap(sources: SourceFileSet): ReadonlyMap<string, number> {
+  const out = new Map<string, number>();
+  for (const [absPath, file] of sources.files) {
+    const id = fileIdOf(absPath, sources);
+    out.set(id, file.getFullText().split('\n').length);
+  }
+  return out;
 }
