@@ -8,6 +8,7 @@ import { unitCoupling } from '#platform/graph/index.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { cyclicNodes } from '#runner/graphdoc/scc.js';
 import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types.js';
+import { computeShape, filterBySubsystem } from '#runner/graphdoc/shape/index.js';
 import {
   aggregateSubsystemEdges,
   badgeOf,
@@ -19,8 +20,16 @@ import {
 import { folderNote, IdMint, type ProjectionContext, projectSectionBody } from './nodes.js';
 import { buildFolderTree, type FolderTree, sectionFolders, slugOf, titleOf } from './tree.js';
 
-/** Options that narrow the document down from the whole graph. */
-export interface BuildModelOptions {
+/** Single input bundle for buildGraphDoc — required projection inputs + narrowing options. */
+export interface BuildGraphDocInput {
+  /** The dependency graph to project. */
+  readonly graph: ConsumerGraph;
+  /** Per-file `@fileoverview` text, keyed by graph file id. */
+  readonly fileoverviews: ReadonlyMap<string, string | null>;
+  /** Resolved arch-lint configuration. */
+  readonly config: ResolvedConfig;
+  /** Lines-of-code lookup keyed by graph file id; missing entries default to 0. */
+  readonly locByPath: ReadonlyMap<string, number>;
   /** Limit the document to a single subsystem's section(s). */
   readonly subsystem?: string;
 }
@@ -82,12 +91,8 @@ function inSubsystem(slug: string, subsystem: string): boolean {
 }
 
 /** Projects a ConsumerGraph into a layered GraphDoc render model. */
-export function buildGraphDoc(
-  graph: ConsumerGraph,
-  fileoverviews: ReadonlyMap<string, string | null>,
-  config: ResolvedConfig,
-  options?: BuildModelOptions,
-): GraphDoc {
+export function buildGraphDoc(input: BuildGraphDocInput): GraphDoc {
+  const { graph, fileoverviews, config, locByPath, subsystem } = input;
   const root = config.project.sourceRoot;
   const tree = buildFolderTree(graph, root);
   const folders = sectionFolders(tree, root);
@@ -104,9 +109,19 @@ export function buildGraphDoc(
   };
 
   const drilldowns = folders.map((folder) => buildFileSection(folder, ctx));
-  const subsystem = options?.subsystem;
+
+  const allFindings = computeShape({ graph, config, tree, locByPath });
+  const findings =
+    subsystem !== undefined ? filterBySubsystem(allFindings, subsystem, root) : allFindings;
+
   if (subsystem !== undefined) {
-    return { sections: drilldowns.filter((s) => inSubsystem(s.slug, subsystem)) };
+    return {
+      sections: drilldowns.filter((s) => inSubsystem(s.slug, subsystem)),
+      findings,
+    };
   }
-  return { sections: [buildOverviewSection(ctx, tree), ...drilldowns] };
+  return {
+    sections: [buildOverviewSection(ctx, tree), ...drilldowns],
+    findings,
+  };
 }

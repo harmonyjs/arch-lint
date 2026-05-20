@@ -28,7 +28,7 @@ describe('graphdoc types', () => {
     };
     const diagram: Diagram = { nodes: [node], edges: [edge], clusters: [], coupling: new Map() };
     const section: DocSection = { title: 'Overview', slug: 'overview', note: null, diagram };
-    const doc: GraphDoc = { sections: [section] };
+    const doc: GraphDoc = { sections: [section], findings: [] };
     expect(doc.sections[0]?.title).toBe('Overview');
   });
 });

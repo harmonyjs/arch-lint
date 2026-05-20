@@ -36,6 +36,7 @@ function doc(): GraphDoc {
         },
       },
     ],
+    findings: [],
   };
 }
 
@@ -66,6 +67,7 @@ describe('renderDocument', () => {
           diagram: { nodes: [], edges: [], clusters: [], coupling: new Map() },
         },
       ],
+      findings: [],
     };
     expect(renderDocument(withNote)).toContain('> Lint rule implementations.');
   });
@@ -93,6 +95,7 @@ describe('renderDocument', () => {
           },
         },
       ],
+      findings: [],
     };
     expect(fileDoc.sections[0]?.diagram.nodes[0]?.kind).toBe('file');
     expect(renderDocument(fileDoc)).not.toContain('- [graph]');
@@ -113,6 +116,7 @@ describe('renderDocument', () => {
           },
         },
       ],
+      findings: [],
     };
     expect(renderDocument(noSlug)).not.toContain('- [graph]');
   });
@@ -169,6 +173,7 @@ describe('renderDocument', () => {
           diagram: { nodes: [], edges: [], clusters: [], coupling: new Map() },
         },
       ],
+      findings: [],
     };
     const out = renderDocument(multi);
     expect(out).toContain('## Overview');
