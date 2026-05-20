@@ -3,7 +3,7 @@
  * runs every detector, the renderer that emits the markdown section, and the
  * ShapeFinding vocabulary the rest of graphdoc passes through.
  */
-export { computeShape } from './compute.js';
+export { computeShape, filterBySubsystem } from './compute.js';
 export { renderShape } from './render.js';
 export type {
   CarvedAspectFinding,

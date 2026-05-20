@@ -8,6 +8,7 @@ import { unitCoupling } from '#platform/graph/index.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { cyclicNodes } from '#runner/graphdoc/scc.js';
 import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types.js';
+import { computeShape, filterBySubsystem } from '../shape/index.js';
 import {
   aggregateSubsystemEdges,
   badgeOf,
@@ -86,6 +87,7 @@ export function buildGraphDoc(
   graph: ConsumerGraph,
   fileoverviews: ReadonlyMap<string, string | null>,
   config: ResolvedConfig,
+  locByPath: ReadonlyMap<string, number>,
   options?: BuildModelOptions,
 ): GraphDoc {
   const root = config.project.sourceRoot;
@@ -104,9 +106,22 @@ export function buildGraphDoc(
   };
 
   const drilldowns = folders.map((folder) => buildFileSection(folder, ctx));
+
+  const allFindings = computeShape({ graph, config, tree, locByPath });
+  const findings =
+    options?.subsystem !== undefined
+      ? filterBySubsystem(allFindings, options.subsystem, root)
+      : allFindings;
+
   const subsystem = options?.subsystem;
   if (subsystem !== undefined) {
-    return { sections: drilldowns.filter((s) => inSubsystem(s.slug, subsystem)) };
+    return {
+      sections: drilldowns.filter((s) => inSubsystem(s.slug, subsystem)),
+      findings,
+    };
   }
-  return { sections: [buildOverviewSection(ctx, tree), ...drilldowns] };
+  return {
+    sections: [buildOverviewSection(ctx, tree), ...drilldowns],
+    findings,
+  };
 }
