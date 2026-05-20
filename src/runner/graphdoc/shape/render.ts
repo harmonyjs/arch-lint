@@ -31,10 +31,7 @@ export function renderShape(findings: readonly ShapeFinding[]): string {
 }
 
 /** Returns findings whose `kind` matches the requested discriminant, typed. */
-function filter<T extends ShapeFinding>(
-  findings: readonly ShapeFinding[],
-  kind: T['kind'],
-): T[] {
+function filter<T extends ShapeFinding>(findings: readonly ShapeFinding[], kind: T['kind']): T[] {
   return findings.filter((f): f is T => f.kind === kind);
 }
 
@@ -81,13 +78,7 @@ function renderTypeCircular(
     for (const f of pairs) lines.push(`| \`${f.a}\` | \`${f.b}\` |`);
   }
   if (triplets.length > 0) {
-    lines.push(
-      '',
-      '#### Triplet',
-      '',
-      '| A | B | Shared consumer |',
-      '| --- | --- | --- |',
-    );
+    lines.push('', '#### Triplet', '', '| A | B | Shared consumer |', '| --- | --- | --- |');
     for (const f of triplets) {
       lines.push(`| \`${f.a}\` | \`${f.b}\` | \`${f.consumer}\` |`);
     }
