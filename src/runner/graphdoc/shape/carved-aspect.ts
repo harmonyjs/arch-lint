@@ -5,7 +5,7 @@
  */
 import { baseNameOf, dropExtension } from '#foundation/entity-id/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
-import type { FolderTree } from '../model/tree.js';
+import type { FolderTree } from '#runner/graphdoc/model/tree.js';
 import type { CarvedAspectFinding, DetectorInput } from './types.js';
 
 /** Walks the folder tree and emits carved-aspect findings. */

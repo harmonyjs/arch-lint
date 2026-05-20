@@ -45,13 +45,13 @@ export async function runGraphCommand(flags: GraphCommandFlags): Promise<GraphCo
     const graph = buildGraphFromSources(config, sources);
     const fileoverviews = extractFileoverviews(sources);
     const locByPath = buildLocMap(sources);
-    document = renderGraphDoc(
+    document = renderGraphDoc({
       graph,
       fileoverviews,
       config,
       locByPath,
-      flags.subsystem !== undefined ? { subsystem: flags.subsystem } : undefined,
-    );
+      ...(flags.subsystem !== undefined ? { subsystem: flags.subsystem } : {}),
+    });
   } catch (err) {
     if (err instanceof ArchLintError) throw err;
     throw new GraphBuildError('failed to build dependency graph', { cause: err });

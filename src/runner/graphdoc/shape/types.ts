@@ -5,7 +5,7 @@
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
-import type { FolderTree } from '../model/tree.js';
+import type { FolderTree } from '#runner/graphdoc/model/tree.js';
 
 /** A sub-folder S of parent F serves some-but-not-all of F's other sub-folders. */
 export interface SiblingAsymmetryFinding {

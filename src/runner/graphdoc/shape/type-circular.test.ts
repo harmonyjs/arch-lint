@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { makeGraph } from '#rules/test-support/make-graph.js';
-import type { FolderTree } from '../model/tree.js';
+import type { FolderTree } from '#runner/graphdoc/model/tree.js';
 import { findTypeCircular } from './type-circular.js';
 import type { DetectorInput } from './types.js';
 

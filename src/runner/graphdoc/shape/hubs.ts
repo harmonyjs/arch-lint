@@ -5,7 +5,7 @@
  */
 import { baseNameOf } from '#foundation/entity-id/index.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
-import type { FolderTree } from '../model/tree.js';
+import type { FolderTree } from '#runner/graphdoc/model/tree.js';
 import type { DetectorInput, HubFinding } from './types.js';
 
 const THRESHOLD = 3;

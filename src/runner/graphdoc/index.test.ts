@@ -28,12 +28,12 @@ describe('renderGraphDoc', () => {
       nodes: { 'src/a/x.ts': { isEntity: true }, 'src/b/y.ts': { isEntity: true } },
       edges: [{ consumer: 'src/a/x.ts', producer: 'src/b/y.ts', symbol: 'Y', typeOnly: false }],
     });
-    const out = renderGraphDoc(
+    const out = renderGraphDoc({
       graph,
-      new Map([['src/a/x.ts', 'the x']]),
-      cfg(),
-      new Map<string, number>(),
-    );
+      fileoverviews: new Map([['src/a/x.ts', 'the x']]),
+      config: cfg(),
+      locByPath: new Map<string, number>(),
+    });
     expect(out).toContain('# Project dependency graph');
     expect(out).toContain('```mermaid');
   });
