@@ -7,8 +7,8 @@ import type { ResolvedConfig } from '#foundation/config/types.js';
 import { unitCoupling } from '#platform/graph/index.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { cyclicNodes } from '#runner/graphdoc/scc.js';
-import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types.js';
 import { computeShape, filterBySubsystem } from '#runner/graphdoc/shape/index.js';
+import type { CouplingBadge, DocSection, GraphDoc } from '#runner/graphdoc/types.js';
 import {
   aggregateSubsystemEdges,
   badgeOf,

@@ -29,7 +29,12 @@ describe('buildGraphDoc', () => {
       nodes: { 'src/a/x.ts': {}, 'src/b/y.ts': {} },
       edges: [{ consumer: 'src/a/x.ts', producer: 'src/b/y.ts', symbol: 'Y', typeOnly: false }],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     expect(doc.sections[0]?.slug).toBe('overview');
   });
 
@@ -41,14 +46,24 @@ describe('buildGraphDoc', () => {
         { consumer: 'src/a/y.ts', producer: 'src/a/x.ts', symbol: 'X', typeOnly: false },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const nodes = doc.sections.flatMap((s) => s.diagram.nodes);
     expect(nodes.some((n) => n.path === 'src/a/x.ts' && n.inCycle)).toBe(true);
   });
 
   it('classifies an index file as a barrel', () => {
     const graph = makeGraph({ nodes: { 'src/a/index.ts': { isEntity: false } } });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const node = doc.sections
       .flatMap((s) => s.diagram.nodes)
       .find((n) => n.path === 'src/a/index.ts');
@@ -71,7 +86,12 @@ describe('buildGraphDoc', () => {
     const nodes: Record<string, Record<string, never>> = {};
     for (let i = 0; i < 20; i += 1) nodes[`src/big/f${i}.ts`] = {};
     const graph = makeGraph({ nodes });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
 
     const overview = doc.sections.find((s) => s.slug === 'overview');
     const group = overview?.diagram.nodes.find((n) => n.kind === 'group');
@@ -84,7 +104,12 @@ describe('buildGraphDoc', () => {
     const graph = makeGraph({
       nodes: { 'src/app/core/a.ts': {}, 'src/app/core/b.ts': {}, 'src/app/top.ts': {} },
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const appSection = doc.sections.find((s) => s.slug === 'app');
     expect(appSection).toBeDefined();
     const cluster = appSection?.diagram.clusters.find((c) => c.title === 'core');
@@ -102,7 +127,12 @@ describe('buildGraphDoc', () => {
         { consumer: 'src/big/f0.ts', producer: 'src/lonely/u.ts', symbol: 'U', typeOnly: false },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const bigSection = doc.sections.find((s) => s.slug === 'big');
     const port = bigSection?.diagram.nodes.find((n) => n.kind === 'port');
     expect(port).toBeDefined();
@@ -116,7 +146,12 @@ describe('buildGraphDoc', () => {
       nodes: { 'src/a/x.ts': {}, 'src/b/y.ts': {} },
       edges: [{ consumer: 'src/a/x.ts', producer: 'src/b/y.ts', symbol: 'Y', typeOnly: false }],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const overview = doc.sections.find((s) => s.slug === 'overview');
     const aNode = overview?.diagram.nodes.find((n) => n.path === 'src/a');
     expect(aNode).toBeDefined();
@@ -159,7 +194,12 @@ describe('buildGraphDoc', () => {
         { consumer: 'src/b/y.ts', producer: 'src/a/x.ts', symbol: 'X', typeOnly: false },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const overview = doc.sections.find((s) => s.slug === 'overview');
     expect(overview?.diagram.edges.some((e) => e.back)).toBe(true);
   });
@@ -177,7 +217,12 @@ describe('buildGraphDoc', () => {
         },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const nodes = doc.sections.flatMap((s) => s.diagram.nodes);
     const unresolved = nodes.find((n) => n.role === 'unresolved');
     expect(unresolved?.path).toBe('./missing.js');
@@ -194,7 +239,13 @@ describe('buildGraphDoc', () => {
       nodes: { 'src/a/x.ts': {}, 'src/b/y.ts': {} },
       edges: [{ consumer: 'src/a/x.ts', producer: 'src/b/y.ts', symbol: 'Y', typeOnly: false }],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map(), subsystem: 'a' });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+      subsystem: 'a',
+    });
     expect(doc.sections.every((s) => s.slug !== 'overview')).toBe(true);
     expect(doc.sections.some((s) => s.slug === 'a')).toBe(true);
     expect(doc.sections.some((s) => s.slug === 'b')).toBe(false);
@@ -208,7 +259,13 @@ describe('buildGraphDoc', () => {
         { consumer: 'src/a/x.ts', producer: 'src/a/y.ts', symbol: 'Y2', typeOnly: true },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map(), subsystem: 'a' });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+      subsystem: 'a',
+    });
     const section = doc.sections.find((s) => s.slug === 'a');
     expect(section?.diagram.edges.length).toBe(1);
     expect(section?.diagram.edges[0]?.typeOnly).toBe(false);
@@ -219,7 +276,13 @@ describe('buildGraphDoc', () => {
       nodes: { 'src/a/x.ts': {}, 'src/a/y.ts': {} },
       edges: [{ consumer: 'src/a/x.ts', producer: 'src/a/y.ts', symbol: 'T', typeOnly: true }],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map(), subsystem: 'a' });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+      subsystem: 'a',
+    });
     const section = doc.sections.find((s) => s.slug === 'a');
     expect(section?.diagram.edges[0]?.typeOnly).toBe(true);
   });
@@ -228,14 +291,24 @@ describe('buildGraphDoc', () => {
     const graph = makeGraph({
       nodes: { 'src/a/x.ts': {}, 'src/a/sub': { kind: 'folder' } },
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const node = doc.sections.flatMap((s) => s.diagram.nodes).find((n) => n.path === 'src/a/sub');
     expect(node?.role).toBe('component-folder');
   });
 
   it('classifies a convention-segment folder as a role-folder', () => {
     const graph = makeGraph({ nodes: { 'src/a/hooks/h.ts': {} } });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const hooks = doc.sections
       .flatMap((s) => s.diagram.clusters)
       .flatMap(function flat(c): unknown[] {
@@ -250,7 +323,12 @@ describe('buildGraphDoc', () => {
         'src/a/x.ts': { isEntity: true, placementMode: 'explicit', cluster: 'ui' },
       },
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const node = doc.sections.flatMap((s) => s.diagram.nodes).find((n) => n.path === 'src/a/x.ts');
     expect(node?.role).toBe('entity-file');
     expect(node?.placement).toBe('explicit');
@@ -278,7 +356,12 @@ describe('buildGraphDoc', () => {
 
   it('renders a root-level file directly under the source root', () => {
     const graph = makeGraph({ nodes: { 'src/main.ts': {}, 'src/a/x.ts': {} } });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const overview = doc.sections.find((s) => s.slug === 'overview');
     const node = overview?.diagram.nodes.find((n) => n.path === 'src/main.ts');
     expect(node?.name).toBe('main.ts');
@@ -289,7 +372,12 @@ describe('buildGraphDoc', () => {
     const graph = makeGraph({
       nodes: { 'src/app/core/deep/d.ts': {}, 'src/app/core/c.ts': {}, 'src/app/top.ts': {} },
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const appSection = doc.sections.find((s) => s.slug === 'app');
     const core = appSection?.diagram.clusters.find((c) => c.title === 'core');
     expect(core?.children.some((c) => c.title === 'deep')).toBe(true);
@@ -299,7 +387,12 @@ describe('buildGraphDoc', () => {
     const nodes: Record<string, Record<string, never>> = { 'src/app/top.ts': {} };
     for (let i = 0; i < 20; i += 1) nodes[`src/app/heavy/f${i}.ts`] = {};
     const graph = makeGraph({ nodes });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const appSection = doc.sections.find((s) => s.slug === 'app');
     const group = appSection?.diagram.nodes.find((n) => n.kind === 'group');
     expect(group?.path).toBe('src/app/heavy');
@@ -314,7 +407,12 @@ describe('buildGraphDoc', () => {
         { consumer: 'src/b/y.ts', producer: 'src/a/x.ts', symbol: 'X', typeOnly: false },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const overview = doc.sections.find((s) => s.slug === 'overview');
     const backEdges = overview?.diagram.edges.filter((e) => e.back) ?? [];
     expect(backEdges.length).toBe(1);
@@ -353,7 +451,12 @@ describe('buildGraphDoc', () => {
 
   it('ignores graph nodes outside the source root', () => {
     const graph = makeGraph({ nodes: { 'src/a/x.ts': {}, 'vendor/lib.ts': {} } });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map() });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+    });
     const paths = doc.sections.flatMap((s) => s.diagram.nodes).map((n) => n.path);
     expect(paths).not.toContain('vendor/lib.ts');
   });
@@ -366,7 +469,13 @@ describe('buildGraphDoc', () => {
         { consumer: 'src/a/x.ts', producer: 'src/a/y.ts', symbol: 'B', typeOnly: false },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map(), subsystem: 'a' });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+      subsystem: 'a',
+    });
     const edges = doc.sections.find((s) => s.slug === 'a')?.diagram.edges ?? [];
     expect(edges.length).toBe(1);
     expect(edges[0]?.typeOnly).toBe(false);
@@ -380,7 +489,13 @@ describe('buildGraphDoc', () => {
         { consumer: 'src/a/x.ts', producer: 'src/a/y.ts', symbol: 'B', typeOnly: false },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map(), subsystem: 'a' });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+      subsystem: 'a',
+    });
     const edges = doc.sections.find((s) => s.slug === 'a')?.diagram.edges ?? [];
     expect(edges[0]?.typeOnly).toBe(false);
   });
@@ -397,7 +512,13 @@ describe('buildGraphDoc', () => {
       nodes: { 'src/a/x.ts': {} },
       unresolved: [entry, { ...entry, symbol: 'B' }],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map(), subsystem: 'a' });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+      subsystem: 'a',
+    });
     const section = doc.sections.find((s) => s.slug === 'a');
     const unresolvedNodes = section?.diagram.nodes.filter((n) => n.role === 'unresolved') ?? [];
     expect(unresolvedNodes.length).toBe(1);
@@ -416,7 +537,13 @@ describe('buildGraphDoc', () => {
         },
       ],
     });
-    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config: cfg(), locByPath: new Map(), subsystem: 'a' });
+    const doc = buildGraphDoc({
+      graph,
+      fileoverviews: new Map(),
+      config: cfg(),
+      locByPath: new Map(),
+      subsystem: 'a',
+    });
     const section = doc.sections.find((s) => s.slug === 'a');
     expect(section?.diagram.nodes.some((n) => n.role === 'unresolved')).toBe(false);
   });
