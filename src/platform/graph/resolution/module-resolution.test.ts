@@ -2,8 +2,7 @@
  * @fileoverview Tests for module specifier resolution against the TypeScript resolver.
  */
 
-import { Project } from 'ts-morph';
-import ts from 'typescript';
+import { Project, ts } from 'ts-morph';
 import { describe, expect, it } from 'vitest';
 import {
   type ModuleResolutionContext,

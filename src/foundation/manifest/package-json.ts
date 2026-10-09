@@ -2,7 +2,7 @@
  * @fileoverview Position-aware package.json parser via the ts JSON-AST — exposes values
  * and the Location of each key (decision D5).
  */
-import ts from 'typescript';
+import { ts } from 'ts-morph';
 import type { Location } from '#foundation/types/index.js';
 
 /** A parsed package.json with access to values and key positions. */
