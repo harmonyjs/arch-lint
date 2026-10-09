@@ -31,5 +31,9 @@
 
 - `extends` резолвится: ключ из base-конфига учитывается, `location` указывает
   на строку `extends` файла.
+- Флаг, который TypeScript проекта включает сам (`strict` начиная с 6.0),
+  считается включённым и без записи в файле. Мажор берётся из ближайшего
+  `node_modules/typescript/package.json` над `project.cwd`; если TypeScript
+  не найден, флаг должен быть выставлен явно.
 - `skipLibCheck`/`noUnusedLocals` в дефолт не входят — добавляются `additionalFlags`.
 - Отсутствие `tsconfig.json` — no-op.

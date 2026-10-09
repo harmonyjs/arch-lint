@@ -13,13 +13,17 @@ import { only } from '#rules/test-support/only.js';
 
 import { tsconfigStrict } from './index.js';
 
-function run(tsconfig: string | null, options: Record<string, unknown>) {
+function run(
+  tsconfig: string | null,
+  options: Record<string, unknown>,
+  typescriptMajor: number | undefined = undefined,
+) {
   let tsconfigDoc: ManifestBundle['tsconfig'] = null;
   if (tsconfig !== null) {
     const dir = mkdtempSync(join(tmpdir(), 'arch-lint-tsstrict-'));
     const path = join(dir, 'tsconfig.json');
     writeFileSync(path, tsconfig);
-    tsconfigDoc = effectiveCompilerOptions(path);
+    tsconfigDoc = effectiveCompilerOptions(path, typescriptMajor);
   }
   const manifests: ManifestBundle = { packageJson: null, npmrc: null, tsconfig: tsconfigDoc };
   const ctx = makeManifestContext('tsconfig-strict', { severity: 'error', options, manifests });
@@ -85,5 +89,25 @@ describe('tsconfig-strict', () => {
 
   it('returns nothing when tsconfig.json is absent', () => {
     expect(run(null, { preset: 'strictest' })).toEqual([]);
+  });
+
+  it('accepts an unset strict when the project TypeScript defaults it on', () => {
+    expect(run('{"compilerOptions":{}}', { preset: 'recommended' }, 6)).toEqual([]);
+  });
+
+  it('flags an unset strict when the project TypeScript predates the default', () => {
+    const d = only(run('{"compilerOptions":{}}', { preset: 'recommended' }, 5));
+    expect(d.fingerprint).toBe('strict');
+    expect(d.actual).toBe('strict is not set');
+  });
+
+  it('flags an unset strict when no project TypeScript is found', () => {
+    const d = only(run('{"compilerOptions":{}}', { preset: 'recommended' }));
+    expect(d.actual).toBe('strict is not set');
+  });
+
+  it('flags an explicit strict: false whatever the project TypeScript', () => {
+    const d = only(run('{"compilerOptions":{"strict":false}}', { preset: 'recommended' }, 7));
+    expect(d.actual).toBe('strict: false');
   });
 });

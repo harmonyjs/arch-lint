@@ -8,6 +8,7 @@ import { manifestPath } from '#foundation/manifest/manifest-path.js';
 import { parseNpmrc } from '#foundation/manifest/npmrc.js';
 import { parsePackageJson } from '#foundation/manifest/package-json.js';
 import { effectiveCompilerOptions } from '#foundation/manifest/tsconfig-effective.js';
+import { installedTypescriptMajor } from '#foundation/manifest/typescript-version.js';
 import type { ManifestBundle } from '#platform/engine/types.js';
 
 /** Parse the three project manifests once; each entry is null when its file is absent. */
@@ -20,6 +21,8 @@ export function buildManifestBundle(config: ResolvedConfig): ManifestBundle {
       ? parsePackageJson(readFileSync(packageJsonPath, 'utf8'))
       : null,
     npmrc: existsSync(npmrcPath) ? parseNpmrc(readFileSync(npmrcPath, 'utf8')) : null,
-    tsconfig: existsSync(tsconfigPath) ? effectiveCompilerOptions(tsconfigPath) : null,
+    tsconfig: existsSync(tsconfigPath)
+      ? effectiveCompilerOptions(tsconfigPath, installedTypescriptMajor(config.project.cwd))
+      : null,
   };
 }

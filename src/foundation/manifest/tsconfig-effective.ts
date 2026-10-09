@@ -1,6 +1,6 @@
 /**
- * @fileoverview Effective tsconfig resolver (with extends resolution) and positions of
- * compilerOptions keys (decision D5 / A3).
+ * @fileoverview Effective tsconfig resolver (with extends resolution and the defaults of
+ * the project's TypeScript major) and positions of compilerOptions keys (decision D5 / A3).
  */
 import { Node, Project, SyntaxKind } from 'ts-morph';
 import type { Location } from '#foundation/types/index.js';
@@ -9,6 +9,24 @@ import type { Location } from '#foundation/types/index.js';
 export interface EffectiveTsconfig {
   getOption(name: string): unknown;
   keyLocation(name: string): Location;
+}
+
+/** Flags the compiler treats as on when left unset, by the major that made that the default. */
+const ON_BY_DEFAULT_SINCE: Readonly<Record<string, number>> = {
+  strict: 6,
+  noUncheckedSideEffectImports: 6,
+  alwaysStrict: 6,
+  esModuleInterop: 6,
+  allowSyntheticDefaultImports: 6,
+  stableTypeOrdering: 7,
+};
+
+/** The value the project's compiler gives `name` when the tsconfig leaves it unset. */
+function compilerDefault(name: string, typescriptMajor: number | undefined): true | undefined {
+  const since = ON_BY_DEFAULT_SINCE[name];
+  return since !== undefined && typescriptMajor !== undefined && typescriptMajor >= since
+    ? true
+    : undefined;
 }
 
 /** Finds a property by key name inside a JSON object literal. */
@@ -32,8 +50,14 @@ function toLocation(node: Node, tsconfigPath: string): Location {
   };
 }
 
-/** Resolves the effective compilerOptions and builds access to key positions. */
-export function effectiveCompilerOptions(tsconfigPath: string): EffectiveTsconfig {
+/**
+ * Resolves the effective compilerOptions and builds access to key positions. An option
+ * the file leaves unset takes the default of `typescriptMajor`; an unknown major applies none.
+ */
+export function effectiveCompilerOptions(
+  tsconfigPath: string,
+  typescriptMajor: number | undefined,
+): EffectiveTsconfig {
   const project = new Project({
     tsConfigFilePath: tsconfigPath,
     skipAddingFilesFromTsConfig: true,
@@ -54,7 +78,7 @@ export function effectiveCompilerOptions(tsconfigPath: string): EffectiveTsconfi
 
   return {
     getOption(name) {
-      return options[name];
+      return options[name] ?? compilerDefault(name, typescriptMajor);
     },
     keyLocation(name) {
       const direct = findKey(compilerObj, name);
