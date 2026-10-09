@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@types/node": "25.8.0",
+    "@types/node": "26.6.4",
     "@types/picomatch": "4.0.3",
     "@vitest/coverage-v8": "5.0.3",
     "typescript": "6.0.3",
