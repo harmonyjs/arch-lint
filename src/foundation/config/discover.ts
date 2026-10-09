@@ -3,7 +3,8 @@
  * fixed precedence of spec §3 (five sources, first match wins). It returns a
  * source descriptor, not the config itself; loading is done by load.ts. More
  * than one source emits a warning through the supplied Logger; an unsupported
- * format or no source at all raises a ConfigError (process exit code 2). The
+ * format, a missing explicit file or no source at all raises a ConfigError
+ * (process exit code 2). The
  * fs probes are synchronous
  * on purpose — discovery is a one-shot check before any real work begins.
  */
@@ -30,19 +31,23 @@ const DISCOVERY_FILES = [
   'arch-lint.config.js',
 ];
 
-/** Builds a source descriptor for an explicit --config path. */
-function resolveExplicit(explicitPath: string): ConfigSource {
-  const ext = path.extname(explicitPath);
-  if (path.basename(explicitPath) === 'package.json') {
-    return { kind: 'package-field', path: explicitPath };
+/** Builds a source descriptor for an explicit --config path, resolved against cwd. */
+function resolveExplicit(cwd: string, explicitPath: string): ConfigSource {
+  const absolute = path.resolve(cwd, explicitPath);
+  const ext = path.extname(absolute);
+  if (!existsSync(absolute)) {
+    throw new ConfigError(`config file not found at ${absolute}`, { configPath: absolute });
+  }
+  if (path.basename(absolute) === 'package.json') {
+    return { kind: 'package-field', path: absolute };
   }
   if (SUPPORTED_EXTENSIONS.includes(ext)) {
-    return { kind: 'file', path: explicitPath };
+    return { kind: 'file', path: absolute };
   }
   throw new ConfigError(
-    `unsupported config format "${ext}" for ${explicitPath} — ` +
+    `unsupported config format "${ext}" for ${absolute} — ` +
       `use .ts/.mjs/.cjs/.js or the "arch-lint" field of package.json`,
-    { configPath: explicitPath },
+    { configPath: absolute },
   );
 }
 
@@ -93,7 +98,7 @@ export function discoverConfig(
   logger: Logger = new ConsoleLogger(),
 ): ConfigSource {
   if (explicitPath !== undefined) {
-    return resolveExplicit(explicitPath);
+    return resolveExplicit(cwd, explicitPath);
   }
 
   const found = collectSources(cwd);

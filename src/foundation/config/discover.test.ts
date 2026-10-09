@@ -20,6 +20,24 @@ describe('discoverConfig — explicit path', () => {
     expect(result).toEqual({ kind: 'package-field', path: explicit });
   });
 
+  it('resolves a relative explicit path against cwd', () => {
+    const dir = path.join(fixtures, 'with-mjs-config');
+    const result = discoverConfig(dir, 'arch-lint.config.mjs');
+    expect(result).toEqual({ kind: 'file', path: path.join(dir, 'arch-lint.config.mjs') });
+  });
+
+  it('resolves a relative explicit package.json against cwd', () => {
+    const dir = path.join(fixtures, 'pkg-field');
+    const result = discoverConfig(dir, './package.json');
+    expect(result).toEqual({ kind: 'package-field', path: path.join(dir, 'package.json') });
+  });
+
+  it('throws ConfigError when the explicit path does not exist', () => {
+    const dir = path.join(fixtures, 'empty-dir');
+    expect(() => discoverConfig(dir, 'arch-lint.config.mjs')).toThrow(ConfigError);
+    expect(() => discoverConfig(dir, 'arch-lint.config.mjs')).toThrow(/not found/);
+  });
+
   it('throws ConfigError for an unsupported explicit format', () => {
     const explicit = path.join(fixtures, 'bad-format', 'arch-lint.config.json');
     expect(() => discoverConfig(path.join(fixtures, 'empty-dir'), explicit)).toThrow(ConfigError);

@@ -39,6 +39,27 @@ describe('shipped CLI', () => {
     expect(result.stdout).toContain('Unknown rule');
   });
 
+  it('accepts a --config path relative to the working directory', () => {
+    const fixture = join(root, 'src', 'fixtures', 'sample-project');
+    const result = spawnSync('node', [binPath, 'check', '--config', 'arch-lint.config.mjs'], {
+      cwd: fixture,
+      encoding: 'utf8',
+    });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('No architecture violations found.');
+  });
+
+  it('exits 2 when the --config path does not exist', () => {
+    const fixture = join(root, 'src', 'fixtures', 'sample-project');
+    const result = spawnSync('node', [binPath, 'check', '--config', 'missing.config.mjs'], {
+      cwd: fixture,
+      encoding: 'utf8',
+    });
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain('not found');
+  });
+
   it('prints help that lists every command', () => {
     const result = spawnSync('node', [binPath, '--help'], { encoding: 'utf8' });
     expect(result.status).toBe(0);
