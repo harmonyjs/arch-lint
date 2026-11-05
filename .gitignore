@@ -135,11 +135,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Mics
-docs/superpowers
-!docs/superpowers/
-docs/superpowers/*
-!docs/superpowers/refactor/
+# Local design specs and plans
+docs/superpowers/
 
 # Claude Code worktrees and local state
 .claude/
