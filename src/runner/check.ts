@@ -27,6 +27,7 @@ import { classifyDiagnostics, parseBaselineFile } from '#runner/baseline/index.j
 import type { BaselineFile } from '#runner/baseline/types.js';
 import { affectedEntities, filterToAffected, getChangedFiles } from './changed-files.js';
 import { logTelemetrySummary, warnIfMetricsInert } from './check-logging.js';
+import { verdictExitCode } from './verdict.js';
 
 /** True if `err` is a Node filesystem error whose `code` field is `ENOENT`. */
 function isMissingFile(err: unknown): boolean {
@@ -69,20 +70,15 @@ function buildCheckResult(
   const bySeverity: Record<ActiveSeverity, number> = { info: 0, warning: 0, error: 0 };
   let newCount = 0;
   let inBaseline = 0;
-  let blockingNew = false;
   for (const d of classified) {
     bySeverity[d.severity] += 1;
-    if (d.status === 'inBaseline') {
-      inBaseline += 1;
-    } else {
-      newCount += 1;
-      if (d.severity !== 'info') blockingNew = true;
-    }
+    if (d.status === 'inBaseline') inBaseline += 1;
+    else newCount += 1;
   }
   return {
     diagnostics: classified,
     summary: { total: classified.length, bySeverity, new: newCount, inBaseline },
-    exitCode: blockingNew ? 1 : 0,
+    exitCode: verdictExitCode(classified),
   };
 }
 
@@ -236,8 +232,7 @@ export async function runCheck(options: RunCheckOptions): Promise<RunCheckOutcom
     options.mode === 'ci'
       ? config.runMode.ci.failOnViolations
       : config.runMode.preCommit.failOnViolations;
-  const hasNew = diagnostics.some((d) => d.status === 'new');
-  const verdictCode: 0 | 1 = failOn && hasNew ? 1 : 0;
+  const verdictCode = failOn ? verdictExitCode(diagnostics) : 0;
 
   const filteredResult: CheckResult = { ...result, diagnostics, exitCode: verdictCode };
   return {

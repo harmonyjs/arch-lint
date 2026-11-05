@@ -67,4 +67,19 @@ describe('formatReport', () => {
     expect(out).toContain('  src/B');
     expect(out.trimEnd().endsWith('Summary: 1 error, 1 warning (1 new, 1 in baseline)')).toBe(true);
   });
+
+  it('tallies info diagnostics in the summary so its counts add up', () => {
+    const result: CheckResult = {
+      diagnostics: [
+        diag({ ruleId: 'layer-boundary', severity: 'info', entity: 'src/A' }),
+        diag({ ruleId: 'layer-boundary', severity: 'info', entity: 'src/B' }),
+      ],
+      summary: { total: 2, bySeverity: { info: 2, warning: 0, error: 0 }, new: 2, inBaseline: 0 },
+      exitCode: 0,
+    };
+    const out = formatReport(result, cfg());
+    expect(
+      out.trimEnd().endsWith('Summary: 0 errors, 0 warnings, 2 info (2 new, 0 in baseline)'),
+    ).toBe(true);
+  });
 });

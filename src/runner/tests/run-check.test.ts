@@ -193,6 +193,39 @@ describe('runCheck', () => {
     expect(outcome.exitCode).toBe(0);
   });
 
+  // Every verdict path — ci, preCommit and changed-only — must agree with check()'s
+  // own exitCode: info never blocks, a new warning or error always does.
+  describe.each([
+    { mode: 'ci', changedOnly: false },
+    { mode: 'preCommit', changedOnly: false },
+    { mode: 'preCommit', changedOnly: true },
+  ] as const)('verdict in $mode mode (changedOnly: $changedOnly)', ({ mode, changedOnly }) => {
+    it.each([
+      { severities: ['info'], exit: 0 },
+      { severities: ['info', 'info'], exit: 0 },
+      { severities: ['warning'], exit: 1 },
+      { severities: ['error'], exit: 1 },
+      { severities: ['info', 'warning'], exit: 1 },
+    ] as const)('exits $exit for new $severities', async ({ severities, exit }) => {
+      const graph = makeGraph({ nodes: { 'src/a.ts': { kind: 'file', isEntity: true } } });
+      const diagnostics = severities.map((severity, i) =>
+        diagnostic({ severity, status: 'new', fingerprint: `f${i}` }),
+      );
+      arrange({ graph, diagnostics });
+      if (changedOnly) getChangedFilesMock.mockResolvedValueOnce(['src/a.ts']);
+      const outcome = await runCheck({
+        cwd: '/repo',
+        mode,
+        noBaseline: false,
+        changedOnly,
+        explain: false,
+      });
+      expect(outcome.result.diagnostics).toHaveLength(severities.length);
+      expect(outcome.exitCode).toBe(exit);
+      expect(outcome.result.exitCode).toBe(exit);
+    });
+  });
+
   it('wraps a graph-build failure in a GraphBuildError', async () => {
     arrange({ diagnostics: [] });
     buildGraphFromSourcesMock.mockImplementationOnce(() => {

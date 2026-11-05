@@ -139,9 +139,10 @@ function pluralize(count: number, word: string): string {
 
 function summaryLine(result: CheckResult, explain: boolean): string {
   const s = result.summary;
+  const info = s.bySeverity.info > 0 ? `, ${s.bySeverity.info} info` : '';
   const base =
     `Summary: ${pluralize(s.bySeverity.error, 'error')}, ` +
-    `${pluralize(s.bySeverity.warning, 'warning')} ` +
+    `${pluralize(s.bySeverity.warning, 'warning')}${info} ` +
     `(${s.new} new, ${s.inBaseline} in baseline)`;
   if (explain) return base;
   const enriched = result.diagnostics.filter((d) => d.analysis !== undefined).length;
