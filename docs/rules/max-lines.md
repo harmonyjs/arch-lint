@@ -1,24 +1,27 @@
 # max-lines
 
-**Pack:** perfile · **Engine:** perfile · **Default severity:** warning
+**Pack:** perfile · **Engine:** syntactic · **Default severity:** warning
 
-Число строк файла не превышает `max`. Крупный файл — сигнал плохой декомпозиции
-сущности, а не стиля.
+The number of lines in a file does not exceed `max`. A large file signals poor
+decomposition of the entity, not a style problem.
 
-## Опции
+## Options
 
-- `max` (number, дефолт 200) — лимит строк.
-- `skipComments` (boolean, дефолт `true`) — не считать строки-комментарии.
-- `skipBlankLines` (boolean, дефолт `true`) — не считать пустые строки.
+- `max` (number, default 200) — line limit.
+- `skipComments` (boolean, default `true`) — do not count comment lines.
+- `skipBlankLines` (boolean, default `true`) — do not count blank lines.
 
 ## Good
 
-Файл ≤ 200 значимых строк.
+A file of ≤ 200 significant lines.
 
 ## Bad
 
-Файл с 350 строками кода — пора делить.
+A 350-line file of code: time to split it.
 
 ## Edge cases
 
-- При `skipComments`/`skipBlankLines = false` соответствующие строки считаются.
+- With `skipComments` or `skipBlankLines` set to `false`, the corresponding lines
+  are counted.
+- A comment line is one that starts with `//` or `/*`, or that lies inside a
+  block comment. A line of code followed by a trailing comment still counts.

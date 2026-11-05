@@ -1,15 +1,16 @@
 # max-optional-params
 
-**Pack:** perfile · **Engine:** perfile · **Default severity:** warning
+**Pack:** perfile · **Engine:** syntactic · **Default severity:** warning
 
-Число опциональных и default-параметров функции не превышает `max`. Ортогонально
-`max-params`: тот считает все параметры, этот — только опциональные. Ловит
-options-creep: функция обрастает флагами вместо переработки сигнатуры.
-Идиоматичный одиночный `opts?` порог 3 не трогает.
+The number of optional and default-valued parameters of a function does not
+exceed `max`. Orthogonal to `max-params`: that rule counts all parameters, this
+one counts only the optional ones. It catches options-creep, where a function
+accumulates flags instead of getting a reworked signature. The idiomatic single
+`opts?` is well under the default limit of 3.
 
-## Опции
+## Options
 
-- `max` (number, дефолт 3) — лимит опциональных параметров.
+- `max` (number, default 3) — limit on optional parameters.
 
 ## Good
 
@@ -20,10 +21,12 @@ function fetch(url: string, opts?: FetchOptions) {}
 ## Bad
 
 ```ts
-function fetch(url, retry?, cache?, signal?, verbose?) {} // 4 опциональных
+function fetch(url, retry?, cache?, signal?, verbose?) {} // 4 optional
 ```
 
 ## Edge cases
 
-- Параметр с `?` и параметр с инициализатором (`= value`) оба считаются опциональными.
-- Required-параметры не считаются.
+- A parameter with `?` and a parameter with an initializer (`= value`) both
+  count as optional.
+- Required parameters are not counted.
+- The fingerprint is `<file>#<qualified function path>`.

@@ -1,15 +1,17 @@
 # file-description-required
 
-**Pack:** perfile · **Engine:** perfile · **Default severity:** error
+**Pack:** perfile · **Engine:** syntactic · **Default severity:** error
 
-Каждый файл обязан открываться лидирующим многострочным JSDoc-блоком `/** */`
-с тегом `@fileoverview` и содержательным описанием. Цель — _evergreen_-описание:
-устойчивое назначение файла, не преходящие детали реализации.
+Every file must open with a leading multiline JSDoc block `/** */` that carries
+the `@fileoverview` tag and a meaningful description. The goal is an
+_evergreen_ description: the lasting purpose of the file, not transient
+implementation details.
 
-## Опции
+## Options
 
-- `tag` (string, дефолт `@fileoverview`) — требуемый JSDoc-тег.
-- `minLength` (number, дефолт 12) — мин. длина текста после тега (trimmed); `0` снимает проверку.
+- `tag` (string, default `@fileoverview`) — the required JSDoc tag.
+- `minLength` (number, default 12) — minimum length of the text after the tag
+  (trimmed); `0` disables the check.
 
 ## Good
 
@@ -23,11 +25,14 @@ export const profile = loadProfile();
 ## Bad
 
 ```ts
-export const profile = loadProfile(); // нет JSDoc-блока
-/** @fileoverview Loads data. */ // однострочный — не засчитан
+export const profile = loadProfile(); // no JSDoc block
+/** @fileoverview Loads data. */ // single-line: not accepted
 ```
 
 ## Edge cases
 
-- Shebang (`#!/usr/bin/env node`) выше блока допустим.
-- Однострочный `/** @fileoverview … */` не засчитывается — нужен реальный блок.
+- A shebang (`#!/usr/bin/env node`) above the block is allowed.
+- A single-line `/** @fileoverview … */` is not accepted; the block must span
+  several lines.
+- The description is the text after the tag up to the end of the block, with the
+  leading `*` of each line stripped.

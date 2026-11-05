@@ -2,23 +2,37 @@
 
 **Pack:** hygiene · **Engine:** manifest · **Default severity:** error
 
-Эффективный (с разрешённым `extends`) `compilerOptions` не содержит послаблений
-строгости. Послабление строгости типов подрывает архитектурные гарантии.
+The effective `compilerOptions` (with `extends` resolved) contain no relaxation
+of strictness. Weakening type strictness undermines architectural guarantees.
 
-## Опции
+## Options
 
-- `preset` (`'strictest'|'strict'|'recommended'`, дефолт `'strictest'`):
+- `preset` (`'strictest'|'strict'|'recommended'`, default `'strictest'`):
   - `recommended` — `strict`.
-  - `strict` — `recommended` + `noUncheckedIndexedAccess`, `noImplicitOverride`.
-  - `strictest` — `strict` + `noImplicitReturns`, `noFallthroughCasesInSwitch`,
-    `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`.
-- `additionalFlags` (string[]) — добавить флаги в требуемый набор.
-- `ignoreFlags` (string[]) — убрать флаги из требуемого набора.
+  - `strict` — `recommended` plus `noUncheckedIndexedAccess` and
+    `noImplicitOverride`.
+  - `strictest` — `strict` plus `noImplicitReturns`,
+    `noFallthroughCasesInSwitch`, `exactOptionalPropertyTypes` and
+    `noPropertyAccessFromIndexSignature`.
+- `additionalFlags` (string[], default `[]`) — flags to add to the required set.
+- `ignoreFlags` (string[], default `[]`) — flags to remove from the required set.
 
 ## Good
 
+The default `strictest` preset:
+
 ```jsonc
-{ "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true } }
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "noPropertyAccessFromIndexSignature": true
+  }
+}
 ```
 
 ## Bad
@@ -29,11 +43,15 @@
 
 ## Edge cases
 
-- `extends` резолвится: ключ из base-конфига учитывается, `location` указывает
-  на строку `extends` файла.
-- Флаг, который TypeScript проекта включает сам (`strict` начиная с 6.0),
-  считается включённым и без записи в файле. Мажор берётся из ближайшего
-  `node_modules/typescript/package.json` над `project.cwd`; если TypeScript
-  не найден, флаг должен быть выставлен явно.
-- `skipLibCheck`/`noUnusedLocals` в дефолт не входят — добавляются `additionalFlags`.
-- Отсутствие `tsconfig.json` — no-op.
+- `extends` is resolved: a key from the base config counts. The `location` of a
+  flag not set in the file itself points at the `extends` line; without
+  `extends` it falls back to the start of the file.
+- A flag that the project's TypeScript turns on by itself (`strict` as of 6.0)
+  counts as enabled even without an entry in the file. The major version is read
+  from the nearest `node_modules/typescript/package.json` above `project.cwd`;
+  if TypeScript is not found, the flag must be set explicitly.
+- Flags implied by `strict` (such as `strictNullChecks`) are accepted when
+  `strict` is `true`.
+- `skipLibCheck` and `noUnusedLocals` are not in any preset; add them through
+  `additionalFlags`.
+- A missing `tsconfig.json` is a no-op.

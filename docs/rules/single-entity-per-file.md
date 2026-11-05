@@ -1,14 +1,14 @@
 # single-entity-per-file
 
-**Pack:** perfile · **Engine:** perfile · **Default severity:** error
+**Pack:** perfile · **Engine:** syntactic · **Default severity:** error
 
-Файл экспортирует не более одной сущности — класса или компонента. Прямое
-следствие модели «одна сущность — один файл» (§4). Утилиты, типы и константы
-не считаются сущностями.
+A file exports at most one entity, meaning a class or a component. This is a
+direct consequence of the "one entity, one file" model (§4). Utilities, types
+and constants are not entities.
 
-## Опции
+## Options
 
-Нет.
+None.
 
 ## Good
 
@@ -16,17 +16,18 @@
 export function Button() {
   return null;
 }
-export const buttonClass = 'btn'; // не сущность — допустимо
+export const buttonClass = 'btn'; // not an entity: allowed
 ```
 
 ## Bad
 
 ```ts
 export class Store {}
-export const Panel = () => null; // вторая сущность
+export const Panel = () => null; // second entity
 ```
 
 ## Edge cases
 
-- Не-экспортируемые классы/компоненты не считаются.
-- «Сущность» = экспортируемый `class` либо экспортируемая PascalCase функция/стрелка.
+- Non-exported classes and components are not counted.
+- An "entity" is an exported `class`, or an exported function declaration or
+  arrow/function-expression `const` whose name starts with an uppercase letter.

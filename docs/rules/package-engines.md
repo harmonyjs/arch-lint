@@ -2,12 +2,13 @@
 
 **Pack:** hygiene · **Engine:** manifest · **Default severity:** error
 
-`package.json` объявляет требуемые ключи `engines`. Необъявленный движок делает
-воспроизводимость сборки негарантированной.
+`package.json` declares the required `engines` keys. An undeclared engine leaves
+build reproducibility unguaranteed.
 
-## Опции
+## Options
 
-- `requiredKeys` (string[], дефолт `['node', 'npm']`) — требуемые ключи `engines`.
+- `requiredKeys` (string[], default `['node', 'npm']`) — the required `engines`
+  keys.
 
 ## Good
 
@@ -18,10 +19,11 @@
 ## Bad
 
 ```jsonc
-{ "engines": { "node": ">=22.12" } } // npm не объявлен
+{ "engines": { "node": ">=22.12" } } // npm is not declared
 ```
 
 ## Edge cases
 
-- Отсутствие `package.json` — no-op.
-- Каждый отсутствующий ключ — отдельная диагностика с fingerprint = ключ.
+- A missing `package.json` is a no-op.
+- Each missing key is a separate diagnostic whose fingerprint is the key.
+- Only the presence of the key is checked, not its value.

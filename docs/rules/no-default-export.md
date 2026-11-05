@@ -1,15 +1,16 @@
 # no-default-export
 
-**Pack:** perfile · **Engine:** perfile · **Default severity:** error
+**Pack:** perfile · **Engine:** syntactic · **Default severity:** error
 
-`export default` запрещён — у default-экспорта нет канонического имени, импортёр
-зовёт сущность как угодно. Правило энфорсит предпочтение basename-именованного
-главного экспорта (§9). Фреймворки, требующие default (страницы Next.js), —
-через `exemptPaths`.
+`export default` is forbidden. A default export has no canonical name, so each
+importer calls the entity whatever it likes. The rule enforces the preference
+for a main export named after the file's basename (§9). Frameworks that require
+a default export (Next.js pages) are handled through `exemptPaths`.
 
-## Опции
+## Options
 
-- `exemptPaths` (string[], дефолт `[]`) — glob-пути, где `export default` допустим.
+- `exemptPaths` (string[], default `[]`) — glob paths where `export default` is
+  allowed.
 
 ## Good
 
@@ -29,5 +30,7 @@ export { x as default };
 
 ## Edge cases
 
-- Ловит обе формы: `export default <decl>` и `export { x as default }`.
-- `export = ...` (CJS) вне scope — не флагуется.
+- Both forms are caught: `export default <declaration or expression>` and
+  `export { x as default }` (also `export { default } from '…'`).
+- `export = ...` (CommonJS) is out of scope and is not flagged.
+- At most one diagnostic is reported per file; the fingerprint is the file.

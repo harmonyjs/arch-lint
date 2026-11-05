@@ -2,16 +2,17 @@
 
 **Pack:** hygiene · **Engine:** manifest · **Default severity:** error
 
-`.npmrc` содержит требуемые пары ключ-значение. Нестрогий `.npmrc` допускает
-невоспроизводимый install.
+`.npmrc` contains the required key-value pairs. A lax `.npmrc` permits a
+non-reproducible install.
 
-## Опции
+## Options
 
-- `required` (`Record<string, string|boolean>`, дефолт
-  `{ 'engine-strict': true, 'save-exact': true }`) — требуемые пары.
-  - `engine-strict=true` — npm отклоняет install при несовпадении node/npm.
-  - `save-exact=true` — будущие install пишут точные версии (иначе
-    `exact-dependency-versions` снова покраснеет).
+- `required` (`Record<string, string|boolean>`, default
+  `{ 'engine-strict': true, 'save-exact': true }`) — the required pairs.
+  - `engine-strict=true` — npm rejects an install when the node or npm version
+    does not match `engines`.
+  - `save-exact=true` — future installs write exact versions (otherwise
+    `exact-dependency-versions` turns red again).
 
 ## Good
 
@@ -23,11 +24,13 @@ save-exact=true
 ## Bad
 
 ```ini
-engine-strict=false        ; неверное значение
-                           ; save-exact не задан
+engine-strict=false        ; wrong value
+                           ; save-exact is not set
 ```
 
 ## Edge cases
 
-- Отсутствие `.npmrc` флагует все требуемые ключи как отсутствующие.
-- Значения сравниваются строково: `true` (boolean-опция) ≡ `"true"` в `.npmrc`.
+- A missing `.npmrc` flags every required key as missing.
+- Values are compared as strings: `true` (a boolean option) equals `"true"` in
+  `.npmrc`.
+- Lines starting with `;` or `#` are comments. The fingerprint is the key.

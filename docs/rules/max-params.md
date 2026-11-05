@@ -1,13 +1,13 @@
 # max-params
 
-**Pack:** perfile · **Engine:** perfile · **Default severity:** warning
+**Pack:** perfile · **Engine:** syntactic · **Default severity:** warning
 
-Число параметров функции не превышает `max`. Считаются все параметры. Много
-параметров — сигнал, что сигнатуру пора переработать.
+The number of parameters of a function does not exceed `max`. All parameters are
+counted. Many parameters signal that the signature is due for a rework.
 
-## Опции
+## Options
 
-- `max` (number, дефолт 4) — лимит параметров.
+- `max` (number, default 4) — parameter limit.
 
 ## Good
 
@@ -18,10 +18,11 @@ function render(node: Node, depth: number) {}
 ## Bad
 
 ```ts
-function render(node, depth, theme, mode, locale) {} // 5 параметров
+function render(node, depth, theme, mode, locale) {} // 5 parameters
 ```
 
 ## Edge cases
 
-- Считаются все параметры, включая опциональные и rest.
-- Для счёта только опциональных см. `max-optional-params`.
+- All parameters are counted, including optional and rest parameters.
+- To count only optional parameters, see `max-optional-params`.
+- The fingerprint is `<file>#<qualified function path>`.
