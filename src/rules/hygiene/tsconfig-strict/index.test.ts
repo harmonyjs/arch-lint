@@ -31,6 +31,14 @@ function run(
 }
 
 describe('tsconfig-strict', () => {
+  it('accepts a strict-family flag that strict turns on', () => {
+    const ds = run(JSON.stringify({ compilerOptions: { strict: true } }), {
+      preset: 'recommended',
+      additionalFlags: ['strictNullChecks'],
+    });
+    expect(ds).toEqual([]);
+  });
+
   it('passes a strictest tsconfig', () => {
     const ds = run(
       JSON.stringify({

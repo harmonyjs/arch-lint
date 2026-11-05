@@ -95,3 +95,28 @@ describe('effectiveCompilerOptions — defaults of the project TypeScript', () =
     );
   });
 });
+
+describe('effectiveCompilerOptions — the strict family', () => {
+  const withStrict = (strict: string) =>
+    fixture({ 'tsconfig.json': `{"compilerOptions":{${strict}}}` });
+
+  it('derives an unset strict-family flag from an explicit strict', () => {
+    const eff = effectiveCompilerOptions(withStrict('"strict":true'), 5);
+    expect(eff.getOption('strictNullChecks')).toBe(true);
+    expect(eff.getOption('useUnknownInCatchVariables')).toBe(true);
+  });
+
+  it('derives an unset strict-family flag from the default strict of TypeScript 7', () => {
+    expect(effectiveCompilerOptions(withStrict(''), 7).getOption('noImplicitAny')).toBe(true);
+  });
+
+  it('keeps an explicit false on a strict-family flag under strict', () => {
+    const path = withStrict('"strict":true,"strictNullChecks":false');
+    expect(effectiveCompilerOptions(path, 7).getOption('strictNullChecks')).toBe(false);
+  });
+
+  it('leaves a strict-family flag unset when strict is off', () => {
+    const path = withStrict('"strict":false');
+    expect(effectiveCompilerOptions(path, 7).getOption('strictNullChecks')).toBeUndefined();
+  });
+});

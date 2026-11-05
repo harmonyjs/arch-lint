@@ -2,7 +2,7 @@
  * @fileoverview Effective tsconfig resolver (with extends resolution and the defaults of
  * the project's TypeScript major) and positions of compilerOptions keys (decision D5 / A3).
  */
-import { Node, Project, SyntaxKind } from 'ts-morph';
+import { Node, Project, SyntaxKind, ts } from 'ts-morph';
 import type { Location } from '#foundation/types/index.js';
 
 /** An effective tsconfig: option values plus key positions. */
@@ -20,6 +20,15 @@ const ON_BY_DEFAULT_SINCE: Readonly<Record<string, number>> = {
   allowSyntheticDefaultImports: 6,
   stableTypeOrdering: 7,
 };
+
+/** Flags the compiler derives from `strict` when left unset, read from its own option table. */
+const STRICT_FAMILY: ReadonlySet<string> = new Set(
+  (
+    ts as unknown as { optionDeclarations: readonly { name: string; strictFlag?: boolean }[] }
+  ).optionDeclarations
+    .filter((option) => option.strictFlag === true)
+    .map((option) => option.name),
+);
 
 /** The value the project's compiler gives `name` when the tsconfig leaves it unset. */
 function compilerDefault(name: string, typescriptMajor: number | undefined): true | undefined {
@@ -76,10 +85,14 @@ export function effectiveCompilerOptions(
       : undefined;
   const extendsProp = findKey(rootObj, 'extends');
 
+  const getOption = (name: string): unknown => {
+    const own = options[name] ?? compilerDefault(name, typescriptMajor);
+    if (own !== undefined || !STRICT_FAMILY.has(name)) return own;
+    return getOption('strict') === true ? true : undefined;
+  };
+
   return {
-    getOption(name) {
-      return options[name] ?? compilerDefault(name, typescriptMajor);
-    },
+    getOption,
     keyLocation(name) {
       const direct = findKey(compilerObj, name);
       if (direct && Node.isPropertyAssignment(direct)) {
