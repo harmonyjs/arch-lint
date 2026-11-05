@@ -94,7 +94,7 @@ project that is clean from the start sets `baseline: { missingBehavior: 'ignore'
 | `perfile`   | `complexity`, `file-description-required`, `max-lines`, `max-lines-per-function`, `max-params`, `max-optional-params`, `no-default-export`, `single-entity-per-file` |
 | `hygiene`   | `exact-dependency-versions`, `npmrc-settings`, `package-engines`, `tsconfig-strict`                                                                                  |
 | `view`      | `hooks-folder-required`, `tokens-import-is-side-effect`, `ui-cluster-membership`                                                                                     |
-| `metrics`   | `afferent-coupling`, `efferent-coupling`, `instability`, `unit-cohesion`, `cross-cutting-concern`, `coupling-decomposition`                                          |
+| `metrics`   | `afferent-coupling`, `efferent-coupling`, `instability`, `unit-cohesion`, `cross-cutting-concern`                                                                    |
 | `meta`      | `unresolved-import`, `expired-suppress`                                                                                                                              |
 
 Every rule takes a severity (`off`, `info`, `warning`, `error`) or an object
