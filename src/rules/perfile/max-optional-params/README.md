@@ -20,7 +20,7 @@ function fetch(url: string, opts?: FetchOptions) {}
 ## Bad
 
 ```ts
-function fetch(url, retry?, cache?, signal?, verbose?) {}   // 4 опциональных
+function fetch(url, retry?, cache?, signal?, verbose?) {} // 4 опциональных
 ```
 
 ## Edge cases

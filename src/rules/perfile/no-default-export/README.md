@@ -14,14 +14,17 @@
 ## Good
 
 ```ts
-export function Button() { return null; }
+export function Button() {
+  return null;
+}
 ```
 
 ## Bad
 
 ```ts
 export default function Button() {}
-const x = 1; export { x as default };
+const x = 1;
+export { x as default };
 ```
 
 ## Edge cases

@@ -3,7 +3,7 @@
 **Pack:** perfile · **Engine:** perfile · **Default severity:** error
 
 Каждый файл обязан открываться лидирующим многострочным JSDoc-блоком `/** */`
-с тегом `@fileoverview` и содержательным описанием. Цель — *evergreen*-описание:
+с тегом `@fileoverview` и содержательным описанием. Цель — _evergreen_-описание:
 устойчивое назначение файла, не преходящие детали реализации.
 
 ## Опции
@@ -23,8 +23,8 @@ export const profile = loadProfile();
 ## Bad
 
 ```ts
-export const profile = loadProfile();          // нет JSDoc-блока
-/** @fileoverview Loads data. */                // однострочный — не засчитан
+export const profile = loadProfile(); // нет JSDoc-блока
+/** @fileoverview Loads data. */ // однострочный — не засчитан
 ```
 
 ## Edge cases

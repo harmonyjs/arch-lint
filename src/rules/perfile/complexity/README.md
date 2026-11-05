@@ -6,8 +6,8 @@
 complexity** SonarSource: штрафует вложенность и разрывы потока управления, а не
 число путей; коррелирует с «функцию пора декомпозировать» лучше цикломатической.
 
-**Нормативный источник:** *«Cognitive Complexity — A new way of measuring
-understandability»*, G. Ann Campbell, SonarSource (ред. 2018).
+**Нормативный источник:** _«Cognitive Complexity — A new way of measuring
+understandability»_, G. Ann Campbell, SonarSource (ред. 2018).
 
 ## Инкременты
 

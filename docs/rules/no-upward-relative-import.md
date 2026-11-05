@@ -20,17 +20,17 @@ to a plain import — one diagnostic each.
 ## Good
 
 ```ts
-import { helper } from './helper.js';      // same folder
-import { thing } from './sub/thing.js';    // downward
+import { helper } from './helper.js'; // same folder
+import { thing } from './sub/thing.js'; // downward
 import type { Diagnostic } from '#types.js'; // subpath alias
-import { z } from 'zod';                   // bare package
+import { z } from 'zod'; // bare package
 ```
 
 ## Bad
 
 ```ts
-import x from '../../graph/types.js';      // climbs out of its directory
-export { y } from '../y.js';               // re-export climbs too
+import x from '../../graph/types.js'; // climbs out of its directory
+export { y } from '../y.js'; // re-export climbs too
 ```
 
 Option: `aliasPrefix` (string, default `'#'`) — the subpath-alias prefix named

@@ -18,7 +18,7 @@
 ## Bad
 
 ```jsonc
-{ "engines": { "node": ">=22.12" } }              // npm не объявлен
+{ "engines": { "node": ">=22.12" } } // npm не объявлен
 ```
 
 ## Edge cases

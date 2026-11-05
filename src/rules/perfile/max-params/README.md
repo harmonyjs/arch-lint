@@ -18,7 +18,7 @@ function render(node: Node, depth: number) {}
 ## Bad
 
 ```ts
-function render(node, depth, theme, mode, locale) {}   // 5 параметров
+function render(node, depth, theme, mode, locale) {} // 5 параметров
 ```
 
 ## Edge cases

@@ -13,15 +13,17 @@
 ## Good
 
 ```ts
-export function Button() { return null; }
-export const buttonClass = 'btn';            // не сущность — допустимо
+export function Button() {
+  return null;
+}
+export const buttonClass = 'btn'; // не сущность — допустимо
 ```
 
 ## Bad
 
 ```ts
 export class Store {}
-export const Panel = () => null;             // вторая сущность
+export const Panel = () => null; // вторая сущность
 ```
 
 ## Edge cases
