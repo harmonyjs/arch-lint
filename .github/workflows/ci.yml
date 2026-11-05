@@ -22,4 +22,6 @@ jobs:
       - run: npx biome check .
       - run: npm test
       - run: node bin/arch-lint.js check
+      - run: node ../../bin/arch-lint.js check
+        working-directory: examples/sample-app
       - run: npm audit --omit=dev --audit-level=high
