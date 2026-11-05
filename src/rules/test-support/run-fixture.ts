@@ -25,6 +25,8 @@ export interface FixtureRun {
   readonly ruleId: string;
   /** Config beyond project paths — layers, units, rule options/severity. */
   readonly config?: Omit<Config, 'project'>;
+  /** The project sourceRoot, relative to `fixtureRoot`; defaults to `src`. */
+  readonly sourceRoot?: string;
 }
 
 /** Builds the real graph for `fixtureRoot` and runs check() filtered to `ruleId`. */
@@ -37,7 +39,7 @@ export async function runRuleOnFixture(run: FixtureRun): Promise<readonly Diagno
   const config = resolveConfig({
     project: {
       tsconfig: resolve(run.fixtureRoot, 'tsconfig.json'),
-      sourceRoot: 'src',
+      sourceRoot: run.sourceRoot ?? 'src',
       cwd: run.fixtureRoot,
     },
     packs: [...new Set([...(extraPacks ?? []), rule.pack])],

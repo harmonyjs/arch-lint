@@ -13,13 +13,21 @@ const config = {
 } as unknown as ResolvedConfig;
 
 function run(files: Record<string, string>, opts: Partial<NoUpwardRelativeImportOptions> = {}) {
+  return runUnder(config, files, opts);
+}
+
+function runUnder(
+  under: ResolvedConfig,
+  files: Record<string, string>,
+  opts: Partial<NoUpwardRelativeImportOptions> = {},
+) {
   const graph = makeGraph({
     nodes: Object.fromEntries(Object.keys(files).map((id) => [id, { kind: 'file' as const }])),
     files,
   });
   return noUpwardRelativeImport.check(
     graph,
-    config,
+    under,
     makeContext<NoUpwardRelativeImportOptions>('no-upward-relative-import', {
       severity: 'warning',
       options: opts as NoUpwardRelativeImportOptions,
@@ -88,6 +96,19 @@ describe('no-upward-relative-import', () => {
     expect(d.expected).toBe('an #-subpath alias import');
     expect(d.suggestions[0]?.rationale).toContain('#graph/types.js');
   });
+
+  it.each([
+    { sourceRoot: './src', file: 'src/rules/structure/a.ts', alias: '#graph/types.js' },
+    { sourceRoot: 'src/', file: 'src/rules/structure/a.ts', alias: '#graph/types.js' },
+    { sourceRoot: '.', file: 'src/rules/structure/a.ts', alias: '#src/graph/types.js' },
+  ])(
+    'names the concrete alias path under sourceRoot "$sourceRoot"',
+    ({ sourceRoot, file, alias }) => {
+      const under = { project: { sourceRoot } } as unknown as ResolvedConfig;
+      const d = only(runUnder(under, { [file]: `import x from '../../graph/types.js';` }));
+      expect(d.suggestions[0]?.rationale).toContain(`"${alias}"`);
+    },
+  );
 
   it('reflects a custom aliasPrefix in the suggestion text', () => {
     const d = only(

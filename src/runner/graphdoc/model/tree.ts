@@ -3,7 +3,7 @@
  * hierarchy implied by the graph's file ids, computes subtree sizes, and decides
  * which folders own their own drill-down section.
  */
-import { baseNameOf } from '#foundation/entity-id/index.js';
+import { baseNameOf, joinUnder, pathUnder, relativeToRoot } from '#foundation/entity-id/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 
 /** A folder gets its own section once its file count exceeds this threshold. */
@@ -38,11 +38,10 @@ function emptyFolder(path: string): FolderTree {
 
 /** Walks/creates the folder that holds the parent of `id` and returns it. */
 function parentFolder(root: FolderTree, id: string): FolderTree {
-  const rel = id.slice(root.path.length + 1);
-  const segments = rel.split('/');
+  const segments = relativeToRoot(id, root.path).split('/');
   let folder = root;
-  for (let i = 0; i < segments.length - 1; i += 1) {
-    const childPath = `${folder.path}/${segments[i]}`;
+  for (const segment of segments.slice(0, -1)) {
+    const childPath = joinUnder(folder.path, segment);
     let child = folder.folders.get(childPath);
     if (child === undefined) {
       child = emptyFolder(childPath);
@@ -74,9 +73,8 @@ function sizeTree(folder: FolderTree): number {
 /** Builds the folder tree of every graph node under `root`. */
 export function buildFolderTree(graph: ConsumerGraph, root: string): FolderTree {
   const tree = emptyFolder(root);
-  const prefix = `${root}/`;
   for (const node of graph.nodes.values()) {
-    if (!node.id.startsWith(prefix)) continue;
+    if (pathUnder(node.id, root) === null) continue;
     if (node.kind === 'file') insertFile(tree, node.id);
     else insertFolderNode(tree, node.id);
   }
@@ -91,8 +89,7 @@ export function buildFolderTree(graph: ConsumerGraph, root: string): FolderTree 
  */
 export function slugOf(folderPath: string, root: string): string {
   if (folderPath === root) return 'overview';
-  return folderPath
-    .slice(root.length + 1)
+  return relativeToRoot(folderPath, root)
     .split('/')
     .map((segment) => segment.replace(/-/g, '_'))
     .join('-');
@@ -101,14 +98,14 @@ export function slugOf(folderPath: string, root: string): string {
 /** Heading title of a folder: `root` → "Overview", else slash-separated. */
 export function titleOf(folderPath: string, root: string): string {
   if (folderPath === root) return 'Overview';
-  return folderPath.slice(root.length + 1).replace(/\//g, ' / ');
+  return relativeToRoot(folderPath, root).replace(/\//g, ' / ');
 }
 
 /** A folder owns a section when it is a subsystem root or exceeds THRESHOLD. */
 function ownsSection(folder: FolderTree, root: string): boolean {
   return (
     folder.path !== root &&
-    (folder.path.indexOf('/', root.length + 1) === -1 || folder.subtreeSize > THRESHOLD)
+    (!relativeToRoot(folder.path, root).includes('/') || folder.subtreeSize > THRESHOLD)
   );
 }
 

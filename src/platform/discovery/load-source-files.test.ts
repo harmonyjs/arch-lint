@@ -54,6 +54,20 @@ describe('discoverSourceFilePaths — dependency folders', () => {
   });
 });
 
+describe('discoverSourceFilePaths — root spellings', () => {
+  // A naive join turns an empty sourceRoot into the absolute glob `/**`.
+  it.each(['', './', 'src/', './src'])(
+    'stays under cwd for sourceRoot "%s"',
+    async (sourceRoot) => {
+      const options = { cwd: dir, extensions: ['.ts', '.tsx'], ignore: [] };
+      const canonical = sourceRoot.includes('src') ? 'src' : '.';
+      const paths = await discoverSourceFilePaths({ ...options, sourceRoot });
+      expect(paths).toEqual(await discoverSourceFilePaths({ ...options, sourceRoot: canonical }));
+    },
+    10_000,
+  );
+});
+
 describe('loadSourceFiles', () => {
   it('builds a ts-morph Project with a file registry keyed by file id', async () => {
     writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}');

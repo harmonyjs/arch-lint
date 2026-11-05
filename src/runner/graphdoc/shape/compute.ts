@@ -3,6 +3,7 @@
  * in a fixed order, and filterBySubsystem — the subsystem filter the document
  * renderer applies when --subsystem narrows the output.
  */
+import { joinUnder, pathUnder } from '#foundation/entity-id/index.js';
 import { findCarvedAspect } from './carved-aspect.js';
 import { findHubs } from './hubs.js';
 import { findSiblingAsymmetry } from './sibling-asymmetry.js';
@@ -25,6 +26,6 @@ export function filterBySubsystem(
   subsystem: string,
   root: string,
 ): readonly ShapeFinding[] {
-  const prefix = `${root}/${subsystem}/`;
-  return findings.filter((f) => pathsOf(f).some((p) => p.startsWith(prefix)));
+  const folder = joinUnder(root, subsystem);
+  return findings.filter((f) => pathsOf(f).some((p) => pathUnder(p, folder) !== null));
 }

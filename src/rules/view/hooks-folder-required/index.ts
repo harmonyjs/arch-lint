@@ -3,7 +3,7 @@
  * (decision D7). The view pack is parametrized by config — no hardcoded React naming.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { baseNameOf, folderOf, isUnderSegment } from '#foundation/entity-id/index.js';
+import { baseNameOf, folderOf, isUnderSegment, joinUnder } from '#foundation/entity-id/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import { dedupByFingerprint } from '#platform/engine/dedup-diagnostics.js';
 import type { SyntacticRule, SyntacticRuleContext } from '#platform/engine/types.js';
@@ -51,7 +51,7 @@ function makeDiag(
   boundary: HooksBoundary,
 ): Diagnostic {
   const { hooksSegment, hookFilePattern } = boundary;
-  const targetDir = `${folderOf(fileId)}/${hooksSegment}`;
+  const targetDir = joinUnder(folderOf(fileId), hooksSegment);
   const message =
     kind === 'misplaced'
       ? `Hook file '${fileId}' must live inside a '${hooksSegment}/' folder`

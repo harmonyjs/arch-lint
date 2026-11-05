@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ancestorsOf,
   baseNameOf,
+  canonicalDir,
   dirOf,
   dropExtension,
   firstSegment,
@@ -12,6 +13,8 @@ import {
   isAtOrUnderPrefix,
   isStrictlyUnderPrefix,
   isUnderSegment,
+  joinUnder,
+  pathUnder,
   relativeToRoot,
   segmentsOf,
   stemOf,
@@ -190,5 +193,51 @@ describe('relativeToRoot', () => {
 
   it('does not strip a partial segment match', () => {
     expect(relativeToRoot('source/x.ts', 'src')).toBe('source/x.ts');
+  });
+});
+
+// Every spelling a user may write for one directory, paired with its canonical id.
+const ROOT_SPELLINGS = [
+  { dir: 'src', canonical: 'src' },
+  { dir: 'src/', canonical: 'src' },
+  { dir: './src', canonical: 'src' },
+  { dir: './src/', canonical: 'src' },
+  { dir: 'apps/web', canonical: 'apps/web' },
+  { dir: './apps/web/', canonical: 'apps/web' },
+  { dir: '.', canonical: '' },
+  { dir: './', canonical: '' },
+  { dir: '', canonical: '' },
+] as const;
+
+describe('canonicalDir', () => {
+  it.each(ROOT_SPELLINGS)('maps $dir to $canonical', ({ dir, canonical }) => {
+    expect(canonicalDir(dir)).toBe(canonical);
+  });
+});
+
+describe('joinUnder', () => {
+  it.each(ROOT_SPELLINGS)('joins under $dir without a stray ./ or //', ({ dir, canonical }) => {
+    const expected = canonical === '' ? 'web/x.ts' : `${canonical}/web/x.ts`;
+    expect(joinUnder(dir, 'web/x.ts')).toBe(expected);
+  });
+});
+
+describe('pathUnder', () => {
+  it.each(ROOT_SPELLINGS)('takes an id under $dir relative to it', ({ dir, canonical }) => {
+    const id = canonical === '' ? 'web/x.ts' : `${canonical}/web/x.ts`;
+    expect(pathUnder(id, dir)).toBe('web/x.ts');
+  });
+
+  it('is null for an id outside the directory or equal to it', () => {
+    expect(pathUnder('lib/x.ts', 'src')).toBeNull();
+    expect(pathUnder('source/x.ts', 'src')).toBeNull();
+    expect(pathUnder('src', 'src')).toBeNull();
+  });
+});
+
+describe('relativeToRoot — root spellings', () => {
+  it.each(ROOT_SPELLINGS)('strips the root $dir', ({ dir, canonical }) => {
+    const id = canonical === '' ? 'web/x.ts' : `${canonical}/web/x.ts`;
+    expect(relativeToRoot(id, dir)).toBe('web/x.ts');
   });
 });

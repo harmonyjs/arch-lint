@@ -63,6 +63,11 @@ describe('hooks-folder-required', () => {
     });
   });
 
+  it('suggests a hooks/ folder relative to the root for a root-level hook file', () => {
+    const diags = hooksFolderRequired.check(viewGraphOf(['use-toggle.ts']), config, ctx());
+    expect(diags[0]?.suggestions[0]?.target).toBe('hooks');
+  });
+
   it('does not flag a use-* file inside hooks/', () => {
     expect(
       hooksFolderRequired.check(graphOf(['src/App/hooks/use-toggle.ts']), config, ctx()),

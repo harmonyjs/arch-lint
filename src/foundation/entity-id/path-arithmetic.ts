@@ -101,6 +101,25 @@ export function folderOf(id: string): string {
  * written relative to the sourceRoot match a sourceRoot-prefixed entity id.
  */
 export function relativeToRoot(id: string, root: string): string {
-  const prefix = `${root}/`;
-  return id.startsWith(prefix) ? id.slice(prefix.length) : id;
+  return pathUnder(id, root) ?? id;
+}
+
+/** A configured directory (`./src/`, `.`) in entity-id form: `src`, and `''` for the root. */
+export function canonicalDir(dir: string): string {
+  const trimmed = dir.replace(/^(?:\.\/+)+/, '').replace(/\/+$/, '');
+  return trimmed === '.' ? '' : trimmed;
+}
+
+/** `rest` placed under the directory `dir`, however `dir` is spelled. */
+export function joinUnder(dir: string, rest: string): string {
+  const head = canonicalDir(dir);
+  return head === '' ? rest : `${head}/${rest}`;
+}
+
+/** `id` relative to the directory `dir`; null unless `id` lies strictly below it. */
+export function pathUnder(id: string, dir: string): string | null {
+  const head = canonicalDir(dir);
+  if (head === '') return id;
+  const prefix = `${head}/`;
+  return id.startsWith(prefix) ? id.slice(prefix.length) : null;
 }

@@ -73,4 +73,15 @@ describe('filterBySubsystem', () => {
     const kept = filterBySubsystem(findings, 'platform', 'src');
     expect(kept).toEqual([]);
   });
+
+  it.each(['src/', './src'])('keeps the same findings under the root spelled "%s"', (root) => {
+    expect(filterBySubsystem(findings, 'runner', root)).toEqual(
+      filterBySubsystem(findings, 'runner', 'src'),
+    );
+  });
+
+  it('matches the subsystem folder directly when the root is the repository root', () => {
+    const kept = filterBySubsystem(findings, 'src', '.');
+    expect(kept).toEqual(findings);
+  });
 });

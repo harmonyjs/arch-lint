@@ -5,7 +5,7 @@
  * and `../../graph/x.js` resolve to the same graph edge, so only the source text can
  * tell them apart.
  */
-import { dirOf } from '#foundation/entity-id/index.js';
+import { dirOf, pathUnder } from '#foundation/entity-id/index.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import { fileNodeIds } from '#platform/ast/file-nodes.js';
 import { type ImportInfo, importsOf } from '#platform/ast/import-info.js';
@@ -65,9 +65,9 @@ function resolveClimbing(fromFile: string, specifier: string): string | null {
  */
 function suggestionFor(fromFile: string, specifier: string, settings: Settings): string {
   const resolved = resolveClimbing(fromFile, specifier);
-  const root = `${settings.sourceRoot}/`;
-  if (resolved?.startsWith(root)) {
-    return `replace "${specifier}" with the alias import "${settings.aliasPrefix}${resolved.slice(root.length)}"`;
+  const target = resolved === null ? null : pathUnder(resolved, settings.sourceRoot);
+  if (target !== null) {
+    return `replace "${specifier}" with the alias import "${settings.aliasPrefix}${target}"`;
   }
   return `replace "${specifier}" with an ${settings.aliasPrefix}-subpath alias import`;
 }

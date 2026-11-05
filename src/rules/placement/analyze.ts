@@ -10,7 +10,7 @@
  *    for entities physically inside one of those folders.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { isUnderSegment } from '#foundation/entity-id/index.js';
+import { canonicalDir, isUnderSegment, joinUnder, pathUnder } from '#foundation/entity-id/index.js';
 import { layerOf } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 import { componentParentOf, lca } from './tree.js';
@@ -56,7 +56,7 @@ function nameOf(id: string): string {
 
 /** True when `entity` sits within the subtree rooted at directory `root`. */
 function isWithinSubtree(entity: string, root: string): boolean {
-  return entity === root || isDescendant(entity, root);
+  return entity === root || pathUnder(entity, root) !== null;
 }
 
 /** Promotion threshold from the lca-placement rule options (default 2). */
@@ -78,7 +78,7 @@ function roleFolderExpected(
   const conv = ctx.config.conventions;
   if (consumers.length >= promotionThreshold(ctx.config)) {
     const host = lca(consumers, ctx.graph, conv) ?? ctx.layerRoot;
-    return `${host}/${conv.sharedSegment}/${nameOf(entity)}`;
+    return joinUnder(host, `${conv.sharedSegment}/${nameOf(entity)}`);
   }
   const owner = consumers[0];
   if (owner === undefined || ctx.graph.nodes.get(owner)?.kind === 'file') return null;
@@ -210,7 +210,7 @@ function gatedConsumers(
   if (consumers.length === 0) return null;
   const hasExplicitLayers = Object.keys(config.layers).length > 0;
   if (!hasExplicitLayers) {
-    return { consumers, layerRoot: config.project.sourceRoot };
+    return { consumers, layerRoot: canonicalDir(config.project.sourceRoot) };
   }
   const sourceRoot = config.project.sourceRoot;
   const layer = layerOf(entity, config.layers, sourceRoot);
@@ -218,7 +218,7 @@ function gatedConsumers(
   if (!consumers.every((c) => layerOf(c, config.layers, sourceRoot) === layer)) return null;
   // `layer` is the sourceRoot-relative layer key; the layer root is its directory
   // path, which must carry the sourceRoot prefix to compare against entity ids.
-  return { consumers, layerRoot: `${sourceRoot}/${layer}` };
+  return { consumers, layerRoot: joinUnder(sourceRoot, layer) };
 }
 
 const cache = new WeakMap<ConsumerGraph, ReadonlyMap<string, PlacementVerdict>>();

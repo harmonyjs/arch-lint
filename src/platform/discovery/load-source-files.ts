@@ -9,7 +9,7 @@ import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '#foundation/config/types.js';
-import { baseNameOf } from '#foundation/entity-id/index.js';
+import { baseNameOf, joinUnder } from '#foundation/entity-id/index.js';
 import { DEPENDENCY_DIR, isTestFile } from '#foundation/file-classification/index.js';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
 
@@ -26,7 +26,7 @@ export interface DiscoverOptions {
  */
 export async function discoverSourceFilePaths(options: DiscoverOptions): Promise<string[]> {
   const extGlob = options.extensions.map((e) => e.replace(/^\./, '')).join(',');
-  const patterns = [`${options.sourceRoot}/**/*.{${extGlob}}`];
+  const patterns = [joinUnder(options.sourceRoot, `**/*.{${extGlob}}`)];
   const found = await glob(patterns, {
     cwd: options.cwd,
     absolute: false,

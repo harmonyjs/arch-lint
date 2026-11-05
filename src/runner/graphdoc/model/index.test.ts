@@ -549,6 +549,36 @@ describe('buildGraphDoc', () => {
   });
 });
 
+describe('buildGraphDoc — sourceRoot spellings', () => {
+  function docFor(sourceRoot: string, prefix: string) {
+    const graph = makeGraph({
+      nodes: { [`${prefix}main.ts`]: {}, [`${prefix}a/x.ts`]: {}, [`${prefix}b/y.ts`]: {} },
+      edges: [
+        { consumer: `${prefix}a/x.ts`, producer: `${prefix}b/y.ts`, symbol: 'Y', typeOnly: false },
+      ],
+    });
+    const base = cfg();
+    const config = { ...base, project: { ...base.project, sourceRoot } } as ResolvedConfig;
+    const doc = buildGraphDoc({ graph, fileoverviews: new Map(), config, locByPath: new Map() });
+    return doc.sections.map((s) => ({
+      slug: s.slug,
+      title: s.title,
+      nodes: s.diagram.nodes.map((n) => n.name),
+      edges: s.diagram.edges.length,
+    }));
+  }
+
+  it.each([
+    { sourceRoot: 'src/', prefix: 'src/' },
+    { sourceRoot: './src', prefix: 'src/' },
+    { sourceRoot: '.', prefix: '' },
+    { sourceRoot: './', prefix: '' },
+    { sourceRoot: '', prefix: '' },
+  ])('renders under "$sourceRoot" exactly what "src" renders', ({ sourceRoot, prefix }) => {
+    expect(docFor(sourceRoot, prefix)).toEqual(docFor('src', 'src/'));
+  });
+});
+
 describe('slugOf', () => {
   it('maps the source root to overview', () => {
     expect(slugOf('src', 'src')).toBe('overview');

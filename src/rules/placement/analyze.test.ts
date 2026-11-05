@@ -293,3 +293,78 @@ describe('analyzePlacement memoization', () => {
     expect(first).toBe(second);
   });
 });
+
+// Entity ids carry the canonical root (`src/...`, or no prefix at the repo root)
+// however `sourceRoot` is spelled; the layer root must be derived the same way.
+describe.each([
+  { sourceRoot: 'src', prefix: 'src/' },
+  { sourceRoot: 'src/', prefix: 'src/' },
+  { sourceRoot: './src', prefix: 'src/' },
+  { sourceRoot: '.', prefix: '' },
+  { sourceRoot: './', prefix: '' },
+  { sourceRoot: '', prefix: '' },
+])('analyzePlacement under sourceRoot "$sourceRoot"', ({ sourceRoot, prefix }) => {
+  const project = { sourceRoot } as ResolvedConfig['project'];
+
+  it('abstains for an entity under the source root when its consumers share no ancestor', () => {
+    const g = makeGraph({
+      nodes: {
+        [`${prefix}A`]: { kind: 'folder', isEntity: true },
+        [`${prefix}B`]: { kind: 'folder', isEntity: true },
+        [`${prefix}Stray/Deep`]: { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { [`${prefix}Stray/Deep`]: [`${prefix}A`, `${prefix}B`] },
+    });
+    expect([...analyzePlacement(g, cfg({ project })).keys()]).toEqual([]);
+  });
+
+  it('abstains for a file entity inside its explicit layer', () => {
+    const g = makeGraph({
+      nodes: {
+        [`${prefix}apps/web/src/main.ts`]: { kind: 'file', isEntity: true },
+        [`${prefix}apps/web/src/feature/view.ts`]: { kind: 'file', isEntity: true },
+      },
+      entityConsumers: {
+        [`${prefix}apps/web/src/feature/view.ts`]: [`${prefix}apps/web/src/main.ts`],
+      },
+    });
+    const config = cfg({ project, layers: { 'apps/web': { canImport: [] } } });
+    expect([...analyzePlacement(g, config).keys()]).toEqual([]);
+  });
+
+  it('still flags a cousin-placed entity inside its explicit layer', () => {
+    const g = makeGraph({
+      nodes: {
+        [`${prefix}apps/web/Left`]: { kind: 'folder', isEntity: true },
+        [`${prefix}apps/web/Left/A`]: { kind: 'folder', isEntity: true },
+        [`${prefix}apps/web/Left/B`]: { kind: 'folder', isEntity: true },
+        [`${prefix}apps/web/Right/Cousin`]: { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: {
+        [`${prefix}apps/web/Right/Cousin`]: [
+          `${prefix}apps/web/Left/A`,
+          `${prefix}apps/web/Left/B`,
+        ],
+      },
+    });
+    const config = cfg({ project, layers: { 'apps/web': { canImport: [] } } });
+    const v = analyzePlacement(g, config).get(`${prefix}apps/web/Right/Cousin`);
+    expect(v?.ruleId).toBe('lca-placement');
+    expect(v?.expected).toBe(`${prefix}apps/web/Left`);
+  });
+
+  it('roots the shared items/ path at the source root when the consumers share no ancestor', () => {
+    const g = makeGraph({
+      nodes: {
+        [`${prefix}Parent`]: { kind: 'folder', isEntity: true },
+        [`${prefix}Parent/A`]: { kind: 'folder', isEntity: true },
+        [`${prefix}Parent/B`]: { kind: 'folder', isEntity: true },
+        [`${prefix}Q`]: { kind: 'folder', isEntity: true },
+      },
+      entityConsumers: { [`${prefix}Parent/A`]: [`${prefix}Parent/B`, `${prefix}Q`] },
+    });
+    const v = analyzePlacement(g, cfg({ project })).get(`${prefix}Parent/A`);
+    expect(v?.ruleId).toBe('siblings-forbidden');
+    expect(v?.expected).toBe(`${prefix}items/A`);
+  });
+});

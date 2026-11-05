@@ -4,6 +4,7 @@
  * walk of per-folder drill-down sections, each a single diagram.
  */
 import type { ResolvedConfig } from '#foundation/config/types.js';
+import { canonicalDir } from '#foundation/entity-id/index.js';
 import { unitCoupling } from '#platform/graph/index.js';
 import type { ConsumerGraph, Edge } from '#platform/graph/types.js';
 import { cyclicNodes } from '#runner/graphdoc/scc.js';
@@ -93,7 +94,7 @@ function inSubsystem(slug: string, subsystem: string): boolean {
 /** Projects a ConsumerGraph into a layered GraphDoc render model. */
 export function buildGraphDoc(input: BuildGraphDocInput): GraphDoc {
   const { graph, fileoverviews, config, locByPath, subsystem } = input;
-  const root = config.project.sourceRoot;
+  const root = canonicalDir(config.project.sourceRoot);
   const tree = buildFolderTree(graph, root);
   const folders = sectionFolders(tree, root);
   const sectionSlugs = new Map<string, string>();
