@@ -1,6 +1,6 @@
 {
   "name": "@avavilov/arch-lint",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Static architecture linter for TypeScript projects",
   "license": "MIT",
   "author": "Andrey Vavilov <a@vavilov.dev>",
