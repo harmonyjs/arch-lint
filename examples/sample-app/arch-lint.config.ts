@@ -13,9 +13,9 @@ export default defineConfig({
   // meta — every internal import resolves; no expired suppressions.
   packs: ['layers', 'barrels', 'placement', 'meta'],
   layers: {
-    'src/app': { canImport: ['src/domain', 'src/support'] },
-    'src/domain': { canImport: ['src/support'] },
-    'src/support': { canImport: [] },
+    app: { canImport: ['domain', 'support'] },
+    domain: { canImport: ['support'] },
+    support: { canImport: [] },
   },
   // The example is genuinely clean — there is no baseline file to load, so a
   // missing baseline is a no-op rather than an error.

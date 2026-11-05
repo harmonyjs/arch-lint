@@ -8,6 +8,7 @@ import type { SuppressIndex } from '#foundation/suppress/types.js';
 import type { Diagnostic } from '#foundation/types/index.js';
 import { assertGraphProjectConsistent } from '#platform/ast/index.js';
 import type { ManifestBundle, Rule } from '#platform/engine/types.js';
+import { assertLayersReachFiles } from '#platform/graph/index.js';
 import type { ConsumerGraph } from '#platform/graph/types.js';
 import {
   buildCensusContext,
@@ -77,6 +78,9 @@ export function runEngine(inputs: EngineInputs, rules: readonly Rule[]): readonl
   const { graph, config, suppress, project, census, logger, telemetry } = inputs;
   if (rules.some((r) => r.engine === 'syntactic')) {
     assertGraphProjectConsistent(graph, project);
+  }
+  if (rules.some((r) => r.pack === 'layers')) {
+    assertLayersReachFiles(config.layers, config.project.sourceRoot, census);
   }
   const env: DispatchEnv = {
     graph,

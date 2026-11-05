@@ -10,10 +10,10 @@ export default {
   project: { tsconfig: './tsconfig.json', sourceRoot: 'src', cwd: projectRoot },
   packs: ['layers', 'barrels', 'placement', 'meta'],
   layers: {
-    'src/main.tsx': { canImport: ['src/App'] },
-    'src/App': { canImport: ['src/model', 'src/lib'] },
-    'src/model': { canImport: [] },
-    'src/lib': { canImport: [] },
+    'main.tsx': { canImport: ['App'] },
+    'App': { canImport: ['model', 'lib'] },
+    'model': { canImport: [] },
+    'lib': { canImport: [] },
   },
   baseline: { missingBehavior: 'ignore' },
   rules: {
