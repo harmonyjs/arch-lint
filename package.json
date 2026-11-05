@@ -29,7 +29,7 @@
     }
   },
   "bin": {
-    "arch-lint": "./bin/arch-lint.js"
+    "arch-lint": "bin/arch-lint.js"
   },
   "imports": {
     "#*": {
