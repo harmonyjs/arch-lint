@@ -138,5 +138,5 @@ dist
 # Local design specs and plans
 docs/superpowers/
 
-# Claude Code worktrees and local state
+# Local editor and agent state
 .claude/
