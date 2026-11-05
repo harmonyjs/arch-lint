@@ -4,6 +4,7 @@
  * Also builds the ModuleResolutionContext from a SourceFileSet's ts-morph project.
  */
 import { ts } from 'ts-morph';
+import { isDependencyPath } from '#foundation/file-classification/index.js';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
 
 export interface ModuleResolutionContext {
@@ -12,14 +13,16 @@ export interface ModuleResolutionContext {
 }
 
 export type ModuleResolutionResult =
-  | { readonly kind: 'internal'; readonly file: string }
+  | { readonly kind: 'internal'; readonly file: string; readonly linked?: true }
   | { readonly kind: 'external' }
   | { readonly kind: 'unresolved' };
 
 /**
  * Resolves `specifier` as imported from `fromFile`. Returns the absolute resolved
  * file path for project-internal modules, `external` for node_modules, or
- * `unresolved` when nothing matches.
+ * `unresolved` when nothing matches. A package found through node_modules whose
+ * real path lies outside every node_modules is a linked workspace package: it is
+ * internal, marked `linked`.
  */
 export function resolveSpecifier(
   fromFile: string,
@@ -36,10 +39,12 @@ export function resolveSpecifier(
   if (module === undefined) {
     return { kind: 'unresolved' };
   }
-  if (module.isExternalLibraryImport === true) {
-    return { kind: 'external' };
+  if (module.isExternalLibraryImport !== true) {
+    return { kind: 'internal', file: module.resolvedFileName };
   }
-  return { kind: 'internal', file: module.resolvedFileName };
+  return isDependencyPath(module.resolvedFileName)
+    ? { kind: 'external' }
+    : { kind: 'internal', file: module.resolvedFileName, linked: true };
 }
 
 /** Builds a ModuleResolutionContext backed by the ts-morph Project's compiler state. */

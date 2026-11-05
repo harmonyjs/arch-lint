@@ -43,7 +43,7 @@ export function resolveTarget(
   }
   const id = fileIdOf(result.file, ctx.sources);
   if (!ctx.sources.files.has(id)) {
-    return { kind: 'unresolved' };
+    return result.linked === true ? { kind: 'external' } : { kind: 'unresolved' };
   }
   return { kind: 'internal', file: id };
 }

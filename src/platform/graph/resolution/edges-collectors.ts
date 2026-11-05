@@ -46,7 +46,8 @@ export function resolveTargetFile(
     return r;
   }
   const id = fileIdOf(r.file, set);
-  return set.files.has(id) ? { kind: 'internal', file: id } : { kind: 'unresolved' };
+  if (set.files.has(id)) return { kind: 'internal', file: id };
+  return r.linked === true ? { kind: 'external' } : { kind: 'unresolved' };
 }
 
 /** Identifies one imported symbol and the declaration it came from. */
