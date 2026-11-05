@@ -9,6 +9,7 @@ import { createInterface } from 'node:readline/promises';
 import chokidar from 'chokidar';
 import type { Command } from 'commander';
 import { ConfigError } from '#foundation/errors/index.js';
+import { isDependencyPath } from '#foundation/file-classification/index.js';
 import type { Logger } from '#foundation/logger/index.js';
 import { runBaselineDiff, runBaselineInit, runBaselinePrune } from './baseline/command.js';
 import { runCheckCommand } from './check.js';
@@ -121,7 +122,8 @@ export function registerWatchCommand(program: Command, logger: Logger): void {
         cwd: process.cwd(),
         logger,
         ...(globals.config !== undefined ? { configPath: globals.config } : {}),
-        createWatcher: (sourceRoot) => chokidar.watch(sourceRoot, { ignoreInitial: true }),
+        createWatcher: (sourceRoot) =>
+          chokidar.watch(sourceRoot, { ignoreInitial: true, ignored: isDependencyPath }),
         print: (text) => void process.stdout.write(`${text}\n`),
         clearScreen: () => void process.stdout.write(CLEAR_SCREEN),
       });

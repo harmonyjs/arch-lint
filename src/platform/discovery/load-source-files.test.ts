@@ -2,7 +2,7 @@
  * @fileoverview Tests for source-file discovery: traversal, extension filter, ignore globs.
  */
 
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -37,6 +37,23 @@ describe('discoverSourceFilePaths', () => {
   });
 });
 
+describe('discoverSourceFilePaths — dependency folders', () => {
+  it('never descends into node_modules, even at a sourceRoot of the project root', async () => {
+    mkdirSync(join(dir, 'node_modules/dep'), { recursive: true });
+    mkdirSync(join(dir, 'src/node_modules/nested'), { recursive: true });
+    writeFileSync(join(dir, 'node_modules/dep/index.d.ts'), 'export {};');
+    writeFileSync(join(dir, 'src/node_modules/nested/index.ts'), 'export {};');
+    const paths = await discoverSourceFilePaths({
+      cwd: dir,
+      sourceRoot: '.',
+      extensions: ['.ts', '.tsx'],
+      ignore: [],
+    });
+    expect(paths.filter((p) => p.includes('node_modules'))).toEqual([]);
+    expect(paths).toContain('src/App/util.ts');
+  });
+});
+
 describe('loadSourceFiles', () => {
   it('builds a ts-morph Project with a file registry keyed by file id', async () => {
     writeFileSync(join(dir, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}');
@@ -54,7 +71,7 @@ describe('loadSourceFiles', () => {
     const appFile = set.files.get('src/App/App.tsx');
     expect(appFile).toBeDefined();
     expect(appFile?.getVariableDeclaration('App')).toBeDefined();
-    expect(set.rootDir).toBe(join(dir, 'src'));
+    expect(set.rootDir).toBe(join(realpathSync(dir), 'src'));
   });
 });
 

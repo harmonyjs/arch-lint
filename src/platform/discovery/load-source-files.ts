@@ -3,13 +3,14 @@
  * the ts-morph Project that backs syntactic graph analysis (without
  * type-checker program resolution), and returns it as a SourceFileSet.
  */
+import { realpathSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import { Project, type SourceFile } from 'ts-morph';
 import type { ResolvedConfig } from '#foundation/config/types.js';
 import { baseNameOf } from '#foundation/entity-id/index.js';
-import { isTestFile } from '#foundation/file-classification/index.js';
+import { DEPENDENCY_DIR, isTestFile } from '#foundation/file-classification/index.js';
 import type { SourceFileSet } from '#foundation/source-files/index.js';
 
 export interface DiscoverOptions {
@@ -31,6 +32,7 @@ export async function discoverSourceFilePaths(options: DiscoverOptions): Promise
     absolute: false,
     onlyFiles: true,
     dot: false,
+    ignore: [`**/${DEPENDENCY_DIR}/**`],
   });
   const isIgnored = picomatch(options.ignore as string[], { dot: true });
   return found
@@ -45,7 +47,8 @@ export async function discoverSourceFilePaths(options: DiscoverOptions): Promise
  * maps POSIX file ids (relative to cwd) to their parsed SourceFile.
  */
 export async function loadSourceFiles(config: ResolvedConfig): Promise<SourceFileSet> {
-  const cwd = resolve(config.project.cwd);
+  // The resolver hands back real paths; ids taken against a symlinked cwd would never match them.
+  const cwd = realpathSync(resolve(config.project.cwd));
   const tsConfigFilePath = resolve(cwd, config.project.tsconfig);
   const project = new Project({
     tsConfigFilePath,

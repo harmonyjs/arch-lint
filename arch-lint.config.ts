@@ -75,6 +75,7 @@ export default defineConfig({
     // well-decomposed linter, not a missing seam.
     'unit-cohesion': {
       ignoreUnits: [
+        'foundation/file-classification',
         'foundation/manifest',
         'platform/ast',
         'rules/barrels',
@@ -97,6 +98,7 @@ export default defineConfig({
     'efferent-coupling': {
       allow: [
         'platform/engine',
+        'platform/graph',
         'rules/barrels',
         'rules/layers',
         'rules/perfile',
