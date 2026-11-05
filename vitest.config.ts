@@ -8,6 +8,9 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     exclude: [...configDefaults.exclude, 'src/**/fixtures/**'],
+    // A ts-morph Project and the e2e builds blow past 5s on a loaded machine.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],

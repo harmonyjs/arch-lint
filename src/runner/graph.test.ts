@@ -2,18 +2,22 @@
  * @fileoverview Integration test for runGraphCommand — confirms the topology
  * observations section is present in the rendered document.
  */
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { runGraphCommand } from './graph.js';
 
 describe('runGraphCommand — shape integration', () => {
-  it('includes the topology observations section in the rendered document', async () => {
-    const outcome = await runGraphCommand({ cwd: process.cwd() });
+  let outcome: Awaited<ReturnType<typeof runGraphCommand>>;
+
+  beforeAll(async () => {
+    outcome = await runGraphCommand({ cwd: process.cwd() });
+  });
+
+  it('includes the topology observations section in the rendered document', () => {
     expect(outcome.exitCode).toBe(0);
     expect(outcome.stdout).toContain('## Topology observations');
   });
 
-  it('positions the topology observations section between Legend and the first section', async () => {
-    const outcome = await runGraphCommand({ cwd: process.cwd() });
+  it('positions the topology observations section between Legend and the first section', () => {
     const legendIdx = outcome.stdout.indexOf('## Legend');
     const topologyIdx = outcome.stdout.indexOf('## Topology observations');
     const overviewIdx = outcome.stdout.indexOf('## Overview');
